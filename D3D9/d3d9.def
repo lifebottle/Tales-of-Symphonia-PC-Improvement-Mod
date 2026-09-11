@@ -1,0 +1,17 @@
+; Tales of Symphonia PC Improvement Mod - d3d9.dll exports
+; All standard d3d9.dll exports must be present or the game crashes on load.
+LIBRARY d3d9
+EXPORTS
+    Direct3DCreate9            @1
+    Direct3DCreate9Ex          @2
+    Direct3DCreate9On12        @3
+    Direct3DCreate9On12Ex      @4
+    D3DPERF_BeginEvent         @5
+    D3DPERF_EndEvent           @6
+    D3DPERF_GetStatus          @7
+    D3DPERF_QueryRepeatFrame   @8
+    D3DPERF_SetMarker          @9
+    D3DPERF_SetOptions         @10
+    D3DPERF_SetRegion          @11
+    DebugSetLevel              @12
+    DebugSetMute               @13
