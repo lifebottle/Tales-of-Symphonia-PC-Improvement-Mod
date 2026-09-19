@@ -40,8 +40,8 @@ void TextureManager::Init(const std::wstring& basePath) {
 }
 
 void TextureManager::LoadConfig() {
-    // Load config from textures/config.ini if it exists
-    std::wstring configPath = m_basePath + L"\\textures\\config.ini";
+    // Load config from d3d9_config.ini if it exists
+    std::wstring configPath = m_basePath + L"\\d3d9_config.ini";
 
     // Simple INI parsing
     wchar_t buf[64];
@@ -59,7 +59,7 @@ void TextureManager::LoadConfig() {
             fprintf(f, "; Set to 1 to replace textures from textures/replace/\n");
             fprintf(f, "; Place your replacement DDS files named by CRC32 hash\n");
             fprintf(f, "ReplaceTextures=1\n\n");
-            fprintf(f, "; Set to 1 to enable logging to tos_improvement_mod.log\n");
+            fprintf(f, "; Set to 1 to log texture hashes, replacements and dumps to tos_improvement_mod.log\n");
             fprintf(f, "EnableLogging=1\n\n");
             fprintf(f, "; Set to 1 to load D3DX textures at their native DDS resolution\n");
             fprintf(f, "; instead of the size the game requests (needed for hi-res PATCH textures)\n");
@@ -249,7 +249,9 @@ void TextureManager::DumpTexture(uint32_t crc32, IDirect3DTexture9* pTexture) {
                 }
             }
             fclose(f);
-            LOG("[TexMgr] Dumped texture %08X (%ux%u)", crc32, desc.Width, desc.Height);
+            if (m_loggingEnabled) {
+                LOG("[TexMgr] Dumped texture %08X (%ux%u)", crc32, desc.Width, desc.Height);
+            }
         }
         pTexture->UnlockRect(0);
     }
@@ -281,7 +283,9 @@ IDirect3DTexture9* TextureManager::GetReplacementTexture(IDirect3DDevice9* pDevi
         // Cache it (the cache holds one reference)
         m_textureCache[crc32] = pNewTex;
         pNewTex->AddRef(); // One for cache, one for caller
-        LOG("[TexMgr] Loaded replacement texture %08X", crc32);
+        if (m_loggingEnabled) {
+            LOG("[TexMgr] Loaded replacement texture %08X", crc32);
+        }
         return pNewTex;
     }
 

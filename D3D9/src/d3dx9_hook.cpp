@@ -111,8 +111,10 @@ static HRESULT WINAPI Hook_D3DXCreateTextureFromFileInMemoryEx(
     if (SUCCEEDED(hr) && ppTexture && *ppTexture && crc != 0) {
         std::lock_guard<std::mutex> lock(g_mapMutex);
         g_texHashMap[*ppTexture] = crc;
-        LOG("[D3DX] Tracked texture %p  CRC32=%08X  %ux%u  fmt=%d",
-            *ppTexture, crc, Width, Height, Format);
+        if (TextureManager::Instance().IsLoggingEnabled()) {
+            LOG("[D3DX] Tracked texture %p  CRC32=%08X  %ux%u  fmt=%d",
+                *ppTexture, crc, Width, Height, Format);
+        }
     }
 
     return hr;
@@ -134,8 +136,10 @@ static HRESULT WINAPI Hook_D3DXCreateTextureFromFileInMemory(
     if (SUCCEEDED(hr) && ppTexture && *ppTexture && crc != 0) {
         std::lock_guard<std::mutex> lock(g_mapMutex);
         g_texHashMap[*ppTexture] = crc;
-        LOG("[D3DX] Tracked texture %p  CRC32=%08X  (non-Ex)",
-            *ppTexture, crc);
+        if (TextureManager::Instance().IsLoggingEnabled()) {
+            LOG("[D3DX] Tracked texture %p  CRC32=%08X  (non-Ex)",
+                *ppTexture, crc);
+        }
     }
 
     return hr;

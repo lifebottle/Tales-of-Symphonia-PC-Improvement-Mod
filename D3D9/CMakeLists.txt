@@ -13,6 +13,10 @@ add_library(d3d9 SHARED
     src/d3dx9_hook.cpp
     src/texture_manager.cpp
     src/dds_loader.cpp
+    src/battle_patches.cpp
+    src/patch_definitions.cpp
+    src/patch_runtime.cpp
+    src/patch_host.cpp
     src/game_patches.cpp
     src/fast_forward.cpp
     src/fast_forward_overlay.cpp
@@ -59,3 +63,10 @@ if(MINGW)
         -Wl,--gc-sections -s
     )
 endif()
+
+# Ready-to-copy release layout. Assembly/Python are only needed to assemble native hooks.
+add_custom_command(TARGET d3d9 POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:d3d9>/patches"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${CMAKE_CURRENT_SOURCE_DIR}/patches/battle-enhancements.json"
+        "$<TARGET_FILE_DIR:d3d9>/patches/battle-enhancements.json")

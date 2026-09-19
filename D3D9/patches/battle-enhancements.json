@@ -1,0 +1,4378 @@
+{
+  "id": "battle-enhancements",
+  "version": "1.2.1",
+  "config_section": "BattleEnhancements",
+  "image_size": "0x2b00000",
+  "image_base": "0x400000",
+  "features": [
+    {
+      "key": "ArtesSphere"
+    },
+    {
+      "key": "NewFreeRun",
+      "requires": [
+        "ArtesSphere"
+      ]
+    },
+    {
+      "key": "ManualOverLimit",
+      "requires": [
+        "ArtesSphere"
+      ]
+    },
+    {
+      "key": "OverLimitGauge"
+    },
+    {
+      "key": "SpellQueueFix",
+      "requires": []
+    }
+  ],
+  "segments": [
+    {
+      "id": ".payload_e2109_Mem_BattleMenu_Enter",
+      "group": "ArtesSphere",
+      "kind": "code",
+      "name": "Detect Battle Menu",
+      "bytes": "c6 05 00 00 00 00 01 c6 86 ce 93 00 00 01 e9 fc ff ff ff",
+      "size": 100
+    },
+    {
+      "id": ".payload_e2109_Mem_BattleMenu_Exit",
+      "group": "ArtesSphere",
+      "kind": "code",
+      "name": "Detect Battle Menu",
+      "bytes": "c6 05 00 00 00 00 00 c6 86 ce 93 00 00 00 e9 fc ff ff ff",
+      "size": 100
+    },
+    {
+      "id": ".payload_BattleMenu",
+      "group": "ArtesSphere",
+      "kind": "data",
+      "name": "Detect Battle Menu",
+      "bytes": "00"
+    },
+    {
+      "id": ".patch_2109_1",
+      "group": "ArtesSphere",
+      "kind": "patch",
+      "name": "Detect Battle Menu",
+      "bytes": "e9 fc ff ff ff 90 90",
+      "rva": "0x5d8a3",
+      "expected": "c6 86 ce 93 00 00 01"
+    },
+    {
+      "id": ".patch_2109_2",
+      "group": "ArtesSphere",
+      "kind": "patch",
+      "name": "Detect Battle Menu",
+      "bytes": "e9 fc ff ff ff 90 90",
+      "rva": "0x5d8f7",
+      "expected": "c6 86 ce 93 00 00 00"
+    },
+    {
+      "id": ".payload_e2118_Mem_ShortcutState_Exit",
+      "group": "ArtesSphere",
+      "kind": "code",
+      "name": "Detect Shortcut State",
+      "bytes": "c6 05 00 00 00 00 00 66 89 15 c8 3a 71 00 e9 fc ff ff ff",
+      "size": 100
+    },
+    {
+      "id": ".payload_e2118_Mem_ShortcutState_Enter",
+      "group": "ArtesSphere",
+      "kind": "code",
+      "name": "Detect Shortcut State",
+      "bytes": "c6 05 00 00 00 00 01 c6 05 c9 3a 71 00 05 e9 fc ff ff ff",
+      "size": 100
+    },
+    {
+      "id": ".payload_ShortcutState",
+      "group": "ArtesSphere",
+      "kind": "data",
+      "name": "Detect Shortcut State",
+      "bytes": "00"
+    },
+    {
+      "id": ".patch_2118_1",
+      "group": "ArtesSphere",
+      "kind": "patch",
+      "name": "Detect Shortcut State",
+      "bytes": "e9 fc ff ff ff 90 90",
+      "rva": "0x124c02",
+      "expected": "66 89 15 c8 3a b1 00"
+    },
+    {
+      "id": ".patch_2118_2",
+      "group": "ArtesSphere",
+      "kind": "patch",
+      "name": "Detect Shortcut State",
+      "bytes": "e9 fc ff ff ff 90 90",
+      "rva": "0x1255e6",
+      "expected": "c6 05 c9 3a b1 00 05"
+    },
+    {
+      "id": ".payload_e2120_Mem_ArtesMenu_Enter",
+      "group": "ArtesSphere",
+      "kind": "code",
+      "name": "Detect Artes Menu State",
+      "bytes": "c6 05 00 00 00 00 01 66 c7 05 c4 3a 71 00 00 00 e9 fc ff ff ff",
+      "size": 100
+    },
+    {
+      "id": ".payload_e2120_Mem_ArtesMenu_Exit",
+      "group": "ArtesSphere",
+      "kind": "code",
+      "name": "Detect Artes Menu State",
+      "bytes": "c6 05 00 00 00 00 00 c6 05 c5 3a 71 00 04 e9 fc ff ff ff",
+      "size": 100
+    },
+    {
+      "id": ".payload_e2120_Mem_ArtesMenuHMN_Exit",
+      "group": "ArtesSphere",
+      "kind": "code",
+      "name": "Detect Artes Menu State",
+      "bytes": "c6 05 00 00 00 00 00 c6 05 c5 3a 71 00 04 e9 fc ff ff ff",
+      "size": 100
+    },
+    {
+      "id": ".payload_e2120_Mem_ArtesMenuCPU_Exit",
+      "group": "ArtesSphere",
+      "kind": "code",
+      "name": "Detect Artes Menu State",
+      "bytes": "c6 05 00 00 00 00 00 c6 05 c5 3a 71 00 04 e9 fc ff ff ff",
+      "size": 100
+    },
+    {
+      "id": ".payload_ArtesMenu",
+      "group": "ArtesSphere",
+      "kind": "data",
+      "name": "Detect Artes Menu State",
+      "bytes": "00"
+    },
+    {
+      "id": ".patch_2120_1",
+      "group": "ArtesSphere",
+      "kind": "patch",
+      "name": "Detect Artes Menu State",
+      "bytes": "e9 fc ff ff ff 90 90 90 90",
+      "rva": "0x124d98",
+      "expected": "66 c7 05 c4 3a b1 00 00 00"
+    },
+    {
+      "id": ".patch_2120_2",
+      "group": "ArtesSphere",
+      "kind": "patch",
+      "name": "Detect Artes Menu State",
+      "bytes": "e9 fc ff ff ff 90 90",
+      "rva": "0x124eb3",
+      "expected": "c6 05 c5 3a b1 00 04"
+    },
+    {
+      "id": ".patch_2120_3",
+      "group": "ArtesSphere",
+      "kind": "patch",
+      "name": "Detect Artes Menu State",
+      "bytes": "e9 fc ff ff ff 90 90",
+      "rva": "0x125617",
+      "expected": "c6 05 c5 3a b1 00 04"
+    },
+    {
+      "id": ".patch_2120_4",
+      "group": "ArtesSphere",
+      "kind": "patch",
+      "name": "Detect Artes Menu State",
+      "bytes": "e9 fc ff ff ff 90 90",
+      "rva": "0x1265ad",
+      "expected": "c6 05 c5 3a b1 00 04"
+    },
+    {
+      "id": ".payload_e2122_Mem_UnisonMenu_Enter",
+      "group": "ArtesSphere",
+      "kind": "code",
+      "name": "Detect Unison Menu State",
+      "bytes": "c6 05 00 00 00 00 01 66 c7 05 18 19 83 01 00 00 e9 fc ff ff ff",
+      "size": 100
+    },
+    {
+      "id": ".payload_e2122_Mem_UnisonMenu_Exit",
+      "group": "ArtesSphere",
+      "kind": "code",
+      "name": "Detect Unison Menu State",
+      "bytes": "c6 05 00 00 00 00 00 c6 05 19 19 83 01 04 e9 fc ff ff ff",
+      "size": 100
+    },
+    {
+      "id": ".payload_UnisonMenu",
+      "group": "ArtesSphere",
+      "kind": "data",
+      "name": "Detect Unison Menu State",
+      "bytes": "00"
+    },
+    {
+      "id": ".patch_2122_1",
+      "group": "ArtesSphere",
+      "kind": "patch",
+      "name": "Detect Unison Menu State",
+      "bytes": "e9 fc ff ff ff 90 90 90 90",
+      "rva": "0x127b3a",
+      "expected": "66 c7 05 18 19 c3 01 00 00"
+    },
+    {
+      "id": ".patch_2122_2",
+      "group": "ArtesSphere",
+      "kind": "patch",
+      "name": "Detect Unison Menu State",
+      "bytes": "e9 fc ff ff ff 90 90",
+      "rva": "0x1280be",
+      "expected": "c6 05 19 19 c3 01 04"
+    },
+    {
+      "id": ".payload_e2272_Mem_CharState",
+      "group": "ArtesSphere",
+      "kind": "code",
+      "name": "Detect Character State",
+      "bytes": "8a 87 b0 01 00 00 52 0f b6 97 21 13 00 00 83 e2 03 88 82 00 00 00 00 5a e9 fc ff ff ff",
+      "size": 296
+    },
+    {
+      "id": ".payload_CurrentState",
+      "group": "ArtesSphere",
+      "kind": "data",
+      "name": "Detect Character State",
+      "bytes": "00 00 00 00"
+    },
+    {
+      "id": ".patch_2272_1",
+      "group": "ArtesSphere",
+      "kind": "patch",
+      "name": "Detect Character State",
+      "bytes": "e9 fc ff ff ff 90",
+      "rva": "0x497aa",
+      "expected": "8a 87 b0 01 00 00"
+    },
+    {
+      "id": ".payload_e2444_Mem_ButtonInputs",
+      "group": "ArtesSphere",
+      "kind": "code",
+      "name": "Inputs [NEW]",
+      "bytes": "9c 50 a1 68 3f 6d 00 85 c0 0f 84 24 04 00 00 89 d8 2d 20 de a2 00 a9 3f 00 00 00 0f 85 12 04 00 00 3d c0 00 00 00 0f 87 07 04 00 00 58 9d 50 56 57 81 eb 20 de a2 00 c1 eb 06 88 1d 00 00 00 00 e8 fc ff ff ff 52 8b 15 68 3f 6d 00 80 bc 1a 4d 0f 00 00 00 5a 0f 84 6d 02 00 00 80 3d 00 00 00 00 00 74 27 80 3d 00 00 00 00 01 74 1e 66 81 25 00 00 00 00 ff f2 eb 13 f7 d3 66 21 1d 00 00 00 00 e8 fc ff ff ff e9 3d 02 00 00 80 3d 00 00 00 00 01 74 56 80 3d 00 00 00 00 01 74 2f 88 0d 00 00 00 00 66 c7 05 00 00 00 00 00 00 52 8b 15 68 3f 6d 00 66 83 ba 92 01 00 00 00 5a 0f 84 06 02 00 00 e8 fc ff ff ff e9 fc 01 00 00 66 83 3d 08 19 83 01 01 0f 84 ee 01 00 00 0f b7 0d 1e 19 83 01 bb 01 00 00 00 d3 e3 eb 68 8b 0d be 3a 71 00 38 0d 00 00 00 00 75 a5 88 0d 00 00 00 00 66 83 3d b0 3a 71 00 02 0f 87 bc 01 00 00 0f 85 b6 01 00 00 80 3d 00 00 00 00 01 0f 84 a9 01 00 00 0f b6 1d be 3a 71 00 e8 fc ff ff ff 52 8b 15 68 3f 6d 00 66 83 ba 92 01 00 00 00 5a 74 15 52 8b 15 68 3f 6d 00 66 85 9a 92 01 00 00 5a 0f 84 4b ff ff ff 80 b8 05 00 00 00 01 0f 85 69 01 00 00 66 31 1d 00 00 00 00 b9 1f 00 00 00 e8 ac e5 12 00 e8 fc ff ff ff e9 4e 01 00 00 66 89 0d 00 00 00 00 89 d8 6b c0 10 0f b6 0d 00 00 00 00 ba 01 00 00 00 66 d3 e2 01 c1 66 85 15 00 00 00 00 74 11 80 b9 00 00 00 00 ff 73 0f fe 81 00 00 00 00 eb 07 c6 81 00 00 00 00 00 fe 05 00 00 00 00 80 3d 00 00 00 00 10 72 bf c6 05 00 00 00 00 00 c3 f7 d3 66 21 1d 00 00 00 00 c3 66 c7 05 00 00 00 00 00 00 e8 fc ff ff ff c3 52 8b 15 68 3f 6d 00 8d b2 14 01 00 00 5a 52 8b 15 68 3f 6d 00 8d ba 40 04 00 00 5a 0f b6 0d 00 00 00 00 0f b7 1d 00 00 00 00 52 8b 15 68 3f 6d 00 0f b7 82 92 01 00 00 5a 66 d3 e8 66 d3 eb 66 83 e0 01 66 83 e3 01 66 39 c3 74 37 8b 0e 87 0f 89 0e 83 c6 04 83 c7 04 fe 05 01 00 00 00 80 3d 01 00 00 00 04 72 e5 c6 05 01 00 00 00 00 83 ee 02 83 ef 02 0f b7 0e 66 87 0f 66 89 0e 83 ee 0e 83 ef 0e 83 c6 0e 81 c7 18 01 00 00 fe 05 00 00 00 00 80 3d 00 00 00 00 09 72 81 c6 05 00 00 00 00 00 0f b7 1d 00 00 00 00 52 8b 15 68 3f 6d 00 66 89 9a 92 01 00 00 5a c3 52 8b 15 68 3f 6d 00 0f b6 8c 1a 4d 0f 00 00 5a 83 e9 01 bb 01 00 00 00 d3 e3 c3 b8 10 00 00 00 f6 25 00 00 00 00 c3 80 3d 00 00 00 00 00 0f 84 22 01 00 00 0f b6 0d 00 00 00 00 89 c8 6b c0 10 f6 05 00 00 00 00 01 0f 85 91 00 00 00 50 0f b6 81 00 00 00 00 02 81 00 00 00 00 3c 00 58 75 31 80 b9 00 00 00 00 04 74 16 80 b9 00 00 00 00 05 74 0d 80 b9 00 00 00 00 02 0f 87 ff 00 00 00 80 b8 0a 00 00 00 00 74 56 c6 81 00 00 00 00 01 eb 00 80 b8 0c 00 00 00 00 74 09 c6 81 00 00 00 00 01 eb 07 c6 81 00 00 00 00 00 80 b8 0d 00 00 00 00 74 09 c6 81 00 00 00 00 01 eb 07 c6 81 00 00 00 00 00 80 b8 0e 00 00 00 00 74 09 c6 81 00 00 00 00 01 eb 49 c6 81 00 00 00 00 00 eb 40 f6 81 00 00 00 00 01 74 10 80 b8 0c 00 00 00 00 75 07 c6 81 00 00 00 00 00 f6 81 00 00 00 00 01 74 10 80 b8 0d 00 00 00 00 75 07 c6 81 00 00 00 00 00 c6 81 00 00 00 00 00 c6 81 00 00 00 00 00 f6 81 00 00 00 00 01 74 09 66 81 25 00 00 00 00 ff ef f6 81 00 00 00 00 01 74 09 66 81 25 00 00 00 00 ff df f6 81 00 00 00 00 01 74 33 66 81 25 00 00 00 00 ff bf eb 28 c7 05 00 00 00 00 00 00 00 00 c7 05 00 00 00 00 00 00 00 00 c7 05 00 00 00 00 00 00 00 00 c7 05 00 00 00 00 00 00 00 00 5f 5e 58 0f b7 0d 00 00 00 00 89 4e 10 89 ca e9 fc ff ff ff 58 9d 89 4e 10 89 ca e9 fc ff ff ff",
+      "size": 8192
+    },
+    {
+      "id": ".payload_ControlID",
+      "group": "ArtesSphere",
+      "kind": "data",
+      "name": "Inputs [NEW]",
+      "bytes": "00"
+    },
+    {
+      "id": ".payload_UnisonID",
+      "group": "ArtesSphere",
+      "kind": "data",
+      "name": "Inputs [NEW]",
+      "bytes": "00 00"
+    },
+    {
+      "id": ".payload_LoopCounter",
+      "group": "ArtesSphere",
+      "kind": "data",
+      "name": "Inputs [NEW]",
+      "bytes": "00 00"
+    },
+    {
+      "id": ".payload_MainControls",
+      "group": "ArtesSphere",
+      "kind": "data",
+      "name": "Inputs [NEW]",
+      "bytes": "00 00"
+    },
+    {
+      "id": ".payload_StoredControls",
+      "group": "ArtesSphere",
+      "kind": "data",
+      "name": "Inputs [NEW]",
+      "bytes": "00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00"
+    },
+    {
+      "id": ".payload_PageSwitch",
+      "group": "ArtesSphere",
+      "kind": "data",
+      "name": "Inputs [NEW]",
+      "bytes": "00 00"
+    },
+    {
+      "id": ".payload_FreeRunActive",
+      "group": "ArtesSphere",
+      "kind": "data",
+      "name": "Inputs [NEW]",
+      "bytes": "00"
+    },
+    {
+      "id": ".payload_LockA",
+      "group": "ArtesSphere",
+      "kind": "data",
+      "name": "Inputs [NEW]",
+      "bytes": "00 00 00 00"
+    },
+    {
+      "id": ".payload_LockB",
+      "group": "ArtesSphere",
+      "kind": "data",
+      "name": "Inputs [NEW]",
+      "bytes": "00 00 00 00"
+    },
+    {
+      "id": ".payload_LockX",
+      "group": "ArtesSphere",
+      "kind": "data",
+      "name": "Inputs [NEW]",
+      "bytes": "00 00 00 00"
+    },
+    {
+      "id": ".payload_LockRS",
+      "group": "ArtesSphere",
+      "kind": "data",
+      "name": "Inputs [NEW]",
+      "bytes": "00 00 00 00"
+    },
+    {
+      "id": ".payload_CharBuffer",
+      "group": "ArtesSphere",
+      "kind": "data",
+      "name": "Inputs [NEW]",
+      "bytes": "00 00"
+    },
+    {
+      "id": ".payload_PageCache",
+      "group": "ArtesSphere",
+      "kind": "data",
+      "name": "Inputs [NEW]",
+      "bytes": "00 00"
+    },
+    {
+      "id": ".patch_2444_1",
+      "group": "ArtesSphere",
+      "kind": "patch",
+      "name": "Inputs [NEW]",
+      "bytes": "e9 fc ff ff ff",
+      "rva": "0x211a73",
+      "expected": "89 4e 10 8b d1"
+    },
+    {
+      "id": ".payload_e2679_Mem_ArtePageIndicator",
+      "group": "ArtesSphere",
+      "kind": "code",
+      "name": "Arte Page Indicator",
+      "bytes": "e8 4c 22 13 00 0f b6 15 be 3a 71 00 80 fa 04 0f 8d fc ff ff ff 8b 0d 68 3f 6d 00 80 bc 0a 55 0f 00 00 02 0f 8d fc ff ff ff 8b 4d 10 31 d2 66 83 3d 00 00 00 00 00 75 19 8d 05 00 00 00 00 c7 44 24 04 77 00 00 00 81 c7 42 01 00 00 89 3c 24 eb 1c 8d 05 05 00 00 00 8b 4d 10 31 d2 c7 44 24 04 77 00 00 00 81 c7 4c 01 00 00 89 3c 24 8d 7b 0c e8 4c 22 13 00 e9 fc ff ff ff",
+      "size": 4096
+    },
+    {
+      "id": ".payload_PageString",
+      "group": "ArtesSphere",
+      "kind": "code",
+      "name": "Arte Page Indicator",
+      "bytes": "4d 61 69 6e 00 53 75 62 00 00",
+      "size": 16
+    },
+    {
+      "id": ".patch_2679_1",
+      "group": "ArtesSphere",
+      "kind": "patch",
+      "name": "Arte Page Indicator",
+      "bytes": "e9 fc ff ff ff",
+      "rva": "0x120b83",
+      "expected": "e8 c8 16 01 00"
+    },
+    {
+      "id": ".payload_e2687_Mem_UnisonPageIndicator",
+      "group": "ArtesSphere",
+      "kind": "code",
+      "name": "Unison Arte Page Indicator",
+      "bytes": "e8 4c 22 13 00 52 8b 15 68 3f 6d 00 0f b6 8c 3a 4d 0f 00 00 5a 49 b8 01 00 00 00 d3 e0 66 85 05 00 00 00 00 8d 43 2d 75 10 05 40 01 00 00 89 04 24 8d 05 00 00 00 00 eb 0e 05 4a 01 00 00 89 04 24 8d 05 05 00 00 00 e8 4c 22 13 00 8b 44 24 40 e9 fc ff ff ff",
+      "size": 4096
+    },
+    {
+      "id": ".patch_2687_1",
+      "group": "ArtesSphere",
+      "kind": "patch",
+      "name": "Unison Arte Page Indicator",
+      "bytes": "e9 fc ff ff ff",
+      "rva": "0x1270f0",
+      "expected": "e8 5b b1 00 00"
+    },
+    {
+      "id": ".payload_e2473_Mem_BattleArteBuffer",
+      "group": "ArtesSphere",
+      "kind": "code",
+      "name": "Arte Sphere Set Buffer (1st Attack)",
+      "bytes": "8b b0 70 90 00 00 81 ce 00 0c 00 00 21 d6 0f 84 4b 5d 07 00 51 0f b6 8f 21 13 00 00 83 e1 03 6b c9 10 50 80 b9 08 00 00 00 00 75 12 e8 fc ff ff ff f7 d0 21 c1 66 89 0d 00 00 00 00 eb 27 e8 fc ff ff ff 09 c1 66 89 0d 00 00 00 00 eb 17 0f b6 8f 22 13 00 00 49 b8 01 00 00 00 d3 e0 0f b7 0d 00 00 00 00 c3 58 59 8b b0 70 90 00 00 e9 fc ff ff ff",
+      "size": 4096
+    },
+    {
+      "id": ".patch_2473_1",
+      "group": "ArtesSphere",
+      "kind": "patch",
+      "name": "Arte Sphere Set Buffer (1st Attack)",
+      "bytes": "e9 fc ff ff ff 90",
+      "rva": "0x75d2c",
+      "expected": "8b b0 70 90 00 00"
+    },
+    {
+      "id": ".payload_e2476_Mem_BattleArteBufferCombo",
+      "group": "ArtesSphere",
+      "kind": "code",
+      "name": "Arte Sphere Set Buffer (Combo)",
+      "bytes": "50 8b 80 70 90 00 00 0d 00 0c 00 00 21 c8 58 0f 84 e5 46 03 00 51 0f b6 8e 21 13 00 00 83 e1 03 6b c9 10 50 80 b9 08 00 00 00 00 75 12 e8 fc ff ff ff f7 d0 21 c1 66 89 0d 00 00 00 00 eb 27 e8 fc ff ff ff 09 c1 66 89 0d 00 00 00 00 eb 17 0f b6 8e 22 13 00 00 49 b8 01 00 00 00 d3 e0 0f b7 0d 00 00 00 00 c3 58 59 85 88 70 90 00 00 e9 fc ff ff ff",
+      "size": 4096
+    },
+    {
+      "id": ".patch_2476_1",
+      "group": "ArtesSphere",
+      "kind": "patch",
+      "name": "Arte Sphere Set Buffer (Combo)",
+      "bytes": "e9 fc ff ff ff 90",
+      "rva": "0x346a5",
+      "expected": "85 88 70 90 00 00"
+    },
+    {
+      "id": ".payload_e2475_Mem_BattleArteBufferAir",
+      "group": "ArtesSphere",
+      "kind": "code",
+      "name": "Arte Sphere Set Buffer (Air)",
+      "bytes": "8b 81 70 90 00 00 0d 00 0c 00 00 85 02 0f 84 77 5a 07 00 51 0f b6 8f 21 13 00 00 83 e1 03 6b c9 10 50 80 b9 08 00 00 00 00 75 12 e8 fc ff ff ff f7 d0 21 c1 66 89 0d 00 00 00 00 eb 27 e8 fc ff ff ff 09 c1 66 89 0d 00 00 00 00 eb 17 0f b6 8f 22 13 00 00 49 b8 01 00 00 00 d3 e0 0f b7 0d 00 00 00 00 c3 58 59 8b 81 70 90 00 00 e9 fc ff ff ff",
+      "size": 4096
+    },
+    {
+      "id": ".patch_2475_1",
+      "group": "ArtesSphere",
+      "kind": "patch",
+      "name": "Arte Sphere Set Buffer (Air)",
+      "bytes": "e9 fc ff ff ff 90",
+      "rva": "0x75a1f",
+      "expected": "8b 81 70 90 00 00"
+    },
+    {
+      "id": ".payload_e2477_Mem_BattleArte",
+      "group": "ArtesSphere",
+      "kind": "code",
+      "name": "Arte Sphere Check (1st Attack)",
+      "bytes": "53 51 0f b6 8f 22 13 00 00 49 bb 01 00 00 00 d3 e3 0f b7 0d 00 00 00 00 66 85 d9 75 10 59 5b 66 83 bc 4b d8 00 00 00 00 e9 fc ff ff ff 0f b6 9f 22 13 00 00 4b 6b db 0e 52 8b 15 68 3f 6d 00 8d 8a 14 01 00 00 5a 01 cb 59 66 83 3c 4b 00 5b e9 fc ff ff ff",
+      "size": 4096
+    },
+    {
+      "id": ".patch_2477_1",
+      "group": "ArtesSphere",
+      "kind": "patch",
+      "name": "Arte Sphere Check (1st Attack)",
+      "bytes": "e9 fc ff ff ff 90 90 90 90",
+      "rva": "0x75d3f",
+      "expected": "66 83 bc 4b d8 00 00 00 00"
+    },
+    {
+      "id": ".payload_e2478_Mem_BattleArteSelect",
+      "group": "ArtesSphere",
+      "kind": "code",
+      "name": "Arte Sphere Use (1st Attack)",
+      "bytes": "53 51 0f b6 8f 22 13 00 00 49 bb 01 00 00 00 d3 e3 0f b7 0d 00 00 00 00 66 85 d9 75 0f 59 5b 0f b7 84 4a d8 00 00 00 e9 fc ff ff ff 0f b6 9f 22 13 00 00 4b 6b db 0e 52 8b 15 68 3f 6d 00 8d 8a 14 01 00 00 5a 01 cb 59 0f b7 04 4b 5b e9 fc ff ff ff",
+      "size": 4096
+    },
+    {
+      "id": ".patch_2478_1",
+      "group": "ArtesSphere",
+      "kind": "patch",
+      "name": "Arte Sphere Use (1st Attack)",
+      "bytes": "e9 fc ff ff ff 90 90 90",
+      "rva": "0x76129",
+      "expected": "0f b7 84 4a d8 00 00 00"
+    },
+    {
+      "id": ".payload_e2479_Mem_BattleArteCombo",
+      "group": "ArtesSphere",
+      "kind": "code",
+      "name": "Arte Sphere Check (Combo)",
+      "bytes": "53 51 0f b6 8e 22 13 00 00 49 bb 01 00 00 00 d3 e3 0f b7 0d 00 00 00 00 66 85 d9 75 10 59 5b 66 83 bc 4a d8 00 00 00 00 e9 fc ff ff ff 0f b6 9e 22 13 00 00 4b 6b db 0e 52 8b 15 68 3f 6d 00 8d 8a 14 01 00 00 5a 01 cb 59 66 83 3c 4b 00 5b e9 fc ff ff ff",
+      "size": 4096
+    },
+    {
+      "id": ".patch_2479_1",
+      "group": "ArtesSphere",
+      "kind": "patch",
+      "name": "Arte Sphere Check (Combo)",
+      "bytes": "e9 fc ff ff ff 90 90 90 90",
+      "rva": "0x346be",
+      "expected": "66 83 bc 4a d8 00 00 00 00"
+    },
+    {
+      "id": ".payload_e2480_Mem_BattleArteSelectCombo",
+      "group": "ArtesSphere",
+      "kind": "code",
+      "name": "Arte Sphere Use (Combo)",
+      "bytes": "50 51 0f b6 8f 22 13 00 00 49 b8 01 00 00 00 d3 e0 0f b7 0d 00 00 00 00 66 85 c1 75 0f 59 58 0f b7 9c 50 d8 00 00 00 e9 fc ff ff ff 0f b6 87 22 13 00 00 48 6b c0 0e 52 8b 15 68 3f 6d 00 8d 8a 14 01 00 00 5a 01 c8 59 0f b7 1c 50 58 e9 fc ff ff ff",
+      "size": 4096
+    },
+    {
+      "id": ".patch_2480_1",
+      "group": "ArtesSphere",
+      "kind": "patch",
+      "name": "Arte Sphere Use (Combo)",
+      "bytes": "e9 fc ff ff ff 90 90 90",
+      "rva": "0x34811",
+      "expected": "0f b7 9c 50 d8 00 00 00"
+    },
+    {
+      "id": ".payload_e2481_Mem_BattleArteSelectAir",
+      "group": "ArtesSphere",
+      "kind": "code",
+      "name": "Arte Sphere Use (Air Attack)",
+      "bytes": "53 51 0f b6 8f 22 13 00 00 49 bb 01 00 00 00 d3 e3 0f b7 0d 00 00 00 00 66 85 d9 75 0f 59 5b 0f b7 84 4a d8 00 00 00 e9 fc ff ff ff 0f b6 9f 22 13 00 00 4b 6b db 0e 52 8b 15 68 3f 6d 00 8d 8a 14 01 00 00 5a 01 cb 59 0f b7 04 4b 5b e9 fc ff ff ff",
+      "size": 4096
+    },
+    {
+      "id": ".patch_2481_1",
+      "group": "ArtesSphere",
+      "kind": "patch",
+      "name": "Arte Sphere Use (Air Attack)",
+      "bytes": "e9 fc ff ff ff 90 90 90",
+      "rva": "0x75a5f",
+      "expected": "0f b7 84 4a d8 00 00 00"
+    },
+    {
+      "id": ".payload_e2456_Mem_BattleArteCharCommand1",
+      "group": "ArtesSphere",
+      "kind": "code",
+      "name": "Arte Sphere Use Char/Shortcut 1 (Command)",
+      "bytes": "0f b6 88 21 13 00 00 83 e1 03 6b c9 10 80 b9 08 00 00 00 00 75 1c e8 fc ff ff ff f7 d3 21 d9 66 89 0d 00 00 00 00 0f b6 8f e4 00 00 00 e9 fc ff ff ff e8 fc ff ff ff 89 df 09 f9 66 89 0d 00 00 00 00 0f b6 b8 22 13 00 00 4f 6b ff 0e 52 8b 15 68 3f 6d 00 8d 8a 14 01 00 00 5a 01 cf 0f b6 4f 0c e9 fc ff ff ff 0f b6 88 22 13 00 00 49 bb 01 00 00 00 d3 e3 0f b7 0d 00 00 00 00 c3 52 8b 55 08 0f b6 8a 22 13 00 00 5a 49 bb 01 00 00 00 d3 e3 0f b7 0d 00 00 00 00 66 85 d9 75 0c 0f b7 bf e0 00 00 00 e9 fc ff ff ff 0f b7 7f 08 e9 fc ff ff ff",
+      "size": 4096
+    },
+    {
+      "id": ".patch_2456_1",
+      "group": "ArtesSphere",
+      "kind": "patch",
+      "name": "Arte Sphere Use Char/Shortcut 1 (Command)",
+      "bytes": "e9 fc ff ff ff 90 90",
+      "rva": "0x751d9",
+      "expected": "0f b6 8f e4 00 00 00"
+    },
+    {
+      "id": ".patch_2456_2",
+      "group": "ArtesSphere",
+      "kind": "patch",
+      "name": "Arte Sphere Use Char/Shortcut 1 (Command)",
+      "bytes": "e9 fc ff ff ff 90 90",
+      "rva": "0x751e6",
+      "expected": "0f b7 bf e0 00 00 00"
+    },
+    {
+      "id": ".payload_e2549_Mem_BattleArteCharCommand2",
+      "group": "ArtesSphere",
+      "kind": "code",
+      "name": "Arte Sphere Use Char/Shortcut 2 (Command)",
+      "bytes": "0f b6 8a 21 13 00 00 83 e1 03 6b c9 10 80 b9 08 00 00 00 00 75 1c e8 fc ff ff ff f7 d3 21 d9 66 89 0d 00 00 00 00 0f b6 87 e5 00 00 00 e9 fc ff ff ff e8 fc ff ff ff 89 df 09 f9 66 89 0d 00 00 00 00 0f b6 ba 22 13 00 00 4f 6b ff 0e 52 8b 15 68 3f 6d 00 8d 8a 14 01 00 00 5a 01 cf 0f b6 47 0d e9 fc ff ff ff 0f b6 8a 22 13 00 00 49 bb 01 00 00 00 d3 e3 0f b7 0d 00 00 00 00 c3 51 8b 55 08 0f b6 8a 22 13 00 00 49 bb 01 00 00 00 d3 e3 0f b7 0d 00 00 00 00 66 85 d9 75 0d 59 0f b7 bf e2 00 00 00 e9 fc ff ff ff 59 0f b7 7f 0a e9 fc ff ff ff",
+      "size": 4096
+    },
+    {
+      "id": ".patch_2549_1",
+      "group": "ArtesSphere",
+      "kind": "patch",
+      "name": "Arte Sphere Use Char/Shortcut 2 (Command)",
+      "bytes": "e9 fc ff ff ff 90 90",
+      "rva": "0x75214",
+      "expected": "0f b6 87 e5 00 00 00"
+    },
+    {
+      "id": ".patch_2549_2",
+      "group": "ArtesSphere",
+      "kind": "patch",
+      "name": "Arte Sphere Use Char/Shortcut 2 (Command)",
+      "bytes": "e9 fc ff ff ff 90 90",
+      "rva": "0x75221",
+      "expected": "0f b7 bf e2 00 00 00"
+    },
+    {
+      "id": ".payload_e2452_Mem_BattleArteChar1_A",
+      "group": "ArtesSphere",
+      "kind": "code",
+      "name": "Arte Sphere Check Char 1 A (1st Attack)",
+      "bytes": "50 51 0f b7 8f 22 13 00 00 49 b8 01 00 00 00 d3 e0 0f b7 0d 00 00 00 00 66 85 c1 75 0d 59 58 38 8b e4 00 00 00 e9 fc ff ff ff 0f b6 87 22 13 00 00 48 6b c0 0e 52 8b 15 68 3f 6d 00 8d 8a 14 01 00 00 5a 01 c8 59 38 48 0c 58 e9 fc ff ff ff",
+      "size": 4096
+    },
+    {
+      "id": ".patch_2452_1",
+      "group": "ArtesSphere",
+      "kind": "patch",
+      "name": "Arte Sphere Check Char 1 A (1st Attack)",
+      "bytes": "e9 fc ff ff ff 90",
+      "rva": "0x75d62",
+      "expected": "38 8b e4 00 00 00"
+    },
+    {
+      "id": ".payload_e2553_Mem_BattleArteChar2_A",
+      "group": "ArtesSphere",
+      "kind": "code",
+      "name": "Arte Sphere Check Char 2 A (1st Attack)",
+      "bytes": "50 51 0f b7 8f 22 13 00 00 49 b8 01 00 00 00 d3 e0 0f b7 0d 00 00 00 00 66 85 c1 75 0d 59 58 38 8b e5 00 00 00 e9 fc ff ff ff 0f b6 87 22 13 00 00 48 6b c0 0e 52 8b 15 68 3f 6d 00 8d 8a 14 01 00 00 5a 01 c8 59 38 48 0d 58 e9 fc ff ff ff",
+      "size": 4096
+    },
+    {
+      "id": ".patch_2553_1",
+      "group": "ArtesSphere",
+      "kind": "patch",
+      "name": "Arte Sphere Check Char 2 A (1st Attack)",
+      "bytes": "e9 fc ff ff ff 90",
+      "rva": "0x75d82",
+      "expected": "38 8b e5 00 00 00"
+    },
+    {
+      "id": ".payload_e2554_Mem_BattleArteSelectShortcut1_B",
+      "group": "ArtesSphere",
+      "kind": "code",
+      "name": "Arte Sphere Use Shortcut 1 B (1st Attack)",
+      "bytes": "53 51 0f b7 8f 22 13 00 00 49 bb 01 00 00 00 d3 e3 0f b7 0d 00 00 00 00 66 85 d9 75 0e 59 5b 0f b7 b0 e0 00 00 00 e9 fc ff ff ff 0f b6 9f 22 13 00 00 4b 6b db 0e 52 8b 15 68 3f 6d 00 8d 8a 14 01 00 00 5a 01 cb 59 0f b7 73 08 5b e9 fc ff ff ff 53 51 0f b7 8f 22 13 00 00 49 bb 01 00 00 00 d3 e3 0f b7 0d 00 00 00 00 66 85 d9 75 0d 59 5b 38 88 e4 00 00 00 e9 fc ff ff ff 0f b6 9f 22 13 00 00 4b 6b db 0e 52 8b 15 68 3f 6d 00 8d 8a 14 01 00 00 5a 01 cb 59 38 4b 0c 5b e9 fc ff ff ff",
+      "size": 4096
+    },
+    {
+      "id": ".patch_2554_1",
+      "group": "ArtesSphere",
+      "kind": "patch",
+      "name": "Arte Sphere Use Shortcut 1 B (1st Attack)",
+      "bytes": "e9 fc ff ff ff 90 90",
+      "rva": "0x7614e",
+      "expected": "0f b7 b0 e0 00 00 00"
+    },
+    {
+      "id": ".patch_2554_2",
+      "group": "ArtesSphere",
+      "kind": "patch",
+      "name": "Arte Sphere Use Shortcut 1 B (1st Attack)",
+      "bytes": "e9 fc ff ff ff 90",
+      "rva": "0x76163",
+      "expected": "38 88 e4 00 00 00"
+    },
+    {
+      "id": ".payload_e2552_Mem_BattleArteSelectShortcut2_B",
+      "group": "ArtesSphere",
+      "kind": "code",
+      "name": "Arte Sphere Use Shortcut 2 B (1st Attack)",
+      "bytes": "53 51 0f b7 8f 22 13 00 00 49 bb 01 00 00 00 d3 e3 0f b7 0d 00 00 00 00 66 85 d9 75 0e 59 5b 0f b7 b0 e2 00 00 00 e9 fc ff ff ff 0f b6 9f 22 13 00 00 4b 6b db 0e 52 8b 15 68 3f 6d 00 8d 8a 14 01 00 00 5a 01 cb 59 0f b7 73 0a 5b e9 fc ff ff ff 53 51 0f b7 8f 22 13 00 00 49 bb 01 00 00 00 d3 e3 0f b7 0d 00 00 00 00 66 85 d9 75 0d 59 5b 38 88 e5 00 00 00 e9 fc ff ff ff 0f b6 9f 22 13 00 00 4b 6b db 0e 52 8b 15 68 3f 6d 00 8d 8a 14 01 00 00 5a 01 cb 59 38 4b 0d 5b e9 fc ff ff ff",
+      "size": 4096
+    },
+    {
+      "id": ".patch_2552_1",
+      "group": "ArtesSphere",
+      "kind": "patch",
+      "name": "Arte Sphere Use Shortcut 2 B (1st Attack)",
+      "bytes": "e9 fc ff ff ff 90 90",
+      "rva": "0x7618f",
+      "expected": "0f b7 b0 e2 00 00 00"
+    },
+    {
+      "id": ".patch_2552_2",
+      "group": "ArtesSphere",
+      "kind": "patch",
+      "name": "Arte Sphere Use Shortcut 2 B (1st Attack)",
+      "bytes": "e9 fc ff ff ff 90",
+      "rva": "0x761a4",
+      "expected": "38 88 e5 00 00 00"
+    },
+    {
+      "id": ".payload_e2459_Mem_BattleArteChar1Combo",
+      "group": "ArtesSphere",
+      "kind": "code",
+      "name": "Arte Sphere Check Char/Shortcut (Combo)",
+      "bytes": "50 51 0f b6 8e 22 13 00 00 49 b8 01 00 00 00 d3 e0 0f b7 0d 00 00 00 00 66 85 c1 75 0d 59 58 38 98 e4 00 00 00 e9 fc ff ff ff 0f b6 86 22 13 00 00 48 6b c0 0e 52 8b 15 68 3f 6d 00 8d 8a 14 01 00 00 5a 01 c8 59 38 58 0c 58 e9 fc ff ff ff 53 51 0f b6 8e 22 13 00 00 49 bb 01 00 00 00 d3 e3 0f b7 0d 00 00 00 00 66 85 d9 75 11 59 5b 75 0d 66 83 b8 e0 00 00 00 00 e9 fc ff ff ff 0f b6 9e 22 13 00 00 4b 6b db 0e 52 8b 15 68 3f 6d 00 8d 8a 14 01 00 00 5a 01 cb 59 66 83 7b 08 00 5b e9 fc ff ff ff 50 51 0f b6 8e 22 13 00 00 49 b8 01 00 00 00 d3 e0 0f b7 0d 00 00 00 00 66 85 c1 75 0d 59 58 38 98 e5 00 00 00 e9 fc ff ff ff 0f b6 86 22 13 00 00 48 6b c0 0e 52 8b 15 68 3f 6d 00 8d 8a 14 01 00 00 5a 01 c8 59 38 58 0d 58 e9 fc ff ff ff 53 51 0f b6 8e 22 13 00 00 49 bb 01 00 00 00 d3 e3 0f b7 0d 00 00 00 00 66 85 d9 75 0f 59 5b 66 83 b8 e2 00 00 00 00 e9 fc ff ff ff 0f b6 9e 22 13 00 00 4b 6b db 0e 52 8b 15 68 3f 6d 00 8d 8a 14 01 00 00 5a 01 cb 59 66 83 7b 0a 00 5b e9 fc ff ff ff",
+      "size": 4096
+    },
+    {
+      "id": ".patch_2459_1",
+      "group": "ArtesSphere",
+      "kind": "patch",
+      "name": "Arte Sphere Check Char/Shortcut (Combo)",
+      "bytes": "e9 fc ff ff ff 90",
+      "rva": "0x346fc",
+      "expected": "38 98 e4 00 00 00"
+    },
+    {
+      "id": ".patch_2459_2",
+      "group": "ArtesSphere",
+      "kind": "patch",
+      "name": "Arte Sphere Check Char/Shortcut (Combo)",
+      "bytes": "e9 fc ff ff ff 90 90 90",
+      "rva": "0x3470c",
+      "expected": "66 83 b8 e0 00 00 00 00"
+    },
+    {
+      "id": ".patch_2459_3",
+      "group": "ArtesSphere",
+      "kind": "patch",
+      "name": "Arte Sphere Check Char/Shortcut (Combo)",
+      "bytes": "e9 fc ff ff ff 90",
+      "rva": "0x3471d",
+      "expected": "38 98 e5 00 00 00"
+    },
+    {
+      "id": ".patch_2459_4",
+      "group": "ArtesSphere",
+      "kind": "patch",
+      "name": "Arte Sphere Check Char/Shortcut (Combo)",
+      "bytes": "e9 fc ff ff ff 90 90 90",
+      "rva": "0x3472d",
+      "expected": "66 83 b8 e2 00 00 00 00"
+    },
+    {
+      "id": ".payload_e2474_Mem_BattleArteChar1Air",
+      "group": "ArtesSphere",
+      "kind": "code",
+      "name": "Arte Sphere Check Char/Shortcut 1 (Air)",
+      "bytes": "53 51 0f b6 8f 22 13 00 00 49 bb 01 00 00 00 d3 e3 0f b7 0d 00 00 00 00 66 85 d9 75 0d 59 5b 38 90 e4 00 00 00 e9 fc ff ff ff 0f b6 9f 22 13 00 00 4b 6b db 0e 52 8b 15 68 3f 6d 00 8d 8a 14 01 00 00 5a 01 cb 59 38 53 0c 5b e9 fc ff ff ff 53 51 0f b6 8f 22 13 00 00 49 bb 01 00 00 00 d3 e3 0f b7 0d 00 00 00 00 66 85 d9 75 0e 59 5b 0f b7 80 e0 00 00 00 e9 fc ff ff ff 0f b6 9f 22 13 00 00 4b 6b db 0e 52 8b 15 68 3f 6d 00 8d 8a 14 01 00 00 5a 01 cb 59 0f b7 43 08 5b e9 fc ff ff ff",
+      "size": 4096
+    },
+    {
+      "id": ".patch_2474_1",
+      "group": "ArtesSphere",
+      "kind": "patch",
+      "name": "Arte Sphere Check Char/Shortcut 1 (Air)",
+      "bytes": "e9 fc ff ff ff 90",
+      "rva": "0x75a9f",
+      "expected": "38 90 e4 00 00 00"
+    },
+    {
+      "id": ".patch_2474_2",
+      "group": "ArtesSphere",
+      "kind": "patch",
+      "name": "Arte Sphere Check Char/Shortcut 1 (Air)",
+      "bytes": "e9 fc ff ff ff 90 90",
+      "rva": "0x75aaf",
+      "expected": "0f b7 80 e0 00 00 00"
+    },
+    {
+      "id": ".payload_e2555_Mem_BattleArteChar2Air",
+      "group": "ArtesSphere",
+      "kind": "code",
+      "name": "Arte Sphere Check Char/Shortcut 2 (Air)",
+      "bytes": "53 51 0f b6 8f 22 13 00 00 49 bb 01 00 00 00 d3 e3 0f b7 0d 00 00 00 00 66 85 d9 75 0d 59 5b 38 88 e5 00 00 00 e9 fc ff ff ff 0f b6 9f 22 13 00 00 4b 6b db 0e 52 8b 15 68 3f 6d 00 8d 8a 14 01 00 00 5a 01 cb 59 38 4b 0d 5b e9 fc ff ff ff 53 51 0f b6 8f 22 13 00 00 49 bb 01 00 00 00 d3 e3 0f b7 0d 00 00 00 00 66 85 d9 75 0e 59 5b 0f b7 80 e2 00 00 00 e9 fc ff ff ff 0f b6 9f 22 13 00 00 4b 6b db 0e 52 8b 15 68 3f 6d 00 8d 8a 14 01 00 00 5a 01 cb 59 0f b7 43 0a 5b e9 fc ff ff ff",
+      "size": 4096
+    },
+    {
+      "id": ".patch_2555_1",
+      "group": "ArtesSphere",
+      "kind": "patch",
+      "name": "Arte Sphere Check Char/Shortcut 2 (Air)",
+      "bytes": "e9 fc ff ff ff 90",
+      "rva": "0x75ad5",
+      "expected": "38 88 e5 00 00 00"
+    },
+    {
+      "id": ".patch_2555_2",
+      "group": "ArtesSphere",
+      "kind": "patch",
+      "name": "Arte Sphere Check Char/Shortcut 2 (Air)",
+      "bytes": "e9 fc ff ff ff 90 90",
+      "rva": "0x75af4",
+      "expected": "0f b7 80 e2 00 00 00"
+    },
+    {
+      "id": ".payload_e2569_Mem_BattleArteUnison",
+      "group": "ArtesSphere",
+      "kind": "code",
+      "name": "Arte Sphere Use Unison",
+      "bytes": "53 51 0f b6 0d 00 00 00 00 83 e1 03 6b c9 10 80 b9 08 00 00 00 00 75 25 0f b6 8b 22 13 00 00 49 bb 01 00 00 00 d3 e3 0f b7 0d 00 00 00 00 59 5b 0f b7 8c 48 d8 00 00 00 e9 fc ff ff ff 0f b6 9b 22 13 00 00 4b 6b db 0e 52 8b 15 68 3f 6d 00 8d 8a 14 01 00 00 5a 01 cb 59 0f b7 0c 4b 5b e9 fc ff ff ff",
+      "size": 4096
+    },
+    {
+      "id": ".patch_2569_1",
+      "group": "ArtesSphere",
+      "kind": "patch",
+      "name": "Arte Sphere Use Unison",
+      "bytes": "e9 fc ff ff ff 90 90 90",
+      "rva": "0x722f8",
+      "expected": "0f b7 8c 48 d8 00 00 00"
+    },
+    {
+      "id": ".patch_2557_1",
+      "group": "ArtesSphere",
+      "kind": "patch",
+      "name": "Trigger Fix",
+      "bytes": "90 90 90 90 bf 00 04 00 00",
+      "rva": "0x2111d7",
+      "expected": "3a d3 75 07 bf 00 04 00 00"
+    },
+    {
+      "id": ".patch_2557_2",
+      "group": "ArtesSphere",
+      "kind": "patch",
+      "name": "Trigger Fix",
+      "bytes": "90 90 90 90 bb 00 08 00 00",
+      "rva": "0x2111eb",
+      "expected": "3a c3 75 05 bb 00 08 00 00"
+    },
+    {
+      "id": ".payload_e2558_Mem_DisableRStickX",
+      "group": "ArtesSphere",
+      "kind": "code",
+      "name": "R-Stick Shortcuts (Rebinds LT and RT)",
+      "bytes": "80 3d 00 00 00 00 00 74 02 31 d2 89 51 20 8b 50 2c e9 fc ff ff ff",
+      "size": 100
+    },
+    {
+      "id": ".payload_e2558_Mem_DisableRStickY",
+      "group": "ArtesSphere",
+      "kind": "code",
+      "name": "R-Stick Shortcuts (Rebinds LT and RT)",
+      "bytes": "80 3d 00 00 00 00 00 74 50 f6 05 00 00 00 00 01 75 47 51 0f b6 0d 00 00 00 00 80 b9 00 00 00 00 00 59 74 04 31 d2 eb 31 52 85 d2 7d 02 f7 da 81 fa 8e 73 00 00 7c 1f 5a 83 fa 00 7c 0b 0f b7 56 10 66 81 ca 00 08 eb 09 0f b7 56 10 66 81 ca 00 04 89 56 10 eb 01 5a 31 d2 89 51 24 8b 50 30 e9 fc ff ff ff"
+    },
+    {
+      "id": ".patch_2558_1",
+      "group": "ArtesSphere",
+      "kind": "patch",
+      "name": "R-Stick Shortcuts (Rebinds LT and RT)",
+      "bytes": "e9 fc ff ff ff 90",
+      "rva": "0x211abe",
+      "expected": "89 51 20 8b 50 2c"
+    },
+    {
+      "id": ".patch_2558_2",
+      "group": "ArtesSphere",
+      "kind": "patch",
+      "name": "R-Stick Shortcuts (Rebinds LT and RT)",
+      "bytes": "e9 fc ff ff ff 90",
+      "rva": "0x211ac4",
+      "expected": "89 51 24 8b 50 30"
+    },
+    {
+      "id": ".payload_e2559_Mem_RemoveShortcutFix",
+      "group": "ArtesSphere",
+      "kind": "code",
+      "name": "Remove Shortcut Fix (Fixes Removing a Shortcut Arte from the Menu)",
+      "bytes": "66 89 17 83 f9 04 72 0e 51 b5 08 28 cd 0f b6 cd 01 cf 59 c6 07 00 c7 45 f8 1c 00 00 00 e9 fc ff ff ff",
+      "size": 100
+    },
+    {
+      "id": ".patch_2559_1",
+      "group": "ArtesSphere",
+      "kind": "patch",
+      "name": "Remove Shortcut Fix (Fixes Removing a Shortcut Arte from the Menu)",
+      "bytes": "e9 fc ff ff ff 90 90 90 90 90",
+      "rva": "0x125348",
+      "expected": "66 89 17 c7 45 f8 1c 00 00 00"
+    },
+    {
+      "id": ".patch_2560_1",
+      "group": "ArtesSphere",
+      "kind": "patch",
+      "name": "R-Stick Shortcut Icons",
+      "bytes": "c7 44 24 68 29 00 2a 00",
+      "rva": "0x122417",
+      "expected": "c7 44 24 68 1c 00 16 00"
+    },
+    {
+      "id": ".patch_2560_2",
+      "group": "ArtesSphere",
+      "kind": "patch",
+      "name": "R-Stick Shortcut Icons",
+      "bytes": "c7 44 24 5c 29 00 2a 00",
+      "rva": "0x1223ff",
+      "expected": "c7 44 24 5c 1b 00 15 00"
+    },
+    {
+      "id": ".payload_e785_Mem_ManualOverlimit",
+      "group": "ManualOverLimit",
+      "kind": "code",
+      "name": "[Manual Over Limit] (Requires Artes Sphere)",
+      "bytes": "50 0f b6 87 22 13 00 00 24 0f 3c 00 7e 30 0f b6 87 20 13 00 00 a8 01 75 25 83 e0 1c 83 f8 08 73 1d 0f b6 87 21 13 00 00 83 e0 03 6b c0 10 80 b8 0b 00 00 00 01 58 0f 85 4a 94 03 00 eb 01 58 8a 8f 20 13 00 00 e9 fc ff ff ff",
+      "size": 100
+    },
+    {
+      "id": ".patch_785_1",
+      "group": "ManualOverLimit",
+      "kind": "patch",
+      "name": "[Manual Over Limit] (Requires Artes Sphere)",
+      "bytes": "e9 fc ff ff ff 90",
+      "rva": "0x3912c",
+      "expected": "8a 8f 20 13 00 00"
+    },
+    {
+      "id": ".patch_785_2",
+      "group": "ManualOverLimit",
+      "kind": "patch",
+      "name": "[Manual Over Limit] (Requires Artes Sphere)",
+      "bytes": "90 90 90 90 90 90",
+      "rva": "0x3913c",
+      "expected": "0f 85 0c 03 00 00"
+    },
+    {
+      "id": ".patch_785_3",
+      "group": "ManualOverLimit",
+      "kind": "patch",
+      "name": "[Manual Over Limit] (Requires Artes Sphere)",
+      "bytes": "ba d0 07 00 00",
+      "rva": "0x4e186",
+      "expected": "ba b6 03 00 00"
+    },
+    {
+      "id": ".patch_785_4",
+      "group": "ManualOverLimit",
+      "kind": "patch",
+      "name": "[Manual Over Limit] (Requires Artes Sphere)",
+      "bytes": "ba e8 03 00 00",
+      "rva": "0x4e190",
+      "expected": "ba 84 03 00 00"
+    },
+    {
+      "id": ".payload_e757_newmem",
+      "group": "ManualOverLimit",
+      "kind": "code",
+      "name": "player dmg gain ol",
+      "bytes": "50 8a 86 22 13 00 00 24 0f 3c 00 7e 5b 8a 86 21 13 00 00 a8 80 75 51 66 8b 86 4c 13 00 00 0f b7 c0 53 66 8b 59 0e 0f b7 db 83 fb 00 74 1c 50 89 d8 8b 1d 00 00 00 00 52 31 d2 f7 f3 5a 89 c3 58 3b 1d 00 00 00 00 7c 02 eb 06 8b 1d 00 00 00 00 01 d8 5b 3d e8 03 00 00 7f 02 eb 05 b8 e8 03 00 00 66 89 86 4c 13 00 00 58 f6 01 20 0f 85 6d 45 06 00 e9 fc ff ff ff 08 00 00 00 0a 00 00 00",
+      "size": 8264
+    },
+    {
+      "id": ".patch_757_1",
+      "group": "ManualOverLimit",
+      "kind": "patch",
+      "name": "player dmg gain ol",
+      "bytes": "e9 fc ff ff ff",
+      "rva": "0x6455c",
+      "expected": "f6 01 20 75 10"
+    },
+    {
+      "id": ".payload_e726_newmem",
+      "group": "OverLimitGauge",
+      "kind": "code",
+      "name": "Over Limit Gauge",
+      "bytes": "e8 dc bc 07 00 d9 ee 89 f7 31 c9 ba bd 02 00 00 d9 55 a4 89 4d 84 d9 5d a8 89 d1 66 89 55 8e ba c6 02 00 00 31 c0 66 89 55 96 89 55 9a 31 d2 89 45 88 8d 47 54 66 89 4d 92 66 89 55 9e 88 55 ac 66 89 55 b1 8d 4d 84 83 ca ff 66 89 7d 8c 66 89 45 90 66 89 7d 94 66 89 45 98 c7 45 ad 0c 04 01 00 88 5d b3 e8 dc bc 07 00 8b 85 6c ff ff ff 8d 4d 84 52 50 57 89 c2 8b 4a 08 66 8b 80 4c 13 00 00 0f b7 c0 b9 e8 03 00 00 6b c0 64 99 f7 f9 6b c0 54 d9 ee d9 55 a4 d9 5d a8 89 c1 b8 1f 85 eb 51 f7 e9 c1 fa 05 89 d0 c1 e8 1f 01 d0 31 c9 66 a3 00 00 00 00 8b 3d 00 00 00 00 89 4d 84 31 c0 ba b7 02 00 00 89 d1 66 89 55 8e 89 45 88 ba c0 02 00 00 66 89 55 96 89 55 9a 31 d2 8d 04 3e 66 89 45 90 66 89 45 98 8b 85 1c ff ff ff 66 89 4d 92 8b 8d 20 ff ff ff 66 89 55 9e 88 55 ac 8b 95 24 ff ff ff c7 45 b0 ff ff ff ff 89 45 b0 8b 85 28 ff ff ff 89 4d b4 89 55 b8 8d 4d 84 83 ca ff 66 89 75 8c 66 89 75 94 66 c7 45 ad 0c 04 c6 45 af 04 89 45 bc ba 20 50 10 ff 89 55 b0 89 55 b8 ba 90 90 40 ff 89 55 b4 89 55 bc 5f 58 5a ba ff ff ff ff b8 ff ff ff ff e8 dc bc 07 00 e9 fc ff ff ff",
+      "size": 8264
+    },
+    {
+      "id": ".payload_e726_tempstr",
+      "group": "OverLimitGauge",
+      "kind": "data",
+      "name": "Over Limit Gauge",
+      "bytes": "",
+      "size": 4
+    },
+    {
+      "id": ".patch_726_1",
+      "group": "OverLimitGauge",
+      "kind": "patch",
+      "name": "Over Limit Gauge",
+      "bytes": "e9 fc ff ff ff",
+      "rva": "0x49ee0",
+      "expected": "e8 fb 1d 03 00"
+    },
+    {
+      "id": ".patch_2285_1",
+      "group": "ManualOverLimit",
+      "kind": "patch",
+      "name": "Disable OvL Victory Drain",
+      "bytes": "eb ff",
+      "rva": "0x80738",
+      "expected": "75 09"
+    },
+    {
+      "id": ".payload_e2159_Mem_StickWalkCheck",
+      "group": "NewFreeRun",
+      "kind": "code",
+      "name": "New Stick Walk Check",
+      "bytes": "52 0f b6 97 21 13 00 00 83 e2 03 6b d2 10 f6 82 0a 00 00 00 ff 75 0e 5a f6 04 95 a8 37 6d 00 08 e9 fc ff ff ff ba 01 00 00 00 5a e9 fc ff ff ff e9 fc ff ff ff",
+      "size": 100
+    },
+    {
+      "id": ".patch_2159_1",
+      "group": "NewFreeRun",
+      "kind": "patch",
+      "name": "New Stick Walk Check",
+      "bytes": "e9 fc ff ff ff 90 90 90",
+      "rva": "0x76794",
+      "expected": "f6 04 95 a8 37 ad 00 08"
+    },
+    {
+      "id": ".payload_e47_newmem6",
+      "group": "NewFreeRun",
+      "kind": "code",
+      "name": "fr poc 1 (Disables Jump During Freerun)",
+      "bytes": "53 8b 1d 00 00 00 00 83 fb 00 5b 7f 09 f6 c4 05 0f 8a c2 65 07 00 d9 87 d8 38 01 00 e9 fc ff ff ff",
+      "size": 8264
+    },
+    {
+      "id": ".payload_freerun_mem",
+      "group": "NewFreeRun",
+      "kind": "data",
+      "name": "fr poc 1 (Disables Jump During Freerun)",
+      "bytes": "00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00"
+    },
+    {
+      "id": ".payload_e47_newmem5",
+      "group": "NewFreeRun",
+      "kind": "code",
+      "name": "fr poc 1 (Disables Jump During Freerun)",
+      "bytes": "53 8b 1d 00 00 00 00 83 fb 00 5b 7f 09 f6 c4 05 0f 8a 73 64 07 00 d9 87 d8 38 01 00 e9 fc ff ff ff",
+      "size": 8264
+    },
+    {
+      "id": ".payload_e47_newmem4",
+      "group": "NewFreeRun",
+      "kind": "code",
+      "name": "fr poc 1 (Disables Jump During Freerun)",
+      "bytes": "0f 8a 21 67 07 00 50 a1 00 00 00 00 83 f8 00 58 0f 8f 21 67 07 00 d9 87 d8 38 01 00 e9 fc ff ff ff",
+      "size": 8264
+    },
+    {
+      "id": ".payload_e47_newmem3",
+      "group": "NewFreeRun",
+      "kind": "code",
+      "name": "fr poc 1 (Disables Jump During Freerun)",
+      "bytes": "0f 8a 7b 63 07 00 50 a1 00 00 00 00 83 f8 00 58 0f 8f 7b 63 07 00 d9 87 d8 38 01 00 e9 fc ff ff ff",
+      "size": 8264
+    },
+    {
+      "id": ".payload_e47_newmem2",
+      "group": "NewFreeRun",
+      "kind": "code",
+      "name": "fr poc 1 (Disables Jump During Freerun)",
+      "bytes": "50 a1 00 00 00 00 83 f8 00 58 0f 85 49 68 07 00 66 83 b8 72 37 6d 00 28 e9 fc ff ff ff",
+      "size": 8264
+    },
+    {
+      "id": ".payload_e47_newmem",
+      "group": "NewFreeRun",
+      "kind": "code",
+      "name": "fr poc 1 (Disables Jump During Freerun)",
+      "bytes": "53 56 31 db 89 1d 00 00 00 00 89 c3 8b 04 85 a8 37 6d 00 0f b6 ca 83 e1 03 6b c9 10 80 bf b0 01 00 00 04 74 12 80 bf b0 01 00 00 05 74 09 80 bf b0 01 00 00 02 77 6b 80 b9 0a 00 00 00 00 74 62 a9 00 40 00 00 75 5b 80 e2 03 0f b6 ca b2 01 d2 e2 08 15 00 00 00 00 8a 97 21 13 00 00 c7 05 00 00 00 00 01 00 00 00 0f b7 04 9d aa 37 6d 00 3c 00 7e 2f 89 c3 b8 08 00 08 00 8b b7 21 13 00 00 80 fb 08 74 05 80 fb 04 74 07 f6 c2 10 75 09 eb 11 f6 c2 10 74 07 eb 0a 80 ea 10 eb 05 80 c2 10 eb 00 5e 5b e9 fc ff ff ff",
+      "size": 8264
+    },
+    {
+      "id": ".payload_e47_chr_freerun",
+      "group": "NewFreeRun",
+      "kind": "data",
+      "name": "fr poc 1 (Disables Jump During Freerun)",
+      "bytes": "00 00 00 00"
+    },
+    {
+      "id": ".patch_47_1",
+      "group": "NewFreeRun",
+      "kind": "patch",
+      "name": "fr poc 1 (Disables Jump During Freerun)",
+      "bytes": "e9 fc ff ff ff 90 90 90",
+      "rva": "0x765a4",
+      "expected": "7a 20 d9 87 d8 38 01 00"
+    },
+    {
+      "id": ".patch_47_2",
+      "group": "NewFreeRun",
+      "kind": "patch",
+      "name": "fr poc 1 (Disables Jump During Freerun)",
+      "bytes": "e9 fc ff ff ff 90 90 90",
+      "rva": "0x76455",
+      "expected": "7a 20 d9 87 d8 38 01 00"
+    },
+    {
+      "id": ".patch_47_3",
+      "group": "NewFreeRun",
+      "kind": "patch",
+      "name": "fr poc 1 (Disables Jump During Freerun)",
+      "bytes": "e9 fc ff ff ff 90 90 90",
+      "rva": "0x766f7",
+      "expected": "7a 2c d9 87 d8 38 01 00"
+    },
+    {
+      "id": ".patch_47_4",
+      "group": "NewFreeRun",
+      "kind": "patch",
+      "name": "fr poc 1 (Disables Jump During Freerun)",
+      "bytes": "e9 fc ff ff ff 90 90 90",
+      "rva": "0x76351",
+      "expected": "7a 2c d9 87 d8 38 01 00"
+    },
+    {
+      "id": ".patch_47_5",
+      "group": "NewFreeRun",
+      "kind": "patch",
+      "name": "fr poc 1 (Disables Jump During Freerun)",
+      "bytes": "e9 fc ff ff ff 90 90 90",
+      "rva": "0x767af",
+      "expected": "66 83 b8 72 37 ad 00 28"
+    },
+    {
+      "id": ".patch_47_6",
+      "group": "NewFreeRun",
+      "kind": "patch",
+      "name": "fr poc 1 (Disables Jump During Freerun)",
+      "bytes": "e9 fc ff ff ff 90 90",
+      "rva": "0x761c9",
+      "expected": "8b 04 85 a8 37 ad 00"
+    },
+    {
+      "id": ".payload_e2161_Mem_FreeRun2",
+      "group": "NewFreeRun",
+      "kind": "code",
+      "name": "Free Run 2",
+      "bytes": "81 c1 58 39 01 00 51 52 50 53 56 0f b6 83 22 13 00 00 83 f8 00 0f 84 55 01 00 00 0f b6 83 21 13 00 00 83 e0 03 6b c0 10 31 c9 83 f9 04 74 1e 8b 13 0f b6 94 0a ee 00 00 00 80 fa 06 74 03 41 eb e9 c7 05 00 00 00 00 33 33 93 3f eb 0a c7 05 00 00 00 00 00 00 80 3f 8b 0d 00 00 00 00 89 8b ec 12 00 00 80 b8 0a 00 00 00 00 0f 84 00 01 00 00 f3 0f 10 2d 00 00 00 00 f3 0f 5c 2d 00 00 00 00 f3 0f 11 ab ec 12 00 00 0f b6 83 21 13 00 00 83 e0 03 53 6b d8 10 0f bf 8b 70 37 6d 00 0f bf 93 72 37 6d 00 5b 66 0f 6e d9 66 0f 6e ea 0f 5b db 0f 5b ed f3 0f 59 1d 04 00 00 00 f3 0f 59 2d 04 00 00 00 f3 0f 59 1d 1c 00 00 00 f3 0f 11 1d 30 00 00 00 f3 0f 11 2d 38 00 00 00 d9 05 30 00 00 00 d9 05 38 00 00 00 e8 f0 ff ff ff d9 1d 28 00 00 00 52 8b 15 dc 2e 6d 00 f3 0f 10 35 0c 00 00 00 f3 0f 10 3d 10 00 00 00 f3 0f 5e f7 f3 0f 10 7a 50 f3 0f 59 fe f3 0f 58 3d 28 00 00 00 f3 0f 11 3d 00 00 00 00 d9 05 00 00 00 00 d9 fb d9 1d 00 00 00 00 d9 1d 04 00 00 00 5a f3 0f 10 35 04 00 00 00 f3 0f 10 3d 00 00 00 00 f3 0f 59 3d 1c 00 00 00 f3 0f 59 35 1c 00 00 00 f3 0f 11 76 08 f3 0f 11 3e 31 c0 5e 5b 58 5a 59 e9 07 00 00 00 5e 5b 58 5a 59 e9 fc ff ff ff",
+      "size": 1298
+    },
+    {
+      "id": ".payload_e2161_mval",
+      "group": "NewFreeRun",
+      "kind": "data",
+      "name": "Free Run 2",
+      "bytes": "0a d7 23 3c 33 33 b3 3f cd cc cc 3d db 0f 49 40 00 00 34 43 00 00 b4 c2 00 00 c8 42 00 00 80 bf",
+      "size": 100
+    },
+    {
+      "id": ".payload_MovementSpeed",
+      "group": "NewFreeRun",
+      "kind": "data",
+      "name": "Free Run 2",
+      "bytes": "00 00 00 00"
+    },
+    {
+      "id": ".payload_PenaltySpeed",
+      "group": "NewFreeRun",
+      "kind": "data",
+      "name": "Free Run 2",
+      "bytes": "cd cc 4c 3e"
+    },
+    {
+      "id": ".patch_2161_1",
+      "group": "NewFreeRun",
+      "kind": "patch",
+      "name": "Free Run 2",
+      "bytes": "e9 fc ff ff ff 90",
+      "rva": "0x84cc9",
+      "expected": "81 c1 58 39 01 00"
+    },
+    {
+      "id": ".payload_e2752_Mem_MoveSideCheck",
+      "group": "NewFreeRun",
+      "kind": "code",
+      "name": "Free Run 3 (Fix directly above or below enemy)",
+      "bytes": "0f b6 83 22 13 00 00 83 f8 00 74 1a 0f b6 83 21 13 00 00 83 e0 03 6b c0 10 80 b8 0a 00 00 00 00 0f 85 fc ff ff ff 8d 44 24 18 e8 6c ed 17 00 e9 fc ff ff ff",
+      "size": 4096
+    },
+    {
+      "id": ".patch_2752_1",
+      "group": "NewFreeRun",
+      "kind": "patch",
+      "name": "Free Run 3 (Fix directly above or below enemy)",
+      "bytes": "e9 fc ff ff ff 90 90 90 90",
+      "rva": "0x84d15",
+      "expected": "8d 44 24 18 e8 52 a0 0f 00"
+    },
+    {
+      "id": ".ct_2692_alloc_0",
+      "group": "SpellQueueFix",
+      "kind": "code",
+      "name": "CT 2692: [Spell Queue Fix]",
+      "bytes": "85 c0 0f 85 fc ff ff ff 80 bb b0 01 00 00 0c 75 6d 0f b7 83 be 01 00 00 0f b6 93 b0 3a 01 00 8b 3d 00 00 00 00 80 bc 3a ee 93 00 00 00 74 39 66 85 c0 75 34 e8 fc ff ff ff 83 f9 03 0f 86 fc ff ff ff 31 c9 a1 00 00 00 00 84 c0 75 15 8a 83 22 13 00 00 6b c9 08 d3 c0 a3 00 00 00 00 e9 fc ff ff ff 41 c1 c8 08 eb e1 66 85 c0 0f 84 fc ff ff ff 48 66 89 83 be 01 00 00 e9 fc ff ff ff e8 fc ff ff ff 83 f9 03 0f 87 fc ff ff ff c6 81 00 00 00 00 00 e8 fc ff ff ff e9 fc ff ff ff 31 c9 0f b6 83 22 13 00 00 38 81 00 00 00 00 74 06 41 83 f9 03 76 f2 c3 a1 00 00 00 00 31 c9 31 d2 84 c0 74 05 c1 e2 08 88 c2 c1 e8 08 41 83 f9 03 76 ee 89 15 00 00 00 00 c3",
+      "size": 1280
+    },
+    {
+      "id": ".ct_2692_patch_1",
+      "group": "SpellQueueFix",
+      "kind": "patch",
+      "name": "CT 2692: [Spell Queue Fix]",
+      "bytes": "e9 fc ff ff ff 90 90 90 90 90 90 90 90 90 90",
+      "rva": "0x2722e",
+      "expected": "74 1f 0f b6 93 b0 3a 01 00 8b 3d dc 2e ad 00"
+    },
+    {
+      "id": ".ct_2692_state_3",
+      "group": "SpellQueueFix",
+      "kind": "data",
+      "name": "CT 2692: [Spell Queue Fix]",
+      "bytes": "00",
+      "size": 4
+    }
+  ],
+  "fixups": [
+    {
+      "owner": ".payload_e2109_Mem_BattleMenu_Enter",
+      "offset": 2,
+      "target": ".payload_BattleMenu",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2109_Mem_BattleMenu_Enter",
+      "offset": 15,
+      "target": ".patch_2109_1",
+      "addend": "0x3",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2109_Mem_BattleMenu_Exit",
+      "offset": 2,
+      "target": ".payload_BattleMenu",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2109_Mem_BattleMenu_Exit",
+      "offset": 15,
+      "target": ".patch_2109_2",
+      "addend": "0x3",
+      "type": "rel32"
+    },
+    {
+      "owner": ".patch_2109_1",
+      "offset": 1,
+      "target": ".payload_e2109_Mem_BattleMenu_Enter",
+      "addend": "0xfffffffc",
+      "type": "rel32"
+    },
+    {
+      "owner": ".patch_2109_2",
+      "offset": 1,
+      "target": ".payload_e2109_Mem_BattleMenu_Exit",
+      "addend": "0xfffffffc",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2118_Mem_ShortcutState_Exit",
+      "offset": 2,
+      "target": ".payload_ShortcutState",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2118_Mem_ShortcutState_Exit",
+      "offset": 10,
+      "target": null,
+      "addend": "0x713ac8",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2118_Mem_ShortcutState_Exit",
+      "offset": 15,
+      "target": ".patch_2118_1",
+      "addend": "0x3",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2118_Mem_ShortcutState_Enter",
+      "offset": 2,
+      "target": ".payload_ShortcutState",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2118_Mem_ShortcutState_Enter",
+      "offset": 9,
+      "target": null,
+      "addend": "0x713ac9",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2118_Mem_ShortcutState_Enter",
+      "offset": 15,
+      "target": ".patch_2118_2",
+      "addend": "0x3",
+      "type": "rel32"
+    },
+    {
+      "owner": ".patch_2118_1",
+      "offset": 1,
+      "target": ".payload_e2118_Mem_ShortcutState_Exit",
+      "addend": "0xfffffffc",
+      "type": "rel32"
+    },
+    {
+      "owner": ".patch_2118_2",
+      "offset": 1,
+      "target": ".payload_e2118_Mem_ShortcutState_Enter",
+      "addend": "0xfffffffc",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2120_Mem_ArtesMenu_Enter",
+      "offset": 2,
+      "target": ".payload_ArtesMenu",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2120_Mem_ArtesMenu_Enter",
+      "offset": 10,
+      "target": null,
+      "addend": "0x713ac4",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2120_Mem_ArtesMenu_Enter",
+      "offset": 17,
+      "target": ".patch_2120_1",
+      "addend": "0x5",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2120_Mem_ArtesMenu_Exit",
+      "offset": 2,
+      "target": ".payload_ArtesMenu",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2120_Mem_ArtesMenu_Exit",
+      "offset": 9,
+      "target": null,
+      "addend": "0x713ac5",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2120_Mem_ArtesMenu_Exit",
+      "offset": 15,
+      "target": ".patch_2120_2",
+      "addend": "0x3",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2120_Mem_ArtesMenuHMN_Exit",
+      "offset": 2,
+      "target": ".payload_ArtesMenu",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2120_Mem_ArtesMenuHMN_Exit",
+      "offset": 9,
+      "target": null,
+      "addend": "0x713ac5",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2120_Mem_ArtesMenuHMN_Exit",
+      "offset": 15,
+      "target": ".patch_2120_3",
+      "addend": "0x3",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2120_Mem_ArtesMenuCPU_Exit",
+      "offset": 2,
+      "target": ".payload_ArtesMenu",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2120_Mem_ArtesMenuCPU_Exit",
+      "offset": 9,
+      "target": null,
+      "addend": "0x713ac5",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2120_Mem_ArtesMenuCPU_Exit",
+      "offset": 15,
+      "target": ".patch_2120_4",
+      "addend": "0x3",
+      "type": "rel32"
+    },
+    {
+      "owner": ".patch_2120_1",
+      "offset": 1,
+      "target": ".payload_e2120_Mem_ArtesMenu_Enter",
+      "addend": "0xfffffffc",
+      "type": "rel32"
+    },
+    {
+      "owner": ".patch_2120_2",
+      "offset": 1,
+      "target": ".payload_e2120_Mem_ArtesMenu_Exit",
+      "addend": "0xfffffffc",
+      "type": "rel32"
+    },
+    {
+      "owner": ".patch_2120_3",
+      "offset": 1,
+      "target": ".payload_e2120_Mem_ArtesMenuHMN_Exit",
+      "addend": "0xfffffffc",
+      "type": "rel32"
+    },
+    {
+      "owner": ".patch_2120_4",
+      "offset": 1,
+      "target": ".payload_e2120_Mem_ArtesMenuCPU_Exit",
+      "addend": "0xfffffffc",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2122_Mem_UnisonMenu_Enter",
+      "offset": 2,
+      "target": ".payload_UnisonMenu",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2122_Mem_UnisonMenu_Enter",
+      "offset": 10,
+      "target": null,
+      "addend": "0x1831918",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2122_Mem_UnisonMenu_Enter",
+      "offset": 17,
+      "target": ".patch_2122_1",
+      "addend": "0x5",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2122_Mem_UnisonMenu_Exit",
+      "offset": 2,
+      "target": ".payload_UnisonMenu",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2122_Mem_UnisonMenu_Exit",
+      "offset": 9,
+      "target": null,
+      "addend": "0x1831919",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2122_Mem_UnisonMenu_Exit",
+      "offset": 15,
+      "target": ".patch_2122_2",
+      "addend": "0x3",
+      "type": "rel32"
+    },
+    {
+      "owner": ".patch_2122_1",
+      "offset": 1,
+      "target": ".payload_e2122_Mem_UnisonMenu_Enter",
+      "addend": "0xfffffffc",
+      "type": "rel32"
+    },
+    {
+      "owner": ".patch_2122_2",
+      "offset": 1,
+      "target": ".payload_e2122_Mem_UnisonMenu_Exit",
+      "addend": "0xfffffffc",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2272_Mem_CharState",
+      "offset": 19,
+      "target": ".payload_CurrentState",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2272_Mem_CharState",
+      "offset": 25,
+      "target": ".patch_2272_1",
+      "addend": "0x2",
+      "type": "rel32"
+    },
+    {
+      "owner": ".patch_2272_1",
+      "offset": 1,
+      "target": ".payload_e2272_Mem_CharState",
+      "addend": "0xfffffffc",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 3,
+      "target": null,
+      "addend": "0x6d3f68",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 18,
+      "target": null,
+      "addend": "0xa2de20",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 51,
+      "target": null,
+      "addend": "0xa2de20",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 60,
+      "target": ".payload_ControlID",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 65,
+      "target": ".payload_e2444_Mem_ButtonInputs",
+      "addend": "0x176",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 72,
+      "target": null,
+      "addend": "0x6d3f68",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 93,
+      "target": null,
+      "addend": "0x718652",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 102,
+      "target": ".payload_BattleMenu",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 112,
+      "target": ".payload_MainControls",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 125,
+      "target": ".payload_PageSwitch",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 130,
+      "target": ".payload_e2444_Mem_ButtonInputs",
+      "addend": "0x1e4",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 141,
+      "target": ".payload_ArtesMenu",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 150,
+      "target": ".payload_UnisonMenu",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 159,
+      "target": ".payload_PageCache",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 166,
+      "target": ".payload_PageSwitch",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 175,
+      "target": null,
+      "addend": "0x6d3f68",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 195,
+      "target": ".payload_e2444_Mem_ButtonInputs",
+      "addend": "0x1e4",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 207,
+      "target": null,
+      "addend": "0x1831908",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 221,
+      "target": null,
+      "addend": "0x183191e",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 236,
+      "target": null,
+      "addend": "0x713abe",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 242,
+      "target": ".payload_PageCache",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 250,
+      "target": ".payload_PageCache",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 257,
+      "target": null,
+      "addend": "0x713ab0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 276,
+      "target": ".payload_ShortcutState",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 290,
+      "target": null,
+      "addend": "0x713abe",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 295,
+      "target": ".payload_e2444_Mem_ButtonInputs",
+      "addend": "0x29d",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 302,
+      "target": null,
+      "addend": "0x6d3f68",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 320,
+      "target": null,
+      "addend": "0x6d3f68",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 340,
+      "target": ".payload_StoredControls",
+      "addend": "0x5",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 354,
+      "target": ".payload_PageSwitch",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 364,
+      "target": null,
+      "addend": "0x12e5ac",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 369,
+      "target": ".payload_e2444_Mem_ButtonInputs",
+      "addend": "0x1e4",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 381,
+      "target": ".payload_MainControls",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 393,
+      "target": ".payload_LoopCounter",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 410,
+      "target": ".payload_MainControls",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 418,
+      "target": ".payload_StoredControls",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 427,
+      "target": ".payload_StoredControls",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 435,
+      "target": ".payload_StoredControls",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 442,
+      "target": ".payload_LoopCounter",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 448,
+      "target": ".payload_LoopCounter",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 457,
+      "target": ".payload_LoopCounter",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 468,
+      "target": ".payload_PageSwitch",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 476,
+      "target": ".payload_PageSwitch",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 483,
+      "target": ".payload_e2444_Mem_ButtonInputs",
+      "addend": "0x1e4",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 491,
+      "target": null,
+      "addend": "0x6d3f68",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 505,
+      "target": null,
+      "addend": "0x6d3f68",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 519,
+      "target": ".payload_LoopCounter",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 526,
+      "target": ".payload_PageSwitch",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 533,
+      "target": null,
+      "addend": "0x6d3f68",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 578,
+      "target": ".payload_LoopCounter",
+      "addend": "0x1",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 584,
+      "target": ".payload_LoopCounter",
+      "addend": "0x1",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 593,
+      "target": ".payload_LoopCounter",
+      "addend": "0x1",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 630,
+      "target": ".payload_LoopCounter",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 636,
+      "target": ".payload_LoopCounter",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 645,
+      "target": ".payload_LoopCounter",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 653,
+      "target": ".payload_PageSwitch",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 660,
+      "target": null,
+      "addend": "0x6d3f68",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 676,
+      "target": null,
+      "addend": "0x6d3f68",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 707,
+      "target": ".payload_ControlID",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 714,
+      "target": null,
+      "addend": "0x718652",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 728,
+      "target": ".payload_ControlID",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 739,
+      "target": ".payload_BattleMenu",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 754,
+      "target": ".payload_LockA",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 760,
+      "target": ".payload_LockB",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 771,
+      "target": ".payload_CurrentState",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 780,
+      "target": ".payload_CurrentState",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 789,
+      "target": ".payload_CurrentState",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 802,
+      "target": ".payload_StoredControls",
+      "addend": "0xa",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 811,
+      "target": ".payload_LockRS",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 820,
+      "target": ".payload_StoredControls",
+      "addend": "0xc",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 829,
+      "target": ".payload_LockA",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 838,
+      "target": ".payload_LockA",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 845,
+      "target": ".payload_StoredControls",
+      "addend": "0xd",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 854,
+      "target": ".payload_LockB",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 863,
+      "target": ".payload_LockB",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 870,
+      "target": ".payload_StoredControls",
+      "addend": "0xe",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 879,
+      "target": ".payload_LockX",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 888,
+      "target": ".payload_LockX",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 897,
+      "target": ".payload_LockA",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 906,
+      "target": ".payload_StoredControls",
+      "addend": "0xc",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 915,
+      "target": ".payload_LockA",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 922,
+      "target": ".payload_LockB",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 931,
+      "target": ".payload_StoredControls",
+      "addend": "0xd",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 940,
+      "target": ".payload_LockB",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 947,
+      "target": ".payload_LockX",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 954,
+      "target": ".payload_LockRS",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 961,
+      "target": ".payload_LockA",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 971,
+      "target": ".payload_MainControls",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 979,
+      "target": ".payload_LockB",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 989,
+      "target": ".payload_MainControls",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 997,
+      "target": ".payload_LockX",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 1007,
+      "target": ".payload_MainControls",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 1017,
+      "target": ".payload_LockA",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 1027,
+      "target": ".payload_LockB",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 1037,
+      "target": ".payload_LockX",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 1047,
+      "target": ".payload_LockRS",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 1061,
+      "target": ".payload_MainControls",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 1071,
+      "target": ".patch_2444_1",
+      "addend": "0x1",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2444_Mem_ButtonInputs",
+      "offset": 1083,
+      "target": ".patch_2444_1",
+      "addend": "0x1",
+      "type": "rel32"
+    },
+    {
+      "owner": ".patch_2444_1",
+      "offset": 1,
+      "target": ".payload_e2444_Mem_ButtonInputs",
+      "addend": "0xfffffffc",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2679_Mem_ArtePageIndicator",
+      "offset": 1,
+      "target": null,
+      "addend": "0x13224c",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2679_Mem_ArtePageIndicator",
+      "offset": 8,
+      "target": null,
+      "addend": "0x713abe",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2679_Mem_ArtePageIndicator",
+      "offset": 23,
+      "target": null,
+      "addend": "0x6d3f68",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2679_Mem_ArtePageIndicator",
+      "offset": 49,
+      "target": ".payload_PageSwitch",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2679_Mem_ArtePageIndicator",
+      "offset": 58,
+      "target": ".payload_PageString",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2679_Mem_ArtePageIndicator",
+      "offset": 83,
+      "target": ".payload_PageString",
+      "addend": "0x5",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2679_Mem_ArtePageIndicator",
+      "offset": 113,
+      "target": null,
+      "addend": "0x13224c",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2679_Mem_ArtePageIndicator",
+      "offset": 17,
+      "target": ".patch_2679_1",
+      "addend": "0x1",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2679_Mem_ArtePageIndicator",
+      "offset": 37,
+      "target": ".patch_2679_1",
+      "addend": "0x1",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2679_Mem_ArtePageIndicator",
+      "offset": 118,
+      "target": ".patch_2679_1",
+      "addend": "0x1",
+      "type": "rel32"
+    },
+    {
+      "owner": ".patch_2679_1",
+      "offset": 1,
+      "target": ".payload_e2679_Mem_ArtePageIndicator",
+      "addend": "0xfffffffc",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2687_Mem_UnisonPageIndicator",
+      "offset": 1,
+      "target": null,
+      "addend": "0x13224c",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2687_Mem_UnisonPageIndicator",
+      "offset": 8,
+      "target": null,
+      "addend": "0x6d3f68",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2687_Mem_UnisonPageIndicator",
+      "offset": 32,
+      "target": ".payload_PageSwitch",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2687_Mem_UnisonPageIndicator",
+      "offset": 51,
+      "target": ".payload_PageString",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2687_Mem_UnisonPageIndicator",
+      "offset": 67,
+      "target": ".payload_PageString",
+      "addend": "0x5",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2687_Mem_UnisonPageIndicator",
+      "offset": 72,
+      "target": null,
+      "addend": "0x13224c",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2687_Mem_UnisonPageIndicator",
+      "offset": 81,
+      "target": ".patch_2687_1",
+      "addend": "0x1",
+      "type": "rel32"
+    },
+    {
+      "owner": ".patch_2687_1",
+      "offset": 1,
+      "target": ".payload_e2687_Mem_UnisonPageIndicator",
+      "addend": "0xfffffffc",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2473_Mem_BattleArteBuffer",
+      "offset": 37,
+      "target": ".payload_StoredControls",
+      "addend": "0x8",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2473_Mem_BattleArteBuffer",
+      "offset": 45,
+      "target": ".payload_e2473_Mem_BattleArteBuffer",
+      "addend": "0x4a",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2473_Mem_BattleArteBuffer",
+      "offset": 56,
+      "target": ".payload_CharBuffer",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2473_Mem_BattleArteBuffer",
+      "offset": 63,
+      "target": ".payload_e2473_Mem_BattleArteBuffer",
+      "addend": "0x4a",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2473_Mem_BattleArteBuffer",
+      "offset": 72,
+      "target": ".payload_CharBuffer",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2473_Mem_BattleArteBuffer",
+      "offset": 96,
+      "target": ".payload_CharBuffer",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2473_Mem_BattleArteBuffer",
+      "offset": 16,
+      "target": null,
+      "addend": "0x75d4b",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2473_Mem_BattleArteBuffer",
+      "offset": 110,
+      "target": ".patch_2473_1",
+      "addend": "0x2",
+      "type": "rel32"
+    },
+    {
+      "owner": ".patch_2473_1",
+      "offset": 1,
+      "target": ".payload_e2473_Mem_BattleArteBuffer",
+      "addend": "0xfffffffc",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2476_Mem_BattleArteBufferCombo",
+      "offset": 38,
+      "target": ".payload_StoredControls",
+      "addend": "0x8",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2476_Mem_BattleArteBufferCombo",
+      "offset": 46,
+      "target": ".payload_e2476_Mem_BattleArteBufferCombo",
+      "addend": "0x4b",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2476_Mem_BattleArteBufferCombo",
+      "offset": 57,
+      "target": ".payload_CharBuffer",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2476_Mem_BattleArteBufferCombo",
+      "offset": 64,
+      "target": ".payload_e2476_Mem_BattleArteBufferCombo",
+      "addend": "0x4b",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2476_Mem_BattleArteBufferCombo",
+      "offset": 73,
+      "target": ".payload_CharBuffer",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2476_Mem_BattleArteBufferCombo",
+      "offset": 97,
+      "target": ".payload_CharBuffer",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2476_Mem_BattleArteBufferCombo",
+      "offset": 17,
+      "target": null,
+      "addend": "0x346e5",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2476_Mem_BattleArteBufferCombo",
+      "offset": 111,
+      "target": ".patch_2476_1",
+      "addend": "0x2",
+      "type": "rel32"
+    },
+    {
+      "owner": ".patch_2476_1",
+      "offset": 1,
+      "target": ".payload_e2476_Mem_BattleArteBufferCombo",
+      "addend": "0xfffffffc",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2475_Mem_BattleArteBufferAir",
+      "offset": 36,
+      "target": ".payload_StoredControls",
+      "addend": "0x8",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2475_Mem_BattleArteBufferAir",
+      "offset": 44,
+      "target": ".payload_e2475_Mem_BattleArteBufferAir",
+      "addend": "0x49",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2475_Mem_BattleArteBufferAir",
+      "offset": 55,
+      "target": ".payload_CharBuffer",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2475_Mem_BattleArteBufferAir",
+      "offset": 62,
+      "target": ".payload_e2475_Mem_BattleArteBufferAir",
+      "addend": "0x49",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2475_Mem_BattleArteBufferAir",
+      "offset": 71,
+      "target": ".payload_CharBuffer",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2475_Mem_BattleArteBufferAir",
+      "offset": 95,
+      "target": ".payload_CharBuffer",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2475_Mem_BattleArteBufferAir",
+      "offset": 15,
+      "target": null,
+      "addend": "0x75a77",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2475_Mem_BattleArteBufferAir",
+      "offset": 109,
+      "target": ".patch_2475_1",
+      "addend": "0x2",
+      "type": "rel32"
+    },
+    {
+      "owner": ".patch_2475_1",
+      "offset": 1,
+      "target": ".payload_e2475_Mem_BattleArteBufferAir",
+      "addend": "0xfffffffc",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2477_Mem_BattleArte",
+      "offset": 20,
+      "target": ".payload_CharBuffer",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2477_Mem_BattleArte",
+      "offset": 59,
+      "target": null,
+      "addend": "0x6d3f68",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2477_Mem_BattleArte",
+      "offset": 41,
+      "target": ".patch_2477_1",
+      "addend": "0x5",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2477_Mem_BattleArte",
+      "offset": 80,
+      "target": ".patch_2477_1",
+      "addend": "0x5",
+      "type": "rel32"
+    },
+    {
+      "owner": ".patch_2477_1",
+      "offset": 1,
+      "target": ".payload_e2477_Mem_BattleArte",
+      "addend": "0xfffffffc",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2478_Mem_BattleArteSelect",
+      "offset": 20,
+      "target": ".payload_CharBuffer",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2478_Mem_BattleArteSelect",
+      "offset": 58,
+      "target": null,
+      "addend": "0x6d3f68",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2478_Mem_BattleArteSelect",
+      "offset": 40,
+      "target": ".patch_2478_1",
+      "addend": "0x4",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2478_Mem_BattleArteSelect",
+      "offset": 78,
+      "target": ".patch_2478_1",
+      "addend": "0x4",
+      "type": "rel32"
+    },
+    {
+      "owner": ".patch_2478_1",
+      "offset": 1,
+      "target": ".payload_e2478_Mem_BattleArteSelect",
+      "addend": "0xfffffffc",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2479_Mem_BattleArteCombo",
+      "offset": 20,
+      "target": ".payload_CharBuffer",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2479_Mem_BattleArteCombo",
+      "offset": 59,
+      "target": null,
+      "addend": "0x6d3f68",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2479_Mem_BattleArteCombo",
+      "offset": 41,
+      "target": ".patch_2479_1",
+      "addend": "0x5",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2479_Mem_BattleArteCombo",
+      "offset": 80,
+      "target": ".patch_2479_1",
+      "addend": "0x5",
+      "type": "rel32"
+    },
+    {
+      "owner": ".patch_2479_1",
+      "offset": 1,
+      "target": ".payload_e2479_Mem_BattleArteCombo",
+      "addend": "0xfffffffc",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2480_Mem_BattleArteSelectCombo",
+      "offset": 20,
+      "target": ".payload_CharBuffer",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2480_Mem_BattleArteSelectCombo",
+      "offset": 58,
+      "target": null,
+      "addend": "0x6d3f68",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2480_Mem_BattleArteSelectCombo",
+      "offset": 40,
+      "target": ".patch_2480_1",
+      "addend": "0x4",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2480_Mem_BattleArteSelectCombo",
+      "offset": 78,
+      "target": ".patch_2480_1",
+      "addend": "0x4",
+      "type": "rel32"
+    },
+    {
+      "owner": ".patch_2480_1",
+      "offset": 1,
+      "target": ".payload_e2480_Mem_BattleArteSelectCombo",
+      "addend": "0xfffffffc",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2481_Mem_BattleArteSelectAir",
+      "offset": 20,
+      "target": ".payload_CharBuffer",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2481_Mem_BattleArteSelectAir",
+      "offset": 58,
+      "target": null,
+      "addend": "0x6d3f68",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2481_Mem_BattleArteSelectAir",
+      "offset": 40,
+      "target": ".patch_2481_1",
+      "addend": "0x4",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2481_Mem_BattleArteSelectAir",
+      "offset": 78,
+      "target": ".patch_2481_1",
+      "addend": "0x4",
+      "type": "rel32"
+    },
+    {
+      "owner": ".patch_2481_1",
+      "offset": 1,
+      "target": ".payload_e2481_Mem_BattleArteSelectAir",
+      "addend": "0xfffffffc",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2456_Mem_BattleArteCharCommand1",
+      "offset": 15,
+      "target": ".payload_StoredControls",
+      "addend": "0x8",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2456_Mem_BattleArteCharCommand1",
+      "offset": 23,
+      "target": ".payload_e2456_Mem_BattleArteCharCommand1",
+      "addend": "0x62",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2456_Mem_BattleArteCharCommand1",
+      "offset": 34,
+      "target": ".payload_CharBuffer",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2456_Mem_BattleArteCharCommand1",
+      "offset": 51,
+      "target": ".payload_e2456_Mem_BattleArteCharCommand1",
+      "addend": "0x62",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2456_Mem_BattleArteCharCommand1",
+      "offset": 62,
+      "target": ".payload_CharBuffer",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2456_Mem_BattleArteCharCommand1",
+      "offset": 80,
+      "target": null,
+      "addend": "0x6d3f68",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2456_Mem_BattleArteCharCommand1",
+      "offset": 120,
+      "target": ".payload_CharBuffer",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2456_Mem_BattleArteCharCommand1",
+      "offset": 148,
+      "target": ".payload_CharBuffer",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2456_Mem_BattleArteCharCommand1",
+      "offset": 46,
+      "target": ".patch_2456_1",
+      "addend": "0x3",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2456_Mem_BattleArteCharCommand1",
+      "offset": 98,
+      "target": ".patch_2456_1",
+      "addend": "0x3",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2456_Mem_BattleArteCharCommand1",
+      "offset": 165,
+      "target": ".patch_2456_2",
+      "addend": "0x3",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2456_Mem_BattleArteCharCommand1",
+      "offset": 174,
+      "target": ".patch_2456_2",
+      "addend": "0x3",
+      "type": "rel32"
+    },
+    {
+      "owner": ".patch_2456_1",
+      "offset": 1,
+      "target": ".payload_e2456_Mem_BattleArteCharCommand1",
+      "addend": "0xfffffffc",
+      "type": "rel32"
+    },
+    {
+      "owner": ".patch_2456_2",
+      "offset": 1,
+      "target": ".payload_e2456_Mem_BattleArteCharCommand1",
+      "addend": "0x79",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2549_Mem_BattleArteCharCommand2",
+      "offset": 15,
+      "target": ".payload_StoredControls",
+      "addend": "0x8",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2549_Mem_BattleArteCharCommand2",
+      "offset": 23,
+      "target": ".payload_e2549_Mem_BattleArteCharCommand2",
+      "addend": "0x62",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2549_Mem_BattleArteCharCommand2",
+      "offset": 34,
+      "target": ".payload_CharBuffer",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2549_Mem_BattleArteCharCommand2",
+      "offset": 51,
+      "target": ".payload_e2549_Mem_BattleArteCharCommand2",
+      "addend": "0x62",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2549_Mem_BattleArteCharCommand2",
+      "offset": 62,
+      "target": ".payload_CharBuffer",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2549_Mem_BattleArteCharCommand2",
+      "offset": 80,
+      "target": null,
+      "addend": "0x6d3f68",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2549_Mem_BattleArteCharCommand2",
+      "offset": 120,
+      "target": ".payload_CharBuffer",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2549_Mem_BattleArteCharCommand2",
+      "offset": 147,
+      "target": ".payload_CharBuffer",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2549_Mem_BattleArteCharCommand2",
+      "offset": 46,
+      "target": ".patch_2549_1",
+      "addend": "0x3",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2549_Mem_BattleArteCharCommand2",
+      "offset": 98,
+      "target": ".patch_2549_1",
+      "addend": "0x3",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2549_Mem_BattleArteCharCommand2",
+      "offset": 165,
+      "target": ".patch_2549_2",
+      "addend": "0x3",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2549_Mem_BattleArteCharCommand2",
+      "offset": 175,
+      "target": ".patch_2549_2",
+      "addend": "0x3",
+      "type": "rel32"
+    },
+    {
+      "owner": ".patch_2549_1",
+      "offset": 1,
+      "target": ".payload_e2549_Mem_BattleArteCharCommand2",
+      "addend": "0xfffffffc",
+      "type": "rel32"
+    },
+    {
+      "owner": ".patch_2549_2",
+      "offset": 1,
+      "target": ".payload_e2549_Mem_BattleArteCharCommand2",
+      "addend": "0x79",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2452_Mem_BattleArteChar1_A",
+      "offset": 20,
+      "target": ".payload_CharBuffer",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2452_Mem_BattleArteChar1_A",
+      "offset": 56,
+      "target": null,
+      "addend": "0x6d3f68",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2452_Mem_BattleArteChar1_A",
+      "offset": 38,
+      "target": ".patch_2452_1",
+      "addend": "0x2",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2452_Mem_BattleArteChar1_A",
+      "offset": 75,
+      "target": ".patch_2452_1",
+      "addend": "0x2",
+      "type": "rel32"
+    },
+    {
+      "owner": ".patch_2452_1",
+      "offset": 1,
+      "target": ".payload_e2452_Mem_BattleArteChar1_A",
+      "addend": "0xfffffffc",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2553_Mem_BattleArteChar2_A",
+      "offset": 20,
+      "target": ".payload_CharBuffer",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2553_Mem_BattleArteChar2_A",
+      "offset": 56,
+      "target": null,
+      "addend": "0x6d3f68",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2553_Mem_BattleArteChar2_A",
+      "offset": 38,
+      "target": ".patch_2553_1",
+      "addend": "0x2",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2553_Mem_BattleArteChar2_A",
+      "offset": 75,
+      "target": ".patch_2553_1",
+      "addend": "0x2",
+      "type": "rel32"
+    },
+    {
+      "owner": ".patch_2553_1",
+      "offset": 1,
+      "target": ".payload_e2553_Mem_BattleArteChar2_A",
+      "addend": "0xfffffffc",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2554_Mem_BattleArteSelectShortcut1_B",
+      "offset": 20,
+      "target": ".payload_CharBuffer",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2554_Mem_BattleArteSelectShortcut1_B",
+      "offset": 57,
+      "target": null,
+      "addend": "0x6d3f68",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2554_Mem_BattleArteSelectShortcut1_B",
+      "offset": 101,
+      "target": ".payload_CharBuffer",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2554_Mem_BattleArteSelectShortcut1_B",
+      "offset": 137,
+      "target": null,
+      "addend": "0x6d3f68",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2554_Mem_BattleArteSelectShortcut1_B",
+      "offset": 39,
+      "target": ".patch_2554_1",
+      "addend": "0x3",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2554_Mem_BattleArteSelectShortcut1_B",
+      "offset": 77,
+      "target": ".patch_2554_1",
+      "addend": "0x3",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2554_Mem_BattleArteSelectShortcut1_B",
+      "offset": 119,
+      "target": ".patch_2554_2",
+      "addend": "0x2",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2554_Mem_BattleArteSelectShortcut1_B",
+      "offset": 156,
+      "target": ".patch_2554_2",
+      "addend": "0x2",
+      "type": "rel32"
+    },
+    {
+      "owner": ".patch_2554_1",
+      "offset": 1,
+      "target": ".payload_e2554_Mem_BattleArteSelectShortcut1_B",
+      "addend": "0xfffffffc",
+      "type": "rel32"
+    },
+    {
+      "owner": ".patch_2554_2",
+      "offset": 1,
+      "target": ".payload_e2554_Mem_BattleArteSelectShortcut1_B",
+      "addend": "0x4d",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2552_Mem_BattleArteSelectShortcut2_B",
+      "offset": 20,
+      "target": ".payload_CharBuffer",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2552_Mem_BattleArteSelectShortcut2_B",
+      "offset": 57,
+      "target": null,
+      "addend": "0x6d3f68",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2552_Mem_BattleArteSelectShortcut2_B",
+      "offset": 101,
+      "target": ".payload_CharBuffer",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2552_Mem_BattleArteSelectShortcut2_B",
+      "offset": 137,
+      "target": null,
+      "addend": "0x6d3f68",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2552_Mem_BattleArteSelectShortcut2_B",
+      "offset": 39,
+      "target": ".patch_2552_1",
+      "addend": "0x3",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2552_Mem_BattleArteSelectShortcut2_B",
+      "offset": 77,
+      "target": ".patch_2552_1",
+      "addend": "0x3",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2552_Mem_BattleArteSelectShortcut2_B",
+      "offset": 119,
+      "target": ".patch_2552_2",
+      "addend": "0x2",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2552_Mem_BattleArteSelectShortcut2_B",
+      "offset": 156,
+      "target": ".patch_2552_2",
+      "addend": "0x2",
+      "type": "rel32"
+    },
+    {
+      "owner": ".patch_2552_1",
+      "offset": 1,
+      "target": ".payload_e2552_Mem_BattleArteSelectShortcut2_B",
+      "addend": "0xfffffffc",
+      "type": "rel32"
+    },
+    {
+      "owner": ".patch_2552_2",
+      "offset": 1,
+      "target": ".payload_e2552_Mem_BattleArteSelectShortcut2_B",
+      "addend": "0x4d",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2459_Mem_BattleArteChar1Combo",
+      "offset": 20,
+      "target": ".payload_CharBuffer",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2459_Mem_BattleArteChar1Combo",
+      "offset": 56,
+      "target": null,
+      "addend": "0x6d3f68",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2459_Mem_BattleArteChar1Combo",
+      "offset": 99,
+      "target": ".payload_CharBuffer",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2459_Mem_BattleArteChar1Combo",
+      "offset": 139,
+      "target": null,
+      "addend": "0x6d3f68",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2459_Mem_BattleArteChar1Combo",
+      "offset": 184,
+      "target": ".payload_CharBuffer",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2459_Mem_BattleArteChar1Combo",
+      "offset": 220,
+      "target": null,
+      "addend": "0x6d3f68",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2459_Mem_BattleArteChar1Combo",
+      "offset": 263,
+      "target": ".payload_CharBuffer",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2459_Mem_BattleArteChar1Combo",
+      "offset": 301,
+      "target": null,
+      "addend": "0x6d3f68",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2459_Mem_BattleArteChar1Combo",
+      "offset": 38,
+      "target": ".patch_2459_1",
+      "addend": "0x2",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2459_Mem_BattleArteChar1Combo",
+      "offset": 75,
+      "target": ".patch_2459_1",
+      "addend": "0x2",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2459_Mem_BattleArteChar1Combo",
+      "offset": 121,
+      "target": ".patch_2459_2",
+      "addend": "0x4",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2459_Mem_BattleArteChar1Combo",
+      "offset": 160,
+      "target": ".patch_2459_2",
+      "addend": "0x4",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2459_Mem_BattleArteChar1Combo",
+      "offset": 202,
+      "target": ".patch_2459_3",
+      "addend": "0x2",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2459_Mem_BattleArteChar1Combo",
+      "offset": 239,
+      "target": ".patch_2459_3",
+      "addend": "0x2",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2459_Mem_BattleArteChar1Combo",
+      "offset": 283,
+      "target": ".patch_2459_4",
+      "addend": "0x4",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2459_Mem_BattleArteChar1Combo",
+      "offset": 322,
+      "target": ".patch_2459_4",
+      "addend": "0x4",
+      "type": "rel32"
+    },
+    {
+      "owner": ".patch_2459_1",
+      "offset": 1,
+      "target": ".payload_e2459_Mem_BattleArteChar1Combo",
+      "addend": "0xfffffffc",
+      "type": "rel32"
+    },
+    {
+      "owner": ".patch_2459_2",
+      "offset": 1,
+      "target": ".payload_e2459_Mem_BattleArteChar1Combo",
+      "addend": "0x4b",
+      "type": "rel32"
+    },
+    {
+      "owner": ".patch_2459_3",
+      "offset": 1,
+      "target": ".payload_e2459_Mem_BattleArteChar1Combo",
+      "addend": "0xa0",
+      "type": "rel32"
+    },
+    {
+      "owner": ".patch_2459_4",
+      "offset": 1,
+      "target": ".payload_e2459_Mem_BattleArteChar1Combo",
+      "addend": "0xef",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2474_Mem_BattleArteChar1Air",
+      "offset": 20,
+      "target": ".payload_CharBuffer",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2474_Mem_BattleArteChar1Air",
+      "offset": 56,
+      "target": null,
+      "addend": "0x6d3f68",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2474_Mem_BattleArteChar1Air",
+      "offset": 99,
+      "target": ".payload_CharBuffer",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2474_Mem_BattleArteChar1Air",
+      "offset": 136,
+      "target": null,
+      "addend": "0x6d3f68",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2474_Mem_BattleArteChar1Air",
+      "offset": 38,
+      "target": ".patch_2474_1",
+      "addend": "0x2",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2474_Mem_BattleArteChar1Air",
+      "offset": 75,
+      "target": ".patch_2474_1",
+      "addend": "0x2",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2474_Mem_BattleArteChar1Air",
+      "offset": 118,
+      "target": ".patch_2474_2",
+      "addend": "0x3",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2474_Mem_BattleArteChar1Air",
+      "offset": 156,
+      "target": ".patch_2474_2",
+      "addend": "0x3",
+      "type": "rel32"
+    },
+    {
+      "owner": ".patch_2474_1",
+      "offset": 1,
+      "target": ".payload_e2474_Mem_BattleArteChar1Air",
+      "addend": "0xfffffffc",
+      "type": "rel32"
+    },
+    {
+      "owner": ".patch_2474_2",
+      "offset": 1,
+      "target": ".payload_e2474_Mem_BattleArteChar1Air",
+      "addend": "0x4b",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2555_Mem_BattleArteChar2Air",
+      "offset": 20,
+      "target": ".payload_CharBuffer",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2555_Mem_BattleArteChar2Air",
+      "offset": 56,
+      "target": null,
+      "addend": "0x6d3f68",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2555_Mem_BattleArteChar2Air",
+      "offset": 99,
+      "target": ".payload_CharBuffer",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2555_Mem_BattleArteChar2Air",
+      "offset": 136,
+      "target": null,
+      "addend": "0x6d3f68",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2555_Mem_BattleArteChar2Air",
+      "offset": 38,
+      "target": ".patch_2555_1",
+      "addend": "0x2",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2555_Mem_BattleArteChar2Air",
+      "offset": 75,
+      "target": ".patch_2555_1",
+      "addend": "0x2",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2555_Mem_BattleArteChar2Air",
+      "offset": 118,
+      "target": ".patch_2555_2",
+      "addend": "0x3",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2555_Mem_BattleArteChar2Air",
+      "offset": 156,
+      "target": ".patch_2555_2",
+      "addend": "0x3",
+      "type": "rel32"
+    },
+    {
+      "owner": ".patch_2555_1",
+      "offset": 1,
+      "target": ".payload_e2555_Mem_BattleArteChar2Air",
+      "addend": "0xfffffffc",
+      "type": "rel32"
+    },
+    {
+      "owner": ".patch_2555_2",
+      "offset": 1,
+      "target": ".payload_e2555_Mem_BattleArteChar2Air",
+      "addend": "0x4b",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2569_Mem_BattleArteUnison",
+      "offset": 5,
+      "target": ".payload_UnisonID",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2569_Mem_BattleArteUnison",
+      "offset": 17,
+      "target": ".payload_StoredControls",
+      "addend": "0x8",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2569_Mem_BattleArteUnison",
+      "offset": 42,
+      "target": ".payload_CharBuffer",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2569_Mem_BattleArteUnison",
+      "offset": 75,
+      "target": null,
+      "addend": "0x6d3f68",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2569_Mem_BattleArteUnison",
+      "offset": 57,
+      "target": ".patch_2569_1",
+      "addend": "0x4",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2569_Mem_BattleArteUnison",
+      "offset": 95,
+      "target": ".patch_2569_1",
+      "addend": "0x4",
+      "type": "rel32"
+    },
+    {
+      "owner": ".patch_2569_1",
+      "offset": 1,
+      "target": ".payload_e2569_Mem_BattleArteUnison",
+      "addend": "0xfffffffc",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2558_Mem_DisableRStickX",
+      "offset": 2,
+      "target": null,
+      "addend": "0x718652",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2558_Mem_DisableRStickX",
+      "offset": 18,
+      "target": ".patch_2558_1",
+      "addend": "0x2",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2558_Mem_DisableRStickY",
+      "offset": 2,
+      "target": null,
+      "addend": "0x718652",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2558_Mem_DisableRStickY",
+      "offset": 11,
+      "target": ".payload_BattleMenu",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2558_Mem_DisableRStickY",
+      "offset": 22,
+      "target": ".payload_ControlID",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2558_Mem_DisableRStickY",
+      "offset": 28,
+      "target": ".payload_LockRS",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2558_Mem_DisableRStickY",
+      "offset": 96,
+      "target": ".patch_2558_2",
+      "addend": "0x2",
+      "type": "rel32"
+    },
+    {
+      "owner": ".patch_2558_1",
+      "offset": 1,
+      "target": ".payload_e2558_Mem_DisableRStickX",
+      "addend": "0xfffffffc",
+      "type": "rel32"
+    },
+    {
+      "owner": ".patch_2558_2",
+      "offset": 1,
+      "target": ".payload_e2558_Mem_DisableRStickY",
+      "addend": "0xfffffffc",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2559_Mem_RemoveShortcutFix",
+      "offset": 30,
+      "target": ".patch_2559_1",
+      "addend": "0x6",
+      "type": "rel32"
+    },
+    {
+      "owner": ".patch_2559_1",
+      "offset": 1,
+      "target": ".payload_e2559_Mem_RemoveShortcutFix",
+      "addend": "0xfffffffc",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e785_Mem_ManualOverlimit",
+      "offset": 48,
+      "target": ".payload_StoredControls",
+      "addend": "0xb",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e785_Mem_ManualOverlimit",
+      "offset": 56,
+      "target": null,
+      "addend": "0x3944a",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e785_Mem_ManualOverlimit",
+      "offset": 70,
+      "target": ".patch_785_1",
+      "addend": "0x2",
+      "type": "rel32"
+    },
+    {
+      "owner": ".patch_785_1",
+      "offset": 1,
+      "target": ".payload_e785_Mem_ManualOverlimit",
+      "addend": "0xfffffffc",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e757_newmem",
+      "offset": 51,
+      "target": ".payload_e757_newmem",
+      "addend": "0x77",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e757_newmem",
+      "offset": 66,
+      "target": ".payload_e757_newmem",
+      "addend": "0x7b",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e757_newmem",
+      "offset": 76,
+      "target": ".payload_e757_newmem",
+      "addend": "0x7b",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e757_newmem",
+      "offset": 110,
+      "target": null,
+      "addend": "0x6456d",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e757_newmem",
+      "offset": 115,
+      "target": ".patch_757_1",
+      "addend": "0x1",
+      "type": "rel32"
+    },
+    {
+      "owner": ".patch_757_1",
+      "offset": 1,
+      "target": ".payload_e757_newmem",
+      "addend": "0xfffffffc",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e726_newmem",
+      "offset": 1,
+      "target": null,
+      "addend": "0x7bcdc",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e726_newmem",
+      "offset": 101,
+      "target": null,
+      "addend": "0x7bcdc",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e726_newmem",
+      "offset": 177,
+      "target": ".payload_e726_tempstr",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e726_newmem",
+      "offset": 183,
+      "target": ".payload_e726_tempstr",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e726_newmem",
+      "offset": 345,
+      "target": null,
+      "addend": "0x7bcdc",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e726_newmem",
+      "offset": 350,
+      "target": ".patch_726_1",
+      "addend": "0x1",
+      "type": "rel32"
+    },
+    {
+      "owner": ".patch_726_1",
+      "offset": 1,
+      "target": ".payload_e726_newmem",
+      "addend": "0xfffffffc",
+      "type": "rel32"
+    },
+    {
+      "owner": ".patch_2285_1",
+      "offset": 1,
+      "target": null,
+      "addend": "0x80742",
+      "type": "rel8"
+    },
+    {
+      "owner": ".payload_e2159_Mem_StickWalkCheck",
+      "offset": 16,
+      "target": ".payload_StoredControls",
+      "addend": "0xa",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2159_Mem_StickWalkCheck",
+      "offset": 27,
+      "target": null,
+      "addend": "0x6d37a8",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2159_Mem_StickWalkCheck",
+      "offset": 33,
+      "target": ".patch_2159_1",
+      "addend": "0x4",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2159_Mem_StickWalkCheck",
+      "offset": 44,
+      "target": ".patch_2159_1",
+      "addend": "0x4",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2159_Mem_StickWalkCheck",
+      "offset": 49,
+      "target": ".patch_2159_1",
+      "addend": "0x4",
+      "type": "rel32"
+    },
+    {
+      "owner": ".patch_2159_1",
+      "offset": 1,
+      "target": ".payload_e2159_Mem_StickWalkCheck",
+      "addend": "0xfffffffc",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e47_newmem6",
+      "offset": 3,
+      "target": ".payload_e47_chr_freerun",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e47_newmem6",
+      "offset": 18,
+      "target": null,
+      "addend": "0x765c2",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e47_newmem6",
+      "offset": 29,
+      "target": ".patch_47_1",
+      "addend": "0x4",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e47_newmem5",
+      "offset": 3,
+      "target": ".payload_e47_chr_freerun",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e47_newmem5",
+      "offset": 18,
+      "target": null,
+      "addend": "0x76473",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e47_newmem5",
+      "offset": 29,
+      "target": ".patch_47_2",
+      "addend": "0x4",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e47_newmem4",
+      "offset": 8,
+      "target": ".payload_e47_chr_freerun",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e47_newmem4",
+      "offset": 2,
+      "target": null,
+      "addend": "0x76721",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e47_newmem4",
+      "offset": 18,
+      "target": null,
+      "addend": "0x76721",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e47_newmem4",
+      "offset": 29,
+      "target": ".patch_47_3",
+      "addend": "0x4",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e47_newmem3",
+      "offset": 8,
+      "target": ".payload_e47_chr_freerun",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e47_newmem3",
+      "offset": 2,
+      "target": null,
+      "addend": "0x7637b",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e47_newmem3",
+      "offset": 18,
+      "target": null,
+      "addend": "0x7637b",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e47_newmem3",
+      "offset": 29,
+      "target": ".patch_47_4",
+      "addend": "0x4",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e47_newmem2",
+      "offset": 2,
+      "target": ".payload_e47_chr_freerun",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e47_newmem2",
+      "offset": 19,
+      "target": null,
+      "addend": "0x6d3772",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e47_newmem2",
+      "offset": 12,
+      "target": null,
+      "addend": "0x76849",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e47_newmem2",
+      "offset": 25,
+      "target": ".patch_47_5",
+      "addend": "0x4",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e47_newmem",
+      "offset": 6,
+      "target": ".payload_e47_chr_freerun",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e47_newmem",
+      "offset": 15,
+      "target": null,
+      "addend": "0x6d37a8",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e47_newmem",
+      "offset": 57,
+      "target": ".payload_StoredControls",
+      "addend": "0xa",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e47_newmem",
+      "offset": 83,
+      "target": ".payload_FreeRunActive",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e47_newmem",
+      "offset": 95,
+      "target": ".payload_e47_chr_freerun",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e47_newmem",
+      "offset": 107,
+      "target": null,
+      "addend": "0x6d37aa",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e47_newmem",
+      "offset": 165,
+      "target": ".patch_47_6",
+      "addend": "0x3",
+      "type": "rel32"
+    },
+    {
+      "owner": ".patch_47_1",
+      "offset": 1,
+      "target": ".payload_e47_newmem6",
+      "addend": "0xfffffffc",
+      "type": "rel32"
+    },
+    {
+      "owner": ".patch_47_2",
+      "offset": 1,
+      "target": ".payload_e47_newmem5",
+      "addend": "0xfffffffc",
+      "type": "rel32"
+    },
+    {
+      "owner": ".patch_47_3",
+      "offset": 1,
+      "target": ".payload_e47_newmem4",
+      "addend": "0xfffffffc",
+      "type": "rel32"
+    },
+    {
+      "owner": ".patch_47_4",
+      "offset": 1,
+      "target": ".payload_e47_newmem3",
+      "addend": "0xfffffffc",
+      "type": "rel32"
+    },
+    {
+      "owner": ".patch_47_5",
+      "offset": 1,
+      "target": ".payload_e47_newmem2",
+      "addend": "0xfffffffc",
+      "type": "rel32"
+    },
+    {
+      "owner": ".patch_47_6",
+      "offset": 1,
+      "target": ".payload_e47_newmem",
+      "addend": "0xfffffffc",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2161_Mem_FreeRun2",
+      "offset": 67,
+      "target": ".payload_MovementSpeed",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2161_Mem_FreeRun2",
+      "offset": 79,
+      "target": ".payload_MovementSpeed",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2161_Mem_FreeRun2",
+      "offset": 89,
+      "target": ".payload_MovementSpeed",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2161_Mem_FreeRun2",
+      "offset": 101,
+      "target": ".payload_StoredControls",
+      "addend": "0xa",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2161_Mem_FreeRun2",
+      "offset": 116,
+      "target": ".payload_MovementSpeed",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2161_Mem_FreeRun2",
+      "offset": 124,
+      "target": ".payload_PenaltySpeed",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2161_Mem_FreeRun2",
+      "offset": 153,
+      "target": null,
+      "addend": "0x6d3770",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2161_Mem_FreeRun2",
+      "offset": 160,
+      "target": null,
+      "addend": "0x6d3772",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2161_Mem_FreeRun2",
+      "offset": 183,
+      "target": ".payload_e2161_mval",
+      "addend": "0x4",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2161_Mem_FreeRun2",
+      "offset": 191,
+      "target": ".payload_e2161_mval",
+      "addend": "0x4",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2161_Mem_FreeRun2",
+      "offset": 199,
+      "target": ".payload_e2161_mval",
+      "addend": "0x1c",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2161_Mem_FreeRun2",
+      "offset": 207,
+      "target": ".payload_e2161_mval",
+      "addend": "0x50",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2161_Mem_FreeRun2",
+      "offset": 215,
+      "target": ".payload_e2161_mval",
+      "addend": "0x58",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2161_Mem_FreeRun2",
+      "offset": 221,
+      "target": ".payload_e2161_mval",
+      "addend": "0x50",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2161_Mem_FreeRun2",
+      "offset": 227,
+      "target": ".payload_e2161_mval",
+      "addend": "0x58",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2161_Mem_FreeRun2",
+      "offset": 232,
+      "target": null,
+      "addend": "0x2e7ce0",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2161_Mem_FreeRun2",
+      "offset": 238,
+      "target": ".payload_e2161_mval",
+      "addend": "0x48",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2161_Mem_FreeRun2",
+      "offset": 245,
+      "target": null,
+      "addend": "0x6d2edc",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2161_Mem_FreeRun2",
+      "offset": 253,
+      "target": ".payload_e2161_mval",
+      "addend": "0xc",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2161_Mem_FreeRun2",
+      "offset": 261,
+      "target": ".payload_e2161_mval",
+      "addend": "0x10",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2161_Mem_FreeRun2",
+      "offset": 282,
+      "target": ".payload_e2161_mval",
+      "addend": "0x48",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2161_Mem_FreeRun2",
+      "offset": 290,
+      "target": ".payload_e2161_mval",
+      "addend": "0x20",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2161_Mem_FreeRun2",
+      "offset": 296,
+      "target": ".payload_e2161_mval",
+      "addend": "0x20",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2161_Mem_FreeRun2",
+      "offset": 304,
+      "target": ".payload_e2161_mval",
+      "addend": "0x20",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2161_Mem_FreeRun2",
+      "offset": 310,
+      "target": ".payload_e2161_mval",
+      "addend": "0x24",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2161_Mem_FreeRun2",
+      "offset": 319,
+      "target": ".payload_e2161_mval",
+      "addend": "0x24",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2161_Mem_FreeRun2",
+      "offset": 327,
+      "target": ".payload_e2161_mval",
+      "addend": "0x20",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2161_Mem_FreeRun2",
+      "offset": 335,
+      "target": ".payload_e2161_mval",
+      "addend": "0x1c",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2161_Mem_FreeRun2",
+      "offset": 343,
+      "target": ".payload_e2161_mval",
+      "addend": "0x1c",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2161_Mem_FreeRun2",
+      "offset": 364,
+      "target": null,
+      "addend": "0x84cd0",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2161_Mem_FreeRun2",
+      "offset": 374,
+      "target": ".patch_2161_1",
+      "addend": "0x2",
+      "type": "rel32"
+    },
+    {
+      "owner": ".patch_2161_1",
+      "offset": 1,
+      "target": ".payload_e2161_Mem_FreeRun2",
+      "addend": "0xfffffffc",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2752_Mem_MoveSideCheck",
+      "offset": 27,
+      "target": ".payload_StoredControls",
+      "addend": "0xa",
+      "type": "abs32"
+    },
+    {
+      "owner": ".payload_e2752_Mem_MoveSideCheck",
+      "offset": 43,
+      "target": null,
+      "addend": "0x17ed6c",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2752_Mem_MoveSideCheck",
+      "offset": 34,
+      "target": ".patch_2752_1",
+      "addend": "0x5",
+      "type": "rel32"
+    },
+    {
+      "owner": ".payload_e2752_Mem_MoveSideCheck",
+      "offset": 48,
+      "target": ".patch_2752_1",
+      "addend": "0x5",
+      "type": "rel32"
+    },
+    {
+      "owner": ".patch_2752_1",
+      "offset": 1,
+      "target": ".payload_e2752_Mem_MoveSideCheck",
+      "addend": "0xfffffffc",
+      "type": "rel32"
+    },
+    {
+      "owner": ".ct_2692_alloc_0",
+      "offset": 33,
+      "target": null,
+      "addend": "0x6d2edc",
+      "type": "abs32"
+    },
+    {
+      "owner": ".ct_2692_alloc_0",
+      "offset": 53,
+      "target": ".ct_2692_alloc_0",
+      "addend": "0x99",
+      "type": "rel32"
+    },
+    {
+      "owner": ".ct_2692_alloc_0",
+      "offset": 69,
+      "target": ".ct_2692_state_3",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".ct_2692_alloc_0",
+      "offset": 89,
+      "target": ".ct_2692_state_3",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".ct_2692_alloc_0",
+      "offset": 127,
+      "target": ".ct_2692_alloc_0",
+      "addend": "0x99",
+      "type": "rel32"
+    },
+    {
+      "owner": ".ct_2692_alloc_0",
+      "offset": 142,
+      "target": ".ct_2692_state_3",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".ct_2692_alloc_0",
+      "offset": 148,
+      "target": ".ct_2692_alloc_0",
+      "addend": "0xb1",
+      "type": "rel32"
+    },
+    {
+      "owner": ".ct_2692_alloc_0",
+      "offset": 168,
+      "target": ".ct_2692_state_3",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".ct_2692_alloc_0",
+      "offset": 182,
+      "target": ".ct_2692_state_3",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".ct_2692_alloc_0",
+      "offset": 210,
+      "target": ".ct_2692_state_3",
+      "addend": "0x0",
+      "type": "abs32"
+    },
+    {
+      "owner": ".ct_2692_alloc_0",
+      "offset": 4,
+      "target": null,
+      "addend": "0x27277",
+      "type": "rel32"
+    },
+    {
+      "owner": ".ct_2692_alloc_0",
+      "offset": 62,
+      "target": null,
+      "addend": "0x27277",
+      "type": "rel32"
+    },
+    {
+      "owner": ".ct_2692_alloc_0",
+      "offset": 94,
+      "target": null,
+      "addend": "0x27277",
+      "type": "rel32"
+    },
+    {
+      "owner": ".ct_2692_alloc_0",
+      "offset": 109,
+      "target": null,
+      "addend": "0x27277",
+      "type": "rel32"
+    },
+    {
+      "owner": ".ct_2692_alloc_0",
+      "offset": 122,
+      "target": null,
+      "addend": "0x27277",
+      "type": "rel32"
+    },
+    {
+      "owner": ".ct_2692_alloc_0",
+      "offset": 136,
+      "target": null,
+      "addend": "0x27277",
+      "type": "rel32"
+    },
+    {
+      "owner": ".ct_2692_alloc_0",
+      "offset": 153,
+      "target": null,
+      "addend": "0x27277",
+      "type": "rel32"
+    },
+    {
+      "owner": ".ct_2692_patch_1",
+      "offset": 1,
+      "target": ".ct_2692_alloc_0",
+      "addend": "0xfffffffc",
+      "type": "rel32"
+    }
+  ],
+  "guards": [
+    {
+      "group": "ArtesSphere",
+      "rva": "0x346e9",
+      "expected": "f7 c1 00 0c 00 00 74 4d 8a 9e 22 13"
+    },
+    {
+      "group": "ArtesSphere",
+      "rva": "0x75a7b",
+      "expected": "0f b6 87 21 13 00 00 83 e0 03 8b 0c"
+    },
+    {
+      "group": "ArtesSphere",
+      "rva": "0x75d4f",
+      "expected": "f7 c2 00 08 00 00 74 18 8a 8f 22 13"
+    },
+    {
+      "group": "ArtesSphere",
+      "rva": "0x12e5b0",
+      "expected": "55 8b ec 51 66 8b c1 66 c1 e8 08 0f"
+    },
+    {
+      "group": "ArtesSphere",
+      "rva": "0x132250",
+      "expected": "55 8b ec 83 e4 f8 83 ec 0c 53 56 8b"
+    },
+    {
+      "group": "ManualOverLimit",
+      "rva": "0x80743",
+      "expected": "8b 87 40 93 00 00 f6 40 06 20 75 5b"
+    },
+    {
+      "group": "ManualOverLimit",
+      "rva": "0x3944e",
+      "expected": "8a 97 22 13 00 00 80 e2 0f 80 fa 05"
+    },
+    {
+      "group": "ManualOverLimit",
+      "rva": "0x64571",
+      "expected": "f7 44 24 18 00 02 00 00 74 15 6a 00"
+    },
+    {
+      "group": "NewFreeRun",
+      "rva": "0x7637f",
+      "expected": "d9 87 d8 38 01 00 d9 9f cc 38 01 00"
+    },
+    {
+      "group": "NewFreeRun",
+      "rva": "0x76477",
+      "expected": "d9 87 d8 38 01 00 dd 05 10 2a 88 00"
+    },
+    {
+      "group": "NewFreeRun",
+      "rva": "0x765c6",
+      "expected": "d9 87 d8 38 01 00 dd 05 10 2a 88 00"
+    },
+    {
+      "group": "NewFreeRun",
+      "rva": "0x76725",
+      "expected": "d9 87 d8 38 01 00 d9 9f cc 38 01 00"
+    },
+    {
+      "group": "NewFreeRun",
+      "rva": "0x7684d",
+      "expected": "8b 15 dc 2e ad 00 80 a7 bd 39 01 00"
+    },
+    {
+      "group": "NewFreeRun",
+      "rva": "0x84cd4",
+      "expected": "d9 ee 8b 8b a0 38 01 00 8b 83 9c 38"
+    },
+    {
+      "group": "NewFreeRun",
+      "rva": "0x17ed70",
+      "expected": "55 8b ec 83 e4 f8 83 ec 3c d9 00 53"
+    },
+    {
+      "group": "NewFreeRun",
+      "rva": "0x2e7ce4",
+      "expected": "ff 25 b0 33 70 00 ff 25 b4 33 70 00"
+    },
+    {
+      "group": "OverLimitGauge",
+      "rva": "0x7bce0",
+      "expected": "53 8b dc 83 ec 08 83 e4 f0 83 c4 04"
+    },
+    {
+      "group": "SpellQueueFix",
+      "rva": "0x2722e",
+      "expected": "74 1f 0f b6 93 b0 3a 01 00 8b 3d dc 2e ad 00 80 bc 3a ee 93 00 00 00 74 08 f7 c1 00 00 00 20"
+    },
+    {
+      "group": "SpellQueueFix",
+      "rva": "0x2722e",
+      "expected": "74 1f 0f b6 93 b0 3a 01 00 8b 3d dc 2e ad 00 80 bc 3a ee 93 00 00 00 74 08 f7 c1 00 00 00 20 74 2c 85 c0 75 28 0f b7 83 be 01 00 00 66 85 c0 74 08 48 66 89 83 be 01 00 00 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90"
+    },
+    {
+      "group": "SpellQueueFix",
+      "rva": "0x2727b",
+      "expected": "f6"
+    },
+    {
+      "group": "SpellQueueFix",
+      "rva": "0x2727b",
+      "expected": "f6 83 90 02 00 00 10 0f"
+    },
+    {
+      "group": "SpellQueueFix",
+      "rva": "0x2727b",
+      "expected": "f6 83 90 02 00 00 10 0f 85 32 01 00 00 0f bf 83 fa 12 00 00 25 07 00 00 80"
+    }
+  ],
+  "parameters": [
+    {
+      "key": "FreeRunMovementPenalty",
+      "group": "NewFreeRun",
+      "default": 0.2,
+      "min": 0,
+      "max_exclusive": 1,
+      "segment": ".payload_PenaltySpeed",
+      "offset": 0
+    }
+  ]
+}

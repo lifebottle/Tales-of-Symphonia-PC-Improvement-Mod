@@ -1,6 +1,7 @@
 #include "fast_forward.h"
 #include "fast_forward_clock.h"
 #include "logger.h"
+#include "ini_settings.h"
 
 #include <atomic>
 #include <cstdint>
@@ -38,7 +39,7 @@ std::wstring Setting(const std::wstring& path, const wchar_t* key,
     wchar_t value[128] = {};
     GetPrivateProfileStringW(L"FastForward", key, L"", value, 128, path.c_str());
     if (!value[0]) {
-        WritePrivateProfileStringW(L"FastForward", key, fallback, path.c_str());
+        IniSettings::WriteDefault(L"FastForward", key, fallback, path.c_str());
         return fallback;
     }
     return value;
@@ -116,7 +117,7 @@ bool InstallClock(unsigned char* base) {
 
 void Init(const std::wstring& basePath) {
     std::call_once(initOnce, [&] {
-        const auto path = basePath + L"\\textures\\config.ini";
+        const auto path = basePath + L"\\d3d9_config.ini";
         const bool enabled = Setting(path, L"Enabled", L"1") != L"0";
         wchar_t* end = nullptr;
 

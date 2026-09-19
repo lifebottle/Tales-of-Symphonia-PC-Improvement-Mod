@@ -44,8 +44,10 @@ void Direct3DDevice9Proxy::TrackTexture(IDirect3DTexture9* pOriginal, uint32_t c
     std::lock_guard<std::mutex> lock(m_texMutex);
     if (pReplacement) {
         m_textureReplacements[pOriginal] = pReplacement;
-        LOG("[Device] Tracking replacement for texture CRC32=%08X (orig=%p, repl=%p)",
-            crc32, pOriginal, pReplacement);
+        if (TextureManager::Instance().IsLoggingEnabled()) {
+            LOG("[Device] Tracking replacement for texture CRC32=%08X (orig=%p, repl=%p)",
+                crc32, pOriginal, pReplacement);
+        }
     }
 }
 
@@ -386,7 +388,9 @@ HRESULT STDMETHODCALLTYPE Direct3DDevice9Proxy::SetTexture(DWORD Stage, IDirect3
                 IDirect3DTexture9* pRepl = texMgr.GetReplacementTexture(m_pOriginal, crc);
                 if (pRepl) {
                     m_textureReplacements[pTexture] = pRepl;
-                    LOG("[SetTex] Replacing CRC32=%08X", crc);
+                    if (texMgr.IsLoggingEnabled()) {
+                        LOG("[SetTex] Replacing CRC32=%08X", crc);
+                    }
                     return m_pOriginal->SetTexture(Stage, pRepl);
                 }
             }
@@ -424,7 +428,9 @@ HRESULT STDMETHODCALLTYPE Direct3DDevice9Proxy::SetTexture(DWORD Stage, IDirect3
                                 if (pRepl) {
                                     m_textureReplacements[pTexture] = pRepl;
                                     pTex2D->UnlockRect(0);
-                                    LOG("[SetTex] Replacing (fallback) CRC32=%08X", fbCrc);
+                                    if (texMgr.IsLoggingEnabled()) {
+                                        LOG("[SetTex] Replacing (fallback) CRC32=%08X", fbCrc);
+                                    }
                                     return m_pOriginal->SetTexture(Stage, pRepl);
                                 }
                             }

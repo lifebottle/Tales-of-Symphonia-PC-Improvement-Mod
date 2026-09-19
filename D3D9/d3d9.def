@@ -15,3 +15,4 @@ EXPORTS
     D3DPERF_SetRegion          @11
     DebugSetLevel              @12
     DebugSetMute               @13
+    TOSPatchGetAPI             @14

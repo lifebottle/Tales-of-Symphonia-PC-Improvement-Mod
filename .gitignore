@@ -3,3 +3,6 @@ build/
 *.dll
 *.dll.a
 *.log
+__pycache__/
+
+/private/

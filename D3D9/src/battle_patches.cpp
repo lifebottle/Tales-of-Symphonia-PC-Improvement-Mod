@@ -1,0 +1,39 @@
+#include "battle_patches.h"
+#include "patch_api.h"
+#include "logger.h"
+#include <windows.h>
+#include <algorithm>
+#include <exception>
+#include <mutex>
+#include <vector>
+
+// Thin startup host. The definition runtime and C ABI know no battle features.
+namespace BattlePatches {
+void Init(const std::wstring& basePath) {
+    static std::once_flag once;
+    std::call_once(once,[&] {
+        try {
+            const auto ini=basePath+L"\\d3d9_config.ini";
+            if (GetPrivateProfileIntW(L"Patches",L"AutoLoad",1,ini.c_str())==0) {
+                LOG("[Patches] Automatic loading disabled; API remains available"); return;
+            }
+            const auto directory=basePath+L"\\patches\\";
+            WIN32_FIND_DATAW entry{};
+            HANDLE find=FindFirstFileW((directory+L"*.json").c_str(),&entry);
+            if (find==INVALID_HANDLE_VALUE) { LOG("[Patches] No JSON definitions found in patches\\"); return; }
+            std::vector<std::wstring> files;
+            do {
+                if (!(entry.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) files.emplace_back(entry.cFileName);
+            } while (FindNextFileW(find,&entry));
+            FindClose(find);
+            std::sort(files.begin(),files.end());
+            const auto* api=TOSPatchGetAPI(TOS_PATCH_API_VERSION);
+            for (const auto& file:files) {
+                char error[512]{};
+                if (api->apply((directory+file).c_str(),ini.c_str(),error,sizeof(error))!=TOS_PATCH_OK)
+                    LOG("[Patches] %ls rejected: %s",file.c_str(),error);
+            }
+        } catch (const std::exception& e) { LOG("[Patches] Startup failed: %s",e.what()); }
+    });
+}
+}
