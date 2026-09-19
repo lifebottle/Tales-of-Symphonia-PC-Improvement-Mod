@@ -28,8 +28,8 @@ void TextureManager::Init(const std::wstring& basePath) {
     m_dumpPath    = basePath + L"\\textures\\dump";
     m_replacePath = basePath + L"\\textures\\replace";
 
-    LoadConfig();
     EnsureDirectories();
+    LoadConfig();
     ScanReplacements();
 
     m_initialized = true;

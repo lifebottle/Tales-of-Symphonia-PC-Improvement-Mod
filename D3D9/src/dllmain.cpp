@@ -32,6 +32,7 @@
 #include "d3d9ex_proxy.h"
 #include "texture_manager.h"
 #include "game_patches.h"
+#include "fast_forward.h"
 #include "logger.h"
 
 // ============================================================================
@@ -157,6 +158,7 @@ extern "C" HRESULT WINAPI Direct3DCreate9Ex(UINT SDKVersion, IDirect3D9Ex** ppD3
 
     // Initialize the texture manager
     TextureManager::Instance().Init(GetDLLDirectory());
+    FastForward::Init(GetDLLDirectory());
 
     // Wrap it in our proxy so CreateDevice[Ex] returns our device proxy.
     LOG("[DLL] Wrapping IDirect3D9Ex with proxy");
@@ -248,6 +250,7 @@ IDirect3D9* WINAPI Direct3DCreate9(UINT SDKVersion) {
 
     // Initialize the texture manager
     TextureManager::Instance().Init(GetDLLDirectory());
+    FastForward::Init(GetDLLDirectory());
 
     // Return our proxy
     return new Direct3D9Proxy(pRealD3D9);

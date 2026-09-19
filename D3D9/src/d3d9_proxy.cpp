@@ -7,6 +7,7 @@
 #include "d3d9_proxy.h"
 #include "device_proxy.h"
 #include "logger.h"
+#include "fast_forward.h"
 
 
 Direct3D9Proxy::Direct3D9Proxy(IDirect3D9* pOriginal)
@@ -110,9 +111,11 @@ HRESULT STDMETHODCALLTYPE Direct3D9Proxy::CreateDevice(
     LOG("[D3D9] CreateDevice called (Adapter=%u, DevType=%d)", Adapter, DeviceType);
 
     IDirect3DDevice9* pRealDevice = nullptr;
-    HRESULT hr = m_pOriginal->CreateDevice(Adapter, DeviceType, hFocusWindow,
+    HRESULT hr = FastForward::WithPresentationParameters(pPresentationParameters, [&] {
+        return m_pOriginal->CreateDevice(Adapter, DeviceType, hFocusWindow,
                                             BehaviorFlags, pPresentationParameters,
                                             &pRealDevice);
+    });
     if (FAILED(hr) || !pRealDevice) {
         LOG("[D3D9] Real CreateDevice failed: 0x%08X", hr);
         return hr;

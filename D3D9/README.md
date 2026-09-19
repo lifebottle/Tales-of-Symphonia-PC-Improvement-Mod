@@ -1,9 +1,10 @@
 # D3D9 (Name TBD)
 
-A drop-in `d3d9.dll` proxy for the Steam release of *Tales of Symphonia* that does two things:
+A drop-in `d3d9.dll` proxy for the Steam release of *Tales of Symphonia* with three features:
 
 1. **Multi-PATCH archive loader** — patches `TOS.exe` in memory so that every subfolder of the game's `Files/WIN/PATCH` directory is mounted as an additional archive root, with a higher priority than the stock `R01` data. Multiple TLFile mods can be installed side by side without repacking. Also raises the game's I/O buffer from 256 MB to 1 GB so larger modded files load.
 2. **Texture replacement** — TSFix-compatible: hashes every DDS the game loads via D3DX with the same CRC32 TSFix uses, and swaps in `textures/replace/<CRC32>.dds` if present. Existing TSFix texture packs work without renaming. Textures loaded from `PATCH` folders are also created at their native DDS resolution instead of being downscaled to the size the game asks for.
+3. **Fast-forward cycle** — press **F6** to cycle **1× → 2× → 4× → 8× → 16× → 1×**, primarily for getting through dialogue and cutscenes. A label in the upper-right corner shows the active speed and disappears at 1×. Dialogue still uses the normal advance input.
 
 Works on **native Windows** and **Proton/Wine** (Steam Deck, Linux). TSFix and SpecialK don't run under Wine; this does, because it uses COM wrapping and a small self-contained IAT patch instead of a detours library.
 
@@ -108,7 +109,48 @@ EnableLogging=1
 ; Load D3DX textures at their native DDS resolution instead of the size
 ; the game requests (needed for hi-res textures shipped in PATCH folders)
 NativeTextureSize=1
+
+[FastForward]
+Enabled=1
+; Windows virtual-key code: 0x75 = F6
+ToggleKey=0x75
+DisableVSync=1
 ```
+
+### Fast-forward
+
+Fast-forward starts off every launch. The hotkey works while the game has focus;
+holding it does not repeatedly toggle. Losing focus turns fast-forward off on
+the next presented frame. A held key must be released before toggling again.
+The `[FastForward]` defaults are also added to existing config files. Restart
+the game after editing configuration.
+
+The speed cycle is fixed at 1×, 2×, 4×, 8×, and 16×. The old `Multiplier` setting
+is ignored if present in an existing config; no config edits are required.
+The on-screen `FAST FORWARD 2X`, `4X`, `8X`, or `16X` label stays visible while active.
+It uses a small built-in font and scales with the backbuffer resolution.
+`ToggleKey` accepts a decimal or `0x` hexadecimal Windows virtual-key code
+(1–254). For example, F6 is `0x75` and F7 is `0x76`.
+Set `Enabled=0` to disable the feature completely.
+
+`DisableVSync=1` requests immediate presentation at device creation and reset
+for the entire session, including normal speed. The game's software limiter
+still controls pacing; this avoids a graphics-device reset on each toggle.
+Tearing is possible. Set `DisableVSync=0` to preserve the game's presentation
+settings, at the cost of potentially limiting fast-forward to the display's
+refresh rate. If the driver rejects immediate presentation, the proxy retries
+the original settings and logs the fallback. External frame caps can also
+limit the achieved speed.
+
+The multiplier accelerates the whole game, including menus and gameplay; it
+does not automatically select dialogue choices or press the advance button.
+Audio and movie synchronization are not corrected. Existing 60 FPS animation
+and timing patches remain in place.
+
+The clock hook verifies two known game call sites and the resolved system
+`QueryPerformanceCounter` pointer before installing. An unrecognized or
+already hooked clock disables this feature and leaves presentation settings
+alone. Check `[FastForward] Ready` and `[FastForward] ON/OFF` in the log.
 
 The PATCH loader and I/O buffer patches are always applied — they run in `DllMain` before the game's own code, so there is nowhere to read a config from yet.
 
@@ -135,6 +177,7 @@ Replacement DDS files are loaded by a built-in loader (no D3DX dependency), stag
 | `[SetTex]` | Texture replacement activity                         |
 | `[DDS]`    | Replacement DDS loading                              |
 | `[VEH]`    | Access-violation diagnostics if the game crashes     |
+| `[FastForward]` | Clock hook, hotkey toggles, presentation fallback |
 
 ## Source layout
 
@@ -142,6 +185,9 @@ Replacement DDS files are loaded by a built-in loader (no D3DX dependency), stag
 src/
 ├── dllmain.cpp           # DLL entry, all 13 d3d9.dll exports, applies game patches
 ├── game_patches.h/cpp    # TOS.exe in-memory patches: multi-PATCH loader, I/O buffer, VEH
+├── fast_forward.h/cpp    # Validated game clock hook, toggle, presentation settings
+├── fast_forward_clock.h # Clock scaling and hotkey state logic
+├── fast_forward_overlay.h/cpp # Speed label; saves and restores graphics state
 ├── d3d9_proxy.h/cpp      # IDirect3D9 wrapper
 ├── d3d9ex_proxy.h/cpp    # IDirect3D9Ex wrapper (the game uses D3D9Ex)
 ├── device_proxy.h/cpp    # IDirect3DDevice9 wrapper (SetTexture interception)

@@ -14,6 +14,8 @@
 #include "d3dx9_hook.h"
 #include "crc32.h"
 #include "logger.h"
+#include "fast_forward.h"
+#include "fast_forward_overlay.h"
 
 
 Direct3DDevice9Proxy::Direct3DDevice9Proxy(IDirect3DDevice9* pOriginal, IDirect3D9* pD3D9Proxy)
@@ -146,10 +148,14 @@ HRESULT STDMETHODCALLTYPE Direct3DDevice9Proxy::Reset(D3DPRESENT_PARAMETERS* pPr
     // Clear D3DX texture hash map — all texture pointers are invalidated by Reset
     D3DXHook::ClearAll();
 
-    return m_pOriginal->Reset(pPresentationParameters);
+    return FastForward::WithPresentationParameters(pPresentationParameters, [&] {
+        return m_pOriginal->Reset(pPresentationParameters);
+    });
 }
 
 HRESULT STDMETHODCALLTYPE Direct3DDevice9Proxy::Present(CONST RECT* pSourceRect, CONST RECT* pDestRect, HWND hDestWindowOverride, CONST RGNDATA* pDirtyRegion) {
+    FastForward::PollHotkey();
+    FastForward::DrawOverlay(m_pOriginal, FastForward::CurrentSpeed());
     return m_pOriginal->Present(pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
 }
 

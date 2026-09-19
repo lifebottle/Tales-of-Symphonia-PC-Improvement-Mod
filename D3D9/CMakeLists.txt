@@ -14,6 +14,8 @@ add_library(d3d9 SHARED
     src/texture_manager.cpp
     src/dds_loader.cpp
     src/game_patches.cpp
+    src/fast_forward.cpp
+    src/fast_forward_overlay.cpp
     d3d9.def
 )
 

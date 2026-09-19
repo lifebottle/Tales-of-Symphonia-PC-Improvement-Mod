@@ -7,6 +7,7 @@
 #include "d3d9ex_proxy.h"
 #include "device_proxy.h"
 #include "logger.h"
+#include "fast_forward.h"
 
 
 Direct3D9ExProxy::Direct3D9ExProxy(IDirect3D9Ex* pOriginal)
@@ -111,9 +112,11 @@ HRESULT STDMETHODCALLTYPE Direct3D9ExProxy::CreateDevice(
     LOG("[D3D9Ex] CreateDevice called (Adapter=%u)", Adapter);
 
     IDirect3DDevice9* pRealDevice = nullptr;
-    HRESULT hr = m_pOriginal->CreateDevice(Adapter, DeviceType, hFocusWindow,
+    HRESULT hr = FastForward::WithPresentationParameters(pPresentationParameters, [&] {
+        return m_pOriginal->CreateDevice(Adapter, DeviceType, hFocusWindow,
                                             BehaviorFlags, pPresentationParameters,
                                             &pRealDevice);
+    });
     if (FAILED(hr) || !pRealDevice) {
         LOG("[D3D9Ex] Real CreateDevice failed: 0x%08X", hr);
         return hr;
@@ -150,9 +153,11 @@ HRESULT STDMETHODCALLTYPE Direct3D9ExProxy::CreateDeviceEx(
     LOG("[D3D9Ex] CreateDeviceEx called (Adapter=%u)", Adapter);
 
     IDirect3DDevice9Ex* pRealDeviceEx = nullptr;
-    HRESULT hr = m_pOriginal->CreateDeviceEx(Adapter, DeviceType, hFocusWindow,
+    HRESULT hr = FastForward::WithPresentationParameters(pPresentationParameters, [&] {
+        return m_pOriginal->CreateDeviceEx(Adapter, DeviceType, hFocusWindow,
                                               BehaviorFlags, pPresentationParameters,
                                               pFullscreenDisplayMode, &pRealDeviceEx);
+    });
     if (FAILED(hr) || !pRealDeviceEx) {
         LOG("[D3D9Ex] Real CreateDeviceEx failed: 0x%08X", hr);
         return hr;
