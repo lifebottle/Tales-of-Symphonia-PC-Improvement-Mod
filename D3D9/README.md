@@ -6,7 +6,7 @@ A drop-in `d3d9.dll` proxy for the Steam release of *Tales of Symphonia* with fo
 2. **Texture replacement** — TSFix-compatible: hashes every DDS the game loads via D3DX with the same CRC32 TSFix uses, and swaps in `textures/replace/<CRC32>.dds` if present. Existing TSFix texture packs work without renaming. Textures loaded from `PATCH` folders are also created at their native DDS resolution instead of being downscaled to the size the game asks for.
 3. **Fast-forward cycle** — press **F6** to cycle **1× → 2× → 4× → 8× → 16× → 1×**, primarily for getting through dialogue and cutscenes. A label in the upper-right corner shows the active speed and disappears at 1×. Dialogue still uses the normal advance input.
 
-4. **JSON patch definitions** — a reusable native patch runtime with INI options and a versioned mod-loader API. The shipped definition contains Artes Sphere, New Free Run, Manual Over Limit, Over Limit Gauge, Disable OvL Victory Drain, and Spell Queue Fix. Add or update definitions without rebuilding the DLL; Cheat Engine is not required.
+4. **JSON patch definitions** — a reusable native patch runtime with INI options and a versioned mod-loader API. The shipped definitions contain Artes Sphere, New Free Run, Manual Over Limit, Over Limit Gauge, Disable OvL Victory Drain, Spell Queue Fix, and Lloyd Super Chain. Add or update definitions without rebuilding the DLL; Cheat Engine is not required.
 
 Works on **native Windows** and **Proton/Wine** (Steam Deck, Linux). TSFix and SpecialK don't run under Wine; this does, because it uses COM wrapping and a small self-contained IAT patch instead of a detours library.
 
@@ -46,7 +46,8 @@ cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=toolchain-mingw32.cmake -DCMAKE_BUILD
 cmake --build build -j
 ```
 
-Output: `build/d3d9.dll` and `build/patches/battle-enhancements.json`.
+Output: `build/d3d9.dll`, `build/patches/battle-enhancements.json`, and
+`build/patches/lloyd-super-chain.json`.
 
 ### Windows (MSVC)
 
@@ -68,7 +69,8 @@ cmake --build build --config Release
    ├── TOS.exe
    ├── d3d9.dll                     ← this mod
    ├── patches/
-   │   └── battle-enhancements.json        ← optional battle features
+   │   ├── battle-enhancements.json        ← optional battle features
+   │   └── lloyd-super-chain.json          ← optional Lloyd Super Chain
    ├── Files/
    │   └── WIN/
    │       └── PATCH/
@@ -161,7 +163,7 @@ The PATCH loader and I/O buffer patches are always applied — they run in `DllM
 ## JSON patch definitions and optional battle patches
 
 Patches are loaded from `patches/*.json` beside `d3d9.dll`. Copy
-`D3D9/build/patches/battle-enhancements.json` along with the DLL when installing. The
+`D3D9/build/patches/` along with the DLL when installing. The
 DLL contains the patch runtime; changing patch assembly or adding features only
 requires updating the JSON.
 
@@ -208,6 +210,31 @@ state already saved by the game.
 Automated checks cover installation and selected native hook behavior on a
 synthetic image. Full battle/HUD behavior still needs in-game validation on
 Windows and Proton.
+
+### Lloyd Super Chain
+
+`patches/lloyd-super-chain.json` adds Super Chain to Lloyd's MAX-gem EX skill
+list, fixes the chaining windows for Demonic Tiger Blade, Demonic Thrust,
+Raining Tiger Blade, Tempest Thrust, Tempest Beast, and all four Rising Falcon
+variants, and extends the Ability Plus consecutive Level 1 allowance when
+both skills are active. The original once-per-chain and same-arte restrictions
+remain in place.
+
+Enable it in `d3d9_config.ini`, then restart:
+
+```ini
+[LloydSuperChain]
+Enabled=1
+```
+
+The option defaults to `0` and works independently of `[BattleEnhancements]`.
+It installs during startup and applies the nine window changes whenever battle
+descriptors are rebuilt. No debugger, Python, or on-disk PAC change is needed.
+The log reports `[Patches] lloyd-super-chain 1.0.0: installed 17 patches`.
+An unexpected battle-data layout skips all nine window writes for that rebuild.
+Use a fresh launch when switching from the IDA memory script; both versions use
+the same hook sites. The JSON port has native synthetic tests; its full in-game
+acceptance remains separate from the source installer's recorded battle tests.
 
 ## PATCH priority scheme
 
