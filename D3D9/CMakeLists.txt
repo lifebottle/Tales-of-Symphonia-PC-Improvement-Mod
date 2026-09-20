@@ -63,13 +63,3 @@ if(MINGW)
         -Wl,--gc-sections -s
     )
 endif()
-
-# Ready-to-copy release layout. Assembly/Python are only needed to assemble native hooks.
-add_custom_command(TARGET d3d9 POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:d3d9>/patches"
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        "${CMAKE_CURRENT_SOURCE_DIR}/patches/battle-enhancements.json"
-        "$<TARGET_FILE_DIR:d3d9>/patches/battle-enhancements.json"
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        "${CMAKE_CURRENT_SOURCE_DIR}/patches/lloyd-super-chain.json"
-        "$<TARGET_FILE_DIR:d3d9>/patches/lloyd-super-chain.json")
