@@ -7179,7 +7179,7 @@
   ],
   "parameters": [
     {
-      "key": "PARTY_SLOTS",
+      "key": "PartySlots",
       "group": "Enabled",
       "default": 1,
       "min": 1,
@@ -7188,7 +7188,7 @@
       "offset": 16444
     },
     {
-      "key": "ENEMY_SLOTS",
+      "key": "EnemySlots",
       "group": "Enabled",
       "default": 1,
       "min": 1,

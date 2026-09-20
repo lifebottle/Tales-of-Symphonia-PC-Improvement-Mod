@@ -186,6 +186,10 @@ The gauge and Spell Queue Fix can be used independently. `FreeRunMovementPenalty
 the table's movement multiplier (1.00 normally, 1.15 with Dash); accepted values
 are at least 0 and less than 1. The default is 0.20.
 
+Spell Queue Fix in `battle-enhancements.json` version 1.2.2 supports
+`add-spell-slots.json`, including its expanded party and enemy slots. Both can
+be enabled together. Update the battle JSON and restart; no DLL update is needed.
+
 Controls follow the table's controller mappings: hold **LB/L1** to select Sub
 artes for new battle inputs; release it to select Main artes again. This also
 works with remapped arte face buttons. Use **Select/Back** to switch Main/Sub pages in the arte assignment
@@ -199,7 +203,7 @@ party-limit adjustments. The gauge uses the game's own battle HUD drawing code.
 Free Run includes the directly-above/below-enemy correction.
 
 Installation occurs once during D3D initialization. The log reports
-`[Patches] battle-enhancements 1.2.1: installed 65 patches` with all five features enabled. Unexpected
+`[Patches] battle-enhancements 1.2.2: installed 65 patches` with all five features enabled. Unexpected
 instructions, conflicting hooks, or an unsupported executable disable the entire
 requested set for that launch, with the failing site logged. Existing texture,
 archive, and fast-forward features continue independently. Do not simultaneously

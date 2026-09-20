@@ -1,6 +1,6 @@
 {
   "id": "battle-enhancements",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "config_section": "BattleEnhancements",
   "image_size": "0x2b00000",
   "image_base": "0x400000",
@@ -1163,7 +1163,7 @@
       "group": "SpellQueueFix",
       "kind": "code",
       "name": "CT 2692: [Spell Queue Fix]",
-      "bytes": "85 c0 0f 85 fc ff ff ff 80 bb b0 01 00 00 0c 75 6d 0f b7 83 be 01 00 00 0f b6 93 b0 3a 01 00 8b 3d 00 00 00 00 80 bc 3a ee 93 00 00 00 74 39 66 85 c0 75 34 e8 fc ff ff ff 83 f9 03 0f 86 fc ff ff ff 31 c9 a1 00 00 00 00 84 c0 75 15 8a 83 22 13 00 00 6b c9 08 d3 c0 a3 00 00 00 00 e9 fc ff ff ff 41 c1 c8 08 eb e1 66 85 c0 0f 84 fc ff ff ff 48 66 89 83 be 01 00 00 e9 fc ff ff ff e8 fc ff ff ff 83 f9 03 0f 87 fc ff ff ff c6 81 00 00 00 00 00 e8 fc ff ff ff e9 fc ff ff ff 31 c9 0f b6 83 22 13 00 00 38 81 00 00 00 00 74 06 41 83 f9 03 76 f2 c3 a1 00 00 00 00 31 c9 31 d2 84 c0 74 05 c1 e2 08 88 c2 c1 e8 08 41 83 f9 03 76 ee 89 15 00 00 00 00 c3",
+      "bytes": "85 c0 0f 85 fc ff ff ff 80 bb b0 01 00 00 0c 0f 85 89 00 00 00 0f b7 83 be 01 00 00 0f b6 93 b0 3a 01 00 8b 3d 00 00 00 00 83 fa 06 72 17 83 fa 09 77 12 57 8b bf 50 f9 16 00 80 bc 17 7a 70 ff ff 00 5f eb 08 80 bc 3a ee 93 00 00 00 74 39 66 85 c0 75 34 e8 fc ff ff ff 83 f9 03 0f 86 fc ff ff ff 31 c9 a1 00 00 00 00 84 c0 75 15 8a 83 22 13 00 00 6b c9 08 d3 c0 a3 00 00 00 00 e9 fc ff ff ff 41 c1 c8 08 eb e1 66 85 c0 0f 84 fc ff ff ff 48 66 89 83 be 01 00 00 e9 fc ff ff ff e8 fc ff ff ff 83 f9 03 0f 87 fc ff ff ff c6 81 00 00 00 00 00 e8 fc ff ff ff e9 fc ff ff ff 31 c9 0f b6 83 22 13 00 00 38 81 00 00 00 00 74 06 41 83 f9 03 76 f2 c3 a1 00 00 00 00 31 c9 31 d2 84 c0 74 05 c1 e2 08 88 c2 c1 e8 08 41 83 f9 03 76 ee 89 15 00 00 00 00 c3",
       "size": 1280
     },
     {
@@ -4127,70 +4127,70 @@
     },
     {
       "owner": ".ct_2692_alloc_0",
-      "offset": 33,
+      "offset": 37,
       "target": null,
       "addend": "0x6d2edc",
       "type": "abs32"
     },
     {
       "owner": ".ct_2692_alloc_0",
-      "offset": 53,
+      "offset": 85,
       "target": ".ct_2692_alloc_0",
-      "addend": "0x99",
+      "addend": "0xb9",
       "type": "rel32"
     },
     {
       "owner": ".ct_2692_alloc_0",
-      "offset": 69,
+      "offset": 101,
       "target": ".ct_2692_state_3",
       "addend": "0x0",
       "type": "abs32"
     },
     {
       "owner": ".ct_2692_alloc_0",
-      "offset": 89,
+      "offset": 121,
       "target": ".ct_2692_state_3",
       "addend": "0x0",
       "type": "abs32"
     },
     {
       "owner": ".ct_2692_alloc_0",
-      "offset": 127,
+      "offset": 159,
       "target": ".ct_2692_alloc_0",
-      "addend": "0x99",
+      "addend": "0xb9",
       "type": "rel32"
     },
     {
       "owner": ".ct_2692_alloc_0",
-      "offset": 142,
+      "offset": 174,
       "target": ".ct_2692_state_3",
       "addend": "0x0",
       "type": "abs32"
     },
     {
       "owner": ".ct_2692_alloc_0",
-      "offset": 148,
+      "offset": 180,
       "target": ".ct_2692_alloc_0",
-      "addend": "0xb1",
+      "addend": "0xd1",
       "type": "rel32"
     },
     {
       "owner": ".ct_2692_alloc_0",
-      "offset": 168,
+      "offset": 200,
       "target": ".ct_2692_state_3",
       "addend": "0x0",
       "type": "abs32"
     },
     {
       "owner": ".ct_2692_alloc_0",
-      "offset": 182,
+      "offset": 214,
       "target": ".ct_2692_state_3",
       "addend": "0x0",
       "type": "abs32"
     },
     {
       "owner": ".ct_2692_alloc_0",
-      "offset": 210,
+      "offset": 242,
       "target": ".ct_2692_state_3",
       "addend": "0x0",
       "type": "abs32"
@@ -4204,13 +4204,6 @@
     },
     {
       "owner": ".ct_2692_alloc_0",
-      "offset": 62,
-      "target": null,
-      "addend": "0x27277",
-      "type": "rel32"
-    },
-    {
-      "owner": ".ct_2692_alloc_0",
       "offset": 94,
       "target": null,
       "addend": "0x27277",
@@ -4218,28 +4211,35 @@
     },
     {
       "owner": ".ct_2692_alloc_0",
-      "offset": 109,
+      "offset": 126,
       "target": null,
       "addend": "0x27277",
       "type": "rel32"
     },
     {
       "owner": ".ct_2692_alloc_0",
-      "offset": 122,
+      "offset": 141,
       "target": null,
       "addend": "0x27277",
       "type": "rel32"
     },
     {
       "owner": ".ct_2692_alloc_0",
-      "offset": 136,
+      "offset": 154,
       "target": null,
       "addend": "0x27277",
       "type": "rel32"
     },
     {
       "owner": ".ct_2692_alloc_0",
-      "offset": 153,
+      "offset": 168,
+      "target": null,
+      "addend": "0x27277",
+      "type": "rel32"
+    },
+    {
+      "owner": ".ct_2692_alloc_0",
+      "offset": 185,
       "target": null,
       "addend": "0x27277",
       "type": "rel32"
@@ -4341,12 +4341,22 @@
     {
       "group": "SpellQueueFix",
       "rva": "0x2722e",
-      "expected": "74 1f 0f b6 93 b0 3a 01 00 8b 3d dc 2e ad 00 80 bc 3a ee 93 00 00 00 74 08 f7 c1 00 00 00 20"
+      "expected": "74 1f 0f b6 93 b0 3a 01 00 8b 3d dc 2e ad 00"
+    },
+    {
+      "group": "SpellQueueFix",
+      "rva": "0x27245",
+      "expected": "74 08 f7 c1 00 00 00 20"
     },
     {
       "group": "SpellQueueFix",
       "rva": "0x2722e",
-      "expected": "74 1f 0f b6 93 b0 3a 01 00 8b 3d dc 2e ad 00 80 bc 3a ee 93 00 00 00 74 08 f7 c1 00 00 00 20 74 2c 85 c0 75 28 0f b7 83 be 01 00 00 66 85 c0 74 08 48 66 89 83 be 01 00 00 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90"
+      "expected": "74 1f 0f b6 93 b0 3a 01 00 8b 3d dc 2e ad 00"
+    },
+    {
+      "group": "SpellQueueFix",
+      "rva": "0x27245",
+      "expected": "74 08 f7 c1 00 00 00 20 74 2c 85 c0 75 28 0f b7 83 be 01 00 00 66 85 c0 74 08 48 66 89 83 be 01 00 00 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90"
     },
     {
       "group": "SpellQueueFix",
