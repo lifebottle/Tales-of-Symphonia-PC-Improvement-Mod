@@ -74,15 +74,14 @@ if(MINGW)
     )
 endif()
 
-add_executable(tos-ct-converter WIN32 tools/patch_gui.cpp)
+# Build the converter explicitly, independently of the default DLL build.
+add_executable(tos-ct-converter WIN32 EXCLUDE_FROM_ALL tools/patch_gui.cpp)
 target_link_libraries(tos-ct-converter PRIVATE ct_import comctl32 comdlg32 ole32 uuid)
 target_compile_definitions(tos-ct-converter PRIVATE WIN32_LEAN_AND_MEAN NOMINMAX)
 if(MINGW)
     target_link_options(tos-ct-converter PRIVATE -municode -static "$<$<CONFIG:Release>:-s>")
 endif()
-add_custom_target(patch_packages ALL
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/patches ${CMAKE_CURRENT_BINARY_DIR}/patches)
-install(TARGETS d3d9 tos-ct-converter tos-patch RUNTIME DESTINATION . LIBRARY DESTINATION .)
+install(TARGETS d3d9 tos-ct-converter RUNTIME DESTINATION . LIBRARY DESTINATION .)
 install(DIRECTORY patches DESTINATION . PATTERN "*.json" EXCLUDE)
 install(FILES third_party/PATCH_DEPENDENCIES.md DESTINATION licenses)
 foreach(dep asmjit asmtk pugixml)

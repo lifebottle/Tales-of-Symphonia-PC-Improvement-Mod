@@ -103,8 +103,7 @@ duplicate IDs, supply valid, unique `id` overrides. Parameter `script` reference
 use the resolved ID. The converter omits default values and empty arrays from
 generated manifests while preserving custom IDs, labels, and feature mappings.
 
-The Windows GUI and command-line converter use the same manifest writer. Imported
-scripts keep their CT entry ID and description, so an export can still include
+Imported scripts keep their CT entry ID and description, so an export can still include
 `id = "2365"` and a descriptive `name` beside `file = "entry-2365.asm"`. Those are
 overrides, not redundant defaults. A sole feature is inferred; packages with
 multiple features retain explicit mappings wherever the script ID does not
@@ -199,32 +198,24 @@ The symbol must address four bytes in that feature's writable allocation. Invali
 or nonfinite INI values use the default. Existing battle/spell-slot INI sections,
 keys, defaults, and parameter semantics are unchanged.
 
-## Command line and builds
-
-The GUI and CLI use the same C++ importer and compiler as the DLL:
-
-```text
-tos-patch.exe list table.CT
-tos-patch.exe convert table.CT --exe TOS.exe --entry 2365=MinimumDamage --id minimum-damage --section ImportedPatches --output exported-minimum-damage
-tos-patch.exe check exported-minimum-damage/patch.toml --exe TOS.exe
-```
-
-Repeat `--entry ID=Key` for multiple features. `--ignore-table-lua` corresponds
-to the GUI option. `check` without `--exe`
-compiles exported packages and checks assertions for coverage; supplying the
-executable also compares their bytes against that file.
+## Building
 
 Building requires CMake 3.31+ and a C++17 compiler. Build on Windows with Visual Studio's Win32 target:
 
 ```sh
 cmake -S D3D9 -B D3D9/build -A Win32
-cmake --build D3D9/build --config Release
+cmake --build D3D9/build --config Release --target tos-ct-converter
+```
+
+To create a portable ZIP, also build the DLL and run CPack:
+
+```sh
+cmake --build D3D9/build --config Release --target d3d9
 cpack --config D3D9/build/CPackConfig.cmake -C Release
 ```
 
-Or cross-compile with the existing MinGW toolchain. All dependency sources are
-vendored at pinned revisions. Neither building nor running the tools downloads
-anything. A native Linux build produces the CLI and portable compiler tests:
+Or cross-compile with the existing MinGW toolchain. Build and run the portable
+compiler tests on Linux:
 
 ```sh
 cmake -S D3D9 -B /tmp/tos-patch-native -DCMAKE_BUILD_TYPE=Debug

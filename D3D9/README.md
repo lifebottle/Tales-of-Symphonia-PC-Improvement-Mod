@@ -42,11 +42,14 @@ Requires CMake 3.31+ and `mingw-w64` (32-bit target — the game is a 32-bit exe
 
 ```bash
 cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=toolchain-mingw32.cmake -DCMAKE_BUILD_TYPE=Release
-cmake --build build -j
+cmake --build build --target d3d9 -j
 ```
 
-Output: `build/d3d9.dll`, `build/tos-ct-converter.exe`, `build/tos-patch.exe`, and
-the readable package folders in `build/patches/`. Use CPack to create a portable ZIP.
+Output: `build/d3d9.dll`. Build the GUI converter separately:
+
+```bash
+cmake --build build --target tos-ct-converter -j
+```
 
 ### Windows (MSVC)
 
@@ -54,25 +57,50 @@ Requires Visual Studio 2019+ and a Windows SDK with DirectX 9 headers.
 
 ```bash
 cmake -S . -B build -A Win32
-cmake --build build --config Release
+cmake --build build --config Release --target d3d9
+# Build the converter separately when needed:
+cmake --build build --config Release --target tos-ct-converter
 ```
 
 > Must be built as **Win32 (32-bit)**. A 64-bit DLL will not load into the game.
 
 ## Installation
 
-1. Copy `d3d9.dll` and its accompanying `patches/` directory next to `TOS.exe`.
-2. Put TLFile mods in subfolders of `Files/WIN/PATCH` (not the top-level game directory), and TSFix-style textures in `textures/replace/`:
+1. Copy `d3d9.dll` next to `TOS.exe`.
+2. Copy the `patches/` directory into the same game directory. When building from source, use `D3D9/patches/` from the checkout:
+
+   ```
+   <game_dir>/
+   ├── TOS.exe
+   ├── d3d9.dll
+   └── patches/
+       ├── README.md                   ← patch configuration and controls
+       ├── battle-enhancements/
+       │   ├── patch.toml              ← package manifest
+       │   ├── ArtesSphere.asm
+       │   ├── ManualOverLimit.asm
+       │   ├── NewFreeRun.asm
+       │   ├── OverLimitGauge.asm
+       │   └── SpellQueueFix.asm
+       ├── add-spell-slots/
+       │   ├── patch.toml
+       │   ├── guards.asm
+       │   ├── helpers.asm
+       │   ├── hooks.asm
+       │   └── state.asm
+       └── lloyd-super-chain/
+           ├── patch.toml
+           └── Enabled.asm
+   ```
+
+   Keep each package's `patch.toml` and all its `.asm` files together in its subfolder. See the [patch README](patches/README.md) for settings and controls.
+3. Put TLFile mods in subfolders of `Files/WIN/PATCH` (not the top-level game directory), and TSFix-style textures in `textures/replace/`:
+
    ```
    <game_dir>/
    ├── TOS.exe
    ├── d3d9.dll                     ← this mod
    ├── d3d9_config.ini              ← created on first run
-   ├── patches/
-   │   ├── README.md                       ← patch configuration and controls
-   │   ├── battle-enhancements/             ← patch.toml and feature .asm files
-   │   ├── add-spell-slots/
-   │   └── lloyd-super-chain/
    ├── Files/
    │   └── WIN/
    │       └── PATCH/
@@ -86,7 +114,7 @@ cmake --build build --config Release
        └── replace/                 ← <CRC32>.dds files go here
    ```
    Each mod folder must contain **both** `FILEHEADER.TOFHDB` (the file index) and `TLFILE.TLDAT` (the file data). A folder with only `TLFILE.TLDAT` is registered but resolves to nothing.
-3. Run the game.
+4. Run the game.
 
 ### Proton / Steam Deck
 
@@ -169,7 +197,7 @@ settings, controls, compatibility notes, and source provenance.
 
 Use **tos-ct-converter.exe** to convert saved Cheat Tables into patch folders.
 The [converter and authoring guide](docs/PATCH_AUTHORING.md) covers supported
-scripts, compact manifests, and command-line use.
+scripts and compact manifests.
 
 ## PATCH priority scheme
 

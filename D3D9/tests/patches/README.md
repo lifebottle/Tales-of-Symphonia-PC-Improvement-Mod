@@ -58,7 +58,7 @@ Coverage retained from the former private harnesses:
 GUI acceptance: unzip on a machine without developer tools, load a CT and TOS.exe,
 select a script, edit its feature key, validate and export to a new folder. Verify
 preview/error messages, grouped selection, Unicode/spaced paths, export failures,
-and opening the generated folder with `tos-patch check`. The initial implementation
+and the generated manifest and assembly files. The initial implementation
 was exercised under Wine on a temporary virtual display; native Windows GUI and
 live Windows/Proton gameplay remain separate acceptance checks.
 

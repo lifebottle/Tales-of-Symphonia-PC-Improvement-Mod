@@ -7,7 +7,7 @@ and validates them at startup, then installs the enabled features.
 Use **tos-ct-converter.exe** on Windows to select entries from a saved Cheat Table,
 validate them against TOS.exe, and export a patch folder. No WSL, Python, or
 external assembler is needed. See the [authoring guide](../docs/PATCH_AUTHORING.md)
-for the supported CE subset, command-line tool, and package format.
+for the supported CE subset and package format.
 
 This replaces the previous JSON format: install the new DLL and package folders
 together, then remove the old `.json` files. Legacy files are logged and ignored.

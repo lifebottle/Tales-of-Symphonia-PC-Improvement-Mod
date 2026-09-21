@@ -19,7 +19,7 @@ This DLL replaces the old JSON patch format. Old JSON files are ignored.
 Do not enable the same patches in Cheat Engine at the same time.
 
 The authoring guide in docs/PATCH_AUTHORING.md explains supported CE syntax,
-INI configuration, command-line use, and API version 2. See
+INI configuration and API version 2. See
  patches/README.md for bundled patch settings, controls, compatibility, and origins.
 
 The converter does not modify TOS.exe, attach to a game, or change INI settings.
