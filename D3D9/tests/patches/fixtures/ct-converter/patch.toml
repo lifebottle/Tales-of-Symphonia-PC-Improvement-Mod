@@ -1,0 +1,16 @@
+# Readable patch package, format 1. Feature defaults remain off.
+config_section = 'Fixture'
+format = 1
+id = 'fixture'
+image_base = 4194304
+image_size = 8192
+version = '1'
+
+[[features]]
+key = 'Enabled'
+
+[[scripts]]
+file = 'entry-1.asm'
+id = '1'
+name = 'CT 1: Fixture 1'
+writable = [ 'value' ]

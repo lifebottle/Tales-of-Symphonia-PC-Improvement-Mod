@@ -53,3 +53,5 @@ enabled. Confirm `[FastForward] Ready` and ON/OFF log entries. Existing configs
 with `Multiplier=4.0` must still use the new cycle. Repeat with `Enabled=0` and
 `DisableVSync=0` to verify those settings. Audio synchronization and animation
 accuracy during fast-forward are outside this feature's scope.
+
+Readable patch compiler, converter, migration, and native hook checks are documented in [patches/README.md](patches/README.md).

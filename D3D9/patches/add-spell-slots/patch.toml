@@ -1,0 +1,41 @@
+# CE-style source is the authoritative patch definition.
+format = 1
+id = "add-spell-slots"
+version = "1.0.0"
+config_section = "AddSpellSlots"
+image_base = 0x400000
+image_size = 0x2b00000
+
+[[features]]
+key = "Enabled"
+
+[[scripts]]
+file = "helpers.asm"
+
+[[scripts]]
+file = "state.asm"
+writable = ["mem_arena"]
+
+[[scripts]]
+file = "hooks.asm"
+
+[[scripts]]
+file = "guards.asm"
+
+[[parameters]]
+key = "PartySlots"
+feature = "Enabled"
+script = "state"
+symbol = "PARTY_SLOTS"
+default = 1
+min = 1
+max_exclusive = 5
+
+[[parameters]]
+key = "EnemySlots"
+feature = "Enabled"
+script = "state"
+symbol = "ENEMY_SLOTS"
+default = 1
+min = 1
+max_exclusive = 4

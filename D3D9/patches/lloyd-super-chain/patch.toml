@@ -1,0 +1,14 @@
+# CE-style source is the authoritative patch definition.
+format = 1
+id = "lloyd-super-chain"
+version = "1.0.0"
+config_section = "LloydSuperChain"
+image_base = 0x400000
+image_size = 0x2b00000
+
+[[features]]
+key = "Enabled"
+
+[[scripts]]
+file = "Enabled.asm"
+writable = ["mem_menu_buffer", "mem_status", "mem_rows"]
