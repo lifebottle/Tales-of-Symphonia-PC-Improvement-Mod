@@ -1,12 +1,12 @@
 // ============================================================================
-// Tales of Symphonia PC Improvement Mod — Game Memory Patches Implementation
+// Tales of Symphonia PC Improvement Mod — Archive Loader Implementation
 //
 // Binary patches for TOS.exe (Steam, non-ASLR, base 0x400000):
 //   1. Multi-PATCH archive loader
 //   2. I/O buffer size increase
 // ============================================================================
 
-#include "game_patches.h"
+#include "archive_loader.h"
 #include "logger.h"
 
 #include <windows.h>
@@ -229,11 +229,11 @@ static LONG CALLBACK VehHandler(PEXCEPTION_POINTERS pExInfo)
 // ============================================================================
 // Public API
 // ============================================================================
-namespace GamePatches {
+namespace ArchiveLoader {
 
 void InstallAll()
 {
-    LOG("[Patch] Installing game patches...");
+    LOG("[Patch] Installing archive loading patches...");
 
     IncreaseIOBufferSize();
     InstallMultiPatchHook();
@@ -241,7 +241,7 @@ void InstallAll()
     AddVectoredExceptionHandler(1, VehHandler);
     LOG("[Patch] VEH installed for crash diagnosis");
 
-    LOG("[Patch] All game patches installed");
+    LOG("[Patch] Archive loading patches installed");
 }
 
-} // namespace GamePatches
+} // namespace ArchiveLoader

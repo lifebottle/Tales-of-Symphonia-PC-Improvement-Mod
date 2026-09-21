@@ -1,4 +1,4 @@
-#include "battle_patches.h"
+#include "patch_loader.h"
 #include "patch_api.h"
 #include "logger.h"
 #include <windows.h>
@@ -7,8 +7,8 @@
 #include <mutex>
 #include <vector>
 
-// Thin startup host. The definition runtime and C ABI know no battle features.
-namespace BattlePatches {
+// Discover and apply patch packages at startup.
+namespace PatchLoader {
 void Init(const std::wstring& basePath) {
     static std::once_flag once;
     std::call_once(once,[&] {

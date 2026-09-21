@@ -22,11 +22,11 @@ add_library(d3d9 SHARED
     src/d3dx9_hook.cpp
     src/texture_manager.cpp
     src/dds_loader.cpp
-    src/battle_patches.cpp
+    src/patch_loader.cpp
     src/patch_options.cpp
     src/patch_runtime.cpp
     src/patch_host.cpp
-    src/game_patches.cpp
+    src/archive_loader.cpp
     src/fast_forward.cpp
     src/fast_forward_overlay.cpp
     d3d9.def

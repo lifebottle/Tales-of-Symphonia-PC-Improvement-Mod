@@ -31,9 +31,9 @@
 #include "d3d9_proxy.h"
 #include "d3d9ex_proxy.h"
 #include "texture_manager.h"
-#include "game_patches.h"
+#include "archive_loader.h"
 #include "fast_forward.h"
-#include "battle_patches.h"
+#include "patch_loader.h"
 #include "logger.h"
 
 // ============================================================================
@@ -160,7 +160,7 @@ extern "C" HRESULT WINAPI Direct3DCreate9Ex(UINT SDKVersion, IDirect3D9Ex** ppD3
     // Initialize the texture manager
     TextureManager::Instance().Init(GetDLLDirectory());
     FastForward::Init(GetDLLDirectory());
-    BattlePatches::Init(GetDLLDirectory());
+    PatchLoader::Init(GetDLLDirectory());
 
     // Wrap it in our proxy so CreateDevice[Ex] returns our device proxy.
     LOG("[DLL] Wrapping IDirect3D9Ex with proxy");
@@ -253,7 +253,7 @@ IDirect3D9* WINAPI Direct3DCreate9(UINT SDKVersion) {
     // Initialize the texture manager
     TextureManager::Instance().Init(GetDLLDirectory());
     FastForward::Init(GetDLLDirectory());
-    BattlePatches::Init(GetDLLDirectory());
+    PatchLoader::Init(GetDLLDirectory());
 
     // Return our proxy
     return new Direct3D9Proxy(pRealD3D9);
@@ -276,7 +276,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 
             // Install binary patches (multi-PATCH loader, I/O buffer increase).
             // This runs before any game code, patching TOS.exe in-place.
-            GamePatches::InstallAll();
+            ArchiveLoader::InstallAll();
 
             // Real d3d9.dll is loaded lazily on first API call, NOT here.
             // Loading it during DllMain can cause the loader to resolve

@@ -230,7 +230,7 @@ Replacement DDS files are loaded by a built-in loader (no D3DX dependency), stag
 ```
 src/
 ├── dllmain.cpp           # DLL entry, all 13 d3d9.dll exports, applies game patches
-├── game_patches.h/cpp    # TOS.exe in-memory patches: multi-PATCH loader, I/O buffer, VEH
+├── archive_loader.h/cpp  # Multi-PATCH archive loading, I/O buffer, VEH
 ├── fast_forward.h/cpp    # Validated game clock hook, toggle, presentation settings
 ├── fast_forward_clock.h # Clock scaling and hotkey state logic
 ├── fast_forward_overlay.h/cpp # Speed label; saves and restores graphics state
