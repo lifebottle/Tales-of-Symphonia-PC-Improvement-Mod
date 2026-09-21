@@ -6,8 +6,13 @@ The ordinary native CMake build runs `patch_script_test` and
 `patch_migration_test` through CTest. These cover CT parsing/selection, CE syntax,
 AOB resolution, diagnostics, original-byte and restoration checks, allocation and
 relocation rules, dependency discovery, unsupported constructs, Unicode paths,
-export preservation, and package parsing. Migration compares all 245 original
-patch sites and 5,015 guarded bytes against a frozen pre-migration fixture.
+export preservation, and package parsing. Child activation checks cover saved CT
+options, nested scripts/groups, separately selected descendants in every selection
+order, runtime dependency closure and export/reload, optional children, unsupported
+automatic children, and cycles with shared-symbol dependencies. Migration compares
+246 original patch sites and 5,014 guarded bytes against the frozen pre-migration
+fixture plus the explicitly checked Spell Queue Fix upgrade (one added unlock
+hook and eight retired guard bytes).
 
 The MinGW build also produces Windows x86 harnesses:
 
@@ -21,6 +26,7 @@ WINEPREFIX=/tmp/tos-patches-wine WINEDEBUG=-all wine D3D9/build/patch_framework_
 WINEPREFIX=/tmp/tos-patches-wine WINEDEBUG=-all wine D3D9/build/battle_patches_test.exe
 WINEPREFIX=/tmp/tos-patches-wine WINEDEBUG=-all wine D3D9/build/lloyd_super_chain_test.exe
 WINEPREFIX=/tmp/tos-patches-wine WINEDEBUG=-all wine D3D9/build/spell_slots_test.exe
+WINEPREFIX=/tmp/tos-patches-wine WINEDEBUG=-all wine D3D9/build/spell_queue_test.exe
 WINEPREFIX=/tmp/tos-patches-wine WINEDEBUG=-all wine D3D9/build/ct_converter_test.exe D3D9/patches/minimum-damage/patch.toml D3D9/patches/battle-enhancements/patch.toml
 ```
 
@@ -34,11 +40,16 @@ Coverage retained from the former private harnesses:
 - Installer: native absolute/relative relocations, float parameters, RX/RW
   protection, disabled/duplicate/rejected installation, conflicts, INI preservation,
   UTF-16 comments, float defaults, and API v2 negotiation.
-- Battle: all 32 feature combinations and 65 sites; Main/Sub inputs, right-stick
+- Battle: all 32 feature combinations and 66 sites; Main/Sub inputs, right-stick
   layers, register/stack handling, controller remapping, live Manual Over Limit
   controls, movement, gauge calculations, and original-byte/destination guards.
 - Spell slots: all 12 configurations, 12,288 capacity/admission cases, invalid
   settings, lifecycle/state reset, and both installation orders with battle hooks.
+- Spell Queue Fix: existing BattleEnhancements INI key, queue alone and with all
+  battle features, and all 12 spell-slot configurations in both orders;
+  native/expanded busy flags, complete spell-finish epilogue, timers, queue order,
+  duplicate/full queues, lock release and Unison; register/stack preservation,
+  sentinels around queue storage and original-byte rejection.
 - Lloyd: descriptor rebuilds, 174 mismatches, source preservation, registers/flags,
   menu buffer references, and Ability Plus gates.
 - CT: actual execution of a converted synthetic hook plus Minimum Damage and all

@@ -8,38 +8,22 @@ image_size = 0x2b00000
 
 [[features]]
 key = "Enabled"
-requires = []
 
 [[scripts]]
-id = "helpers"
-name = "Helpers"
 file = "helpers.asm"
-feature = "Enabled"
-writable = []
 
 [[scripts]]
-id = "state"
-name = "State"
 file = "state.asm"
-feature = "Enabled"
 writable = ["mem_arena"]
 
 [[scripts]]
-id = "hooks"
-name = "Hooks"
 file = "hooks.asm"
-feature = "Enabled"
-writable = []
 
 [[scripts]]
-id = "guards"
-name = "Guards"
 file = "guards.asm"
-feature = "Enabled"
-writable = []
 
 [[parameters]]
-key = "PARTY_SLOTS"
+key = "PartySlots"
 feature = "Enabled"
 script = "state"
 symbol = "PARTY_SLOTS"
@@ -48,7 +32,7 @@ min = 1
 max_exclusive = 5
 
 [[parameters]]
-key = "ENEMY_SLOTS"
+key = "EnemySlots"
 feature = "Enabled"
 script = "state"
 symbol = "ENEMY_SLOTS"

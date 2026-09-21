@@ -5,13 +5,17 @@ saved `.CT` files and exports CE-style assembly that the mod assembles at startu
 Players need the new `d3d9.dll` and the exported patch folder; they do not need
 Cheat Engine, Python, WSL, or an external assembler.
 
+For the bundled patches' settings, controls, compatibility notes, and origins,
+see the [patch README](../patches/README.md).
+
 ## Portable Windows converter
 
 1. Unzip the release and run **tos-ct-converter.exe**.
 2. Choose your saved Cheat Table and the game's unmodified **TOS.exe**.
-3. Check the enhancements to export. Selecting a group includes its children;
-   selecting a script includes children only when its CT activation options say so.
-   The child-selection checkbox can disable this behavior.
+3. Check the enhancements to export. Parents marked **auto-enables children**
+   include their children according to the saved CT activation options. Each
+   nested entry follows its own options. Ordinary groups do not enable their
+   children automatically; select the desired child entries directly.
 4. Select an entry to preview its script and edit its INI feature key. Give the
    package a distinct ID and choose its INI section.
 5. Click **Validate**. Resolve errors before exporting. Shared symbols require
@@ -27,6 +31,23 @@ Cheat Engine, Python, WSL, or an external assembler.
 The converter never attaches to the game or enables installed patches. It reads
 TOS.exe for original bytes and static AOB matches. A successful conversion checks
 installation requirements; gameplay still needs your usual in-game testing.
+
+The converter follows Cheat Engine's `moActivateChildrenAsWell` option for both
+scripts and groups. Automatically included scripts share the selected parent's
+INI key unless you also check a child as a separate feature. In that case, the
+parent's exported `requires` includes the child's key: enabling the parent still
+enables that child, even when the child's own INI setting is `0`. Nested activation
+works the same way. Validation lists the included scripts and feature dependencies;
+`INSTALL.txt` also lists which feature keys enable others.
+
+Group headers, hidden children, and `moDeactivateChildrenAsWell` alone do not imply
+activation. Unsupported automatically activated entries produce an error instead
+of being silently skipped. Activation via Lua/callbacks remains unsupported. These
+packages apply at startup; they do not reproduce live CE deactivation events.
+The former child-selection override and `--no-children` option have been removed
+so exports always honor the saved activation rules.
+
+This follows [Cheat Engine's child activation implementation](https://github.com/cheat-engine/cheat-engine/blob/master/Cheat%20Engine/MemoryRecordUnit.pas).
 
 A table containing Lua is rejected by default. **Ignore table-level Lua** is only
 for selected static scripts that do not depend on that Lua. It does not execute
@@ -60,15 +81,34 @@ image_size = 0x2b00000
 
 [[features]]
 key = "DisableDrain"
-requires = []
 
 [[scripts]]
-id = "drain"
-name = "Disable victory drain"
 file = "drain.asm"
-feature = "DisableDrain"
-writable = []
 ```
+
+Only `file` is required for a script when its feature can be inferred:
+
+- `id` defaults to the filename without its final extension, preserving case
+  (`scripts/drain.asm` becomes `drain`). Explicit IDs must be unique even when
+  files live in different directories.
+- `name` defaults to the resolved ID. Set it for a more descriptive display label.
+- `feature` defaults to the package's sole feature, or, for packages with multiple
+  features, the feature key exactly matching the resolved script ID. Otherwise,
+  specify `feature` explicitly.
+- `writable` and feature `requires` default to empty arrays.
+
+Explicit overrides remain supported in format 1. Invalid supplied values are
+rejected; defaults apply only to omitted fields. If filenames produce invalid or
+duplicate IDs, supply valid, unique `id` overrides. Parameter `script` references
+use the resolved ID. The converter omits default values and empty arrays from
+generated manifests while preserving custom IDs, labels, and feature mappings.
+
+The Windows GUI and command-line converter use the same manifest writer. Imported
+scripts keep their CT entry ID and description, so an export can still include
+`id = "2365"` and a descriptive `name` beside `file = "entry-2365.asm"`. Those are
+overrides, not redundant defaults. A sole feature is inferred; packages with
+multiple features retain explicit mappings wherever the script ID does not
+match its feature key. Empty `requires` and `writable` arrays are omitted.
 
 `drain.asm`:
 
@@ -96,6 +136,11 @@ use only one of those packages at that site.
 - Addition, subtraction, multiplication by constants, parentheses, and constant
   integer division. Address expressions must reduce to at most one relocatable
   base. `imul eax,10` retains CE's two-operand immediate shorthand.
+- Integer memory/immediate forms of `adc`, `add`, `and`, `cmp`, `mov`, `or`,
+  `sbb`, `sub`, `test`, and `xor` default to a 32-bit memory operand when no size
+  is specified: `cmp [edx],0` means `cmp dword ptr [edx],0`. Explicit sizes are
+  preserved; register operands still determine their own width (`cmp [edx],al`
+  compares one byte). This does not supply sizes for other ambiguous instructions.
 - `db`, `dw`, `dd`, `dq`, literal byte strings, `(float)`/`(double)` data, `nop count`,
   and `align power_of_two` (zero padding). Addresses in data require `dd`.
 - `assert(address, exact bytes)`. Every overwritten byte must be covered by an
@@ -164,8 +209,8 @@ tos-patch.exe convert table.CT --exe TOS.exe --entry 2365=MinimumDamage --id min
 tos-patch.exe check exported-minimum-damage/patch.toml --exe TOS.exe
 ```
 
-Repeat `--entry ID=Key` for multiple features. `--no-children` and
-`--ignore-table-lua` correspond to the GUI options. `check` without `--exe`
+Repeat `--entry ID=Key` for multiple features. `--ignore-table-lua` corresponds
+to the GUI option. `check` without `--exe`
 compiles exported packages and checks assertions for coverage; supplying the
 executable also compares their bytes against that file.
 

@@ -1,4 +1,6 @@
 #include "ct_import.h"
+#include "../third_party/tomlplusplus/toml.hpp"
+#include <algorithm>
 #include <cassert>
 #include <cstring>
 #include <fstream>
@@ -6,6 +8,8 @@
 #include <functional>
 #include <regex>
 #include <chrono>
+#include <sstream>
+#include <tuple>
 using namespace PatchScript;
 using namespace PatchFramework;
 const std::string Hook = R"([ENABLE]
@@ -68,6 +72,211 @@ void Write(const fs::path &path, const std::string &data) {
     f << data;
     assert(f.good());
 }
+void ManifestDefaults(const Image &image, const fs::path &temporary) {
+    auto directory = temporary / "manifest-defaults";
+    fs::create_directories(directory / "nested");
+    auto manifest = directory / "patch.toml";
+    auto original = Convert(image);
+    auto &script = original.scripts.front();
+    script.id = script.name = "State";
+    script.file = "nested/State.asm";
+    original.parameters.push_back({"Value", "Enabled", "State", "value", 7, 0, 10});
+    Write(directory / script.file, script.text);
+    auto read = [&](const std::string &text) {
+        Write(manifest, text);
+        return ReadPackage(manifest);
+    };
+    auto text = Manifest(original);
+    auto table = toml::parse(text);
+    auto &entry = *table["scripts"].as_array()->at(0).as_table();
+    assert(!entry.contains("id") && !entry.contains("name") && !entry.contains("feature"));
+    assert(entry["file"].value<std::string>() == script.file);
+    assert(entry["writable"].as_array()->size() == 1);
+    assert(!table["features"].as_array()->at(0).as_table()->contains("requires"));
+    auto loaded = read(text);
+    auto &resolved = loaded.scripts.front();
+    assert(resolved.id == "State" && resolved.name == "State" && resolved.feature == "Enabled");
+    assert(resolved.writable == script.writable);
+    assert(loaded.parameters.front().script == "State");
+
+    // Explicit format-1 metadata and compact metadata must compile identically.
+    entry.insert("id", "State");
+    entry.insert("name", "State");
+    entry.insert("feature", "Enabled");
+    auto fromTable = [&] {
+        std::ostringstream out;
+        out << table;
+        return read(out.str());
+    };
+    auto explicitPackage = fromTable();
+    auto expected = Compile(explicitPackage), actual = Compile(loaded);
+    assert(actual.symbols == expected.symbols);
+    const auto &a = actual.definition, &b = expected.definition;
+    assert(a.bytes == b.bytes && a.segments.size() == b.segments.size());
+    assert(a.fixups.size() == b.fixups.size() && a.guards.size() == b.guards.size());
+    for (size_t i = 0; i < a.segments.size(); ++i) {
+        const auto &x = a.segments[i], &y = b.segments[i];
+        assert(std::tie(x.group, x.kind, x.size, x.bytes, x.count, x.rva, x.expected, x.name) ==
+               std::tie(y.group, y.kind, y.size, y.bytes, y.count, y.rva, y.expected, y.name));
+    }
+    for (size_t i = 0; i < a.fixups.size(); ++i) {
+        const auto &x = a.fixups[i], &y = b.fixups[i];
+        assert(std::tie(x.owner, x.offset, x.target, x.addend, x.type) ==
+               std::tie(y.owner, y.offset, y.target, y.addend, y.type));
+    }
+    for (size_t i = 0; i < a.guards.size(); ++i) {
+        const auto &x = a.guards[i], &y = b.guards[i];
+        assert(std::tie(x.group, x.rva, x.bytes, x.count) == std::tie(y.group, y.rva, y.bytes, y.count));
+    }
+    assert(a.parameters.size() == 1 && b.parameters.size() == 1);
+    const auto &x = a.parameters.front(), &y = b.parameters.front();
+    assert(std::tie(x.group, x.segment, x.offset, x.value, x.minimum, x.maximum, x.key) ==
+           std::tie(y.group, y.segment, y.offset, y.value, y.minimum, y.maximum, y.key));
+    assert(Manifest(explicitPackage) == text);
+
+    for (auto key : {"id", "name", "feature"}) {
+        entry.insert_or_assign(key, 42);
+        Reject([&] { fromTable(); }, std::string("Invalid/missing field: ") + key);
+        entry.insert_or_assign(key, "");
+        Reject([&] { fromTable(); }, std::string("Invalid/missing field: ") + key);
+        entry.erase(key);
+    }
+    entry.insert("feature", "Missing");
+    Reject([&] { fromTable(); }, "Unknown script feature");
+    entry.erase("feature");
+    entry.insert_or_assign("file", "nested/bad name.asm");
+    Reject([&] { fromTable(); }, "Invalid/duplicate script ID");
+    entry.insert_or_assign("file", script.file);
+
+    // Duplicate stems (including case-only differences) need explicit IDs.
+    Write(directory / "state.asm", script.text);
+    auto duplicate = text + "\n[[scripts]]\nfile = 'state.asm'\n";
+    Reject([&] { read(duplicate); }, "Invalid/duplicate script ID");
+    auto unique = read(duplicate + "id = 'other'\n");
+    assert(unique.scripts.back().id == "other" && unique.scripts.back().name == "other");
+
+    // Multiple features infer only an exact match, using the resolved ID.
+    original.features.push_back({2, 1, "State"});
+    script.feature = "State";
+    original.parameters.front().feature = "State";
+    loaded = read(Manifest(original));
+    assert(loaded.scripts.front().feature == "State" && loaded.features[1].dependencies == 1);
+    Compile(loaded);
+    script.feature = "Enabled"; // An explicit override wins over the matching feature.
+    loaded = read(Manifest(original));
+    assert(loaded.scripts.front().feature == "Enabled");
+    auto missing = Replace(text, "[[features]]", "[[features]]\nkey = 'Other'\n\n[[features]]");
+    Reject([&] { read(missing); }, "specify feature explicitly");
+    Reject([&] { read(Replace(missing, "key = 'Other'", "key = 'state'")); }, "specify feature explicitly");
+    auto overrideId = read(Replace(missing, "[[scripts]]", "[[scripts]]\nid = 'Other'"));
+    assert(overrideId.scripts.front().id == "Other" && overrideId.scripts.front().name == "Other" &&
+           overrideId.scripts.front().feature == "Other");
+
+    // Imported IDs and descriptions remain explicit even with feature inference.
+    auto imported = Convert(image);
+    Write(directory / imported.scripts.front().file, imported.scripts.front().text);
+    loaded = read(Manifest(imported));
+    assert(loaded.scripts.front().id == "1" && loaded.scripts.front().name == "CT 1: Fixture");
+    assert(loaded.scripts.front().feature == "Enabled");
+    assert(Compile(loaded).definition.bytes == Compile(imported).definition.bytes);
+
+    // A script without writable allocations can serialize to just its filename.
+    auto minimal = Convert(image, "[ENABLE]\nFixture.exe+1000:\nnop\n");
+    minimal.scripts.front().id = minimal.scripts.front().name = "entry-1";
+    text = Manifest(minimal);
+    auto minimalTable = toml::parse(text);
+    assert(minimalTable["scripts"].as_array()->at(0).as_table()->size() == 1);
+    Write(directory / minimal.scripts.front().file, minimal.scripts.front().text);
+    loaded = read(text);
+    assert(loaded.scripts.front().writable.empty());
+    assert(Compile(loaded).definition.bytes == Compile(minimal).definition.bytes);
+}
+void ChildActivation(const Image &image, const fs::path &temporary) {
+    // Actual CT XML exercises saved options, not just hand-constructed Entry flags.
+    auto ct = temporary / "activation.CT";
+    Write(ct, R"(<CheatTable><CheatEntries><CheatEntry>
+<ID>10</ID><Description>Parent</Description>
+<Options moActivateChildrenAsWell="1" moDeactivateChildrenAsWell="1"/>
+<AssemblerScript>[ENABLE]
+alloc(parentState,4)
+parentState:
+dd 0
+</AssemblerScript><CheatEntries><CheatEntry>
+<ID>20</ID><Description>Nested group</Description><GroupHeader>1</GroupHeader>
+<Options moActivateChildrenAsWell="1"/>
+<CheatEntries><CheatEntry>
+<ID>30</ID><Description>Nested script</Description>
+<Options moActivateChildrenAsWell="1"/>
+<AssemblerScript>)" + Hook + R"(</AssemblerScript>
+<CheatEntries><CheatEntry><ID>31</ID><Description>Leaf</Description>
+<AssemblerScript>[ENABLE]
+alloc(leafState,4)
+leafState:
+dd 1
+</AssemblerScript></CheatEntry></CheatEntries></CheatEntry></CheatEntries>
+</CheatEntry><CheatEntry>
+<ID>40</ID><Description>Ordinary group</Description><GroupHeader>1</GroupHeader>
+<Options moHideChildren="1" moDeactivateChildrenAsWell="1"/>
+<CheatEntries><CheatEntry><ID>41</ID><Description>Optional value</Description>
+<VariableType>4 Bytes</VariableType><Address>0</Address>
+</CheatEntry></CheatEntries></CheatEntry><CheatEntry>
+<ID>50</ID><Description>Ordinary script</Description>
+<Options moActivateChildrenAsWell="0" moAlwaysHideChildren="1"/>
+<AssemblerScript>[ENABLE]
+alloc(optionalState,4)
+optionalState:
+dd 2
+</AssemblerScript><CheatEntries><CheatEntry>
+<ID>51</ID><Description>Optional Lua</Description>
+<AssemblerScript>[ENABLE]
+{$lua}
+print('not activated')
+</AssemblerScript></CheatEntry></CheatEntries></CheatEntry>
+</CheatEntries></CheatEntry></CheatEntries></CheatTable>)");
+    auto table = Table::Read(ct);
+    auto p = Import(table, image, {{"10", "Parent"}}, "activation", "Activation");
+    assert(p.features.size() == 1 && p.scripts.size() == 4);
+    std::set<std::string> ids;
+    for (const auto &script : p.scripts) {
+        ids.insert(script.id);
+        assert(script.feature == "Parent");
+    }
+    assert((ids == std::set<std::string>{"10", "30", "31", "50"}));
+    // Separately checked descendants keep their keys and must still activate
+    // from the parent, regardless of selection order. No reverse dependency is
+    // inferred just because an entry has a parent in the tree.
+    std::vector<Selection> selected = {{"10", "Parent"}, {"20", "Nested"}, {"30", "Child"}};
+    do {
+        p = Import(table, image, selected, "activation", "Activation");
+        assert(p.scripts.size() == 4 && p.features.size() == 3);
+        auto d = Compile(p).definition;
+        std::map<std::string, uint32_t> bits;
+        for (const auto &feature : p.features)
+            bits[feature.key] = feature.bit;
+        assert(Dependencies(d, bits["Parent"]) == 7);
+        assert(Dependencies(d, bits["Nested"]) == (bits["Nested"] | bits["Child"]));
+        assert(Dependencies(d, bits["Child"]) == bits["Child"]);
+        assert(Dependencies(d, 0) == 0);
+        for (const auto &script : p.scripts)
+            assert(script.feature == (script.id == "30" || script.id == "31" ? "Child" : "Parent"));
+    } while (std::next_permutation(selected.begin(), selected.end(),
+                                   [](const Selection &a, const Selection &b) { return a.id < b.id; }));
+    Export(p, temporary / "activation-export");
+    auto loaded = ReadPackage(temporary / "activation-export" / "patch.toml");
+    auto d = Compile(loaded).definition;
+    assert(d.features[2].key == "Parent" && Dependencies(d, d.features[2].bit) == 7);
+    assert(ReadText(temporary / "activation-export" / "INSTALL.txt").find(
+               "Parent also enables Nested.") != std::string::npos);
+    Reject([&] { Import(table, image, {{"40", "Group"}}, "activation", "Activation"); },
+           "does not activate any scripts");
+    Reject([&] { Import(table, image, {{"10", "Parent"}, {"41", "Value"}}, "activation", "Activation"); },
+           "pointer/value records");
+    for (auto &entry : table.entries)
+        if (entry.id == "40")
+            entry.activateChildren = true;
+    Reject([&] { Import(table, image, {{"10", "Parent"}}, "activation", "Activation"); },
+           "Entry 41 (Optional value): pointer/value records");
+}
 int main() {
     auto image = Fixture();
     auto package = Convert(image);
@@ -78,6 +287,31 @@ int main() {
     assert(d.segments[1].kind == Kind::Data && d.bytes[d.segments[1].bytes] == 7);
     assert(d.segments[2].rva == 0x1010 && d.segments[2].count == 5);
     assert(package.scripts[0].text.find("define(site,TOS.exe+0x1010)") != std::string::npos);
+    {
+        auto assemble = [&](const std::string &instruction) {
+            auto p = Convert(image, "[ENABLE]\nalloc(code,100)\ncode:\n" + instruction +
+                                    "\nFixture.exe+1000:\nnop\n");
+            auto c = Compile(p);
+            assert(c.definition.segments.size() == 2);
+            const auto &segment = c.definition.segments[0];
+            auto begin = c.definition.bytes.begin() + segment.bytes;
+            return std::vector<uint8_t>(begin, begin + segment.count);
+        };
+        // CE defaults an unsized integer memory/immediate operand to DWORD.
+        // EDX's address width and a small immediate do not imply a byte access.
+        assert((assemble("cmp [edx],0") == std::vector<uint8_t>{0x83, 0x3a, 0x00}));
+        assert((assemble("cmp [edx],#128") ==
+                std::vector<uint8_t>{0x81, 0x3a, 0x80, 0x00, 0x00, 0x00}));
+        assert((assemble("cmp byte ptr [edx],0") == std::vector<uint8_t>{0x80, 0x3a, 0x00}));
+        assert((assemble("cmp word ptr [edx],0") == std::vector<uint8_t>{0x66, 0x83, 0x3a, 0x00}));
+        assert((assemble("cmp [edx],al") == std::vector<uint8_t>{0x38, 0x02}));
+        assert((assemble("cmp [edx],ax") == std::vector<uint8_t>{0x66, 0x39, 0x02}));
+        assert((assemble("cmp [edx],eax") == std::vector<uint8_t>{0x39, 0x02}));
+        for (const std::string cmd : {"adc", "add", "and", "cmp", "mov", "or", "sbb", "sub", "test", "xor"})
+            assert(assemble(cmd + " [edx],1") == assemble(cmd + " dword ptr [edx],1"));
+        auto p = Convert(image, Replace(Hook, "mov eax,[value]", "cmp [value],0\nmov eax,[value]"));
+        assert(Compile(p).definition.fixups.size() == 4);
+    }
     for (auto input : {std::string("#10"), std::string("(int)10")}) {
         auto p = Convert(image, Replace(Hook, "dd 7", "dd " + input));
         auto c = Compile(p);
@@ -144,6 +378,15 @@ int main() {
         Compile(p);
         p.features[1].dependencies = 0;
         Reject([&] { Compile(p); }, "undeclared feature dependency");
+        t.entries[0].activateChildren = true;
+        t.entries[0].children = {"2"};
+        t.entries[1].parent = "1";
+        p = Import(t, image, {{"1", "State"}, {"2", "Hook"}}, "shared", "Shared");
+        assert(p.features[0].dependencies == 2 && p.features[1].dependencies == 1);
+        // Parent activation and child symbol requirements may form a cycle.
+        // The existing runtime closure enables both and terminates.
+        assert(Dependencies(Compile(p).definition, 1) == 3);
+        assert(Dependencies(Compile(p).definition, 2) == 3);
         t.hasLua = true;
         Reject([&] { Import(t, image, {{"1", "State"}, {"2", "Hook"}}, "shared", "Shared"); },
                "Table-level Lua");
@@ -153,7 +396,7 @@ int main() {
     }
     {
         Table t;
-        t.entries = {{"10", "Group", "", "", {"1"}, true}, {"1", "Child", Hook, "10", {}}};
+        t.entries = {{"10", "Group", "", "", {"1"}, true, true}, {"1", "Child", Hook, "10", {}}};
         auto p = Import(t, image, {{"10", "Together"}}, "group", "Group");
         assert(p.features.size() == 1 && p.scripts[0].feature == "Together");
     }
@@ -195,12 +438,21 @@ int main() {
                    std::to_string(std::chrono::steady_clock::now().time_since_epoch().count()) + " café");
     fs::create_directories(temporary);
     try {
+        ManifestDefaults(image, temporary);
+        ChildActivation(image, temporary);
         auto exportPath = temporary / "readable patch";
         Export(package, exportPath);
         auto loaded = ReadPackage(exportPath / "patch.toml");
         auto c = Compile(loaded);
         assert(c.definition.bytes == d.bytes && c.definition.fixups.size() == d.fixups.size());
         auto original = ReadText(exportPath / "patch.toml");
+        // GUI and CLI both publish through Export: verify the actual file is compact.
+        auto exported = toml::parse(original);
+        const auto &exportedScript = *exported["scripts"].as_array()->at(0).as_table();
+        assert(exportedScript["id"].value<std::string>() == "1");
+        assert(exportedScript["name"].value<std::string>() == "CT 1: Fixture");
+        assert(!exportedScript.contains("feature"));
+        assert(!exported["features"].as_array()->at(0).as_table()->contains("requires"));
         Reject([&] { Export(package, exportPath); }, "already exists");
         assert(ReadText(exportPath / "patch.toml") == original);
         Write(exportPath / "patch.toml", original + "\n[unknown]\nx=1\n");

@@ -36,6 +36,16 @@ int main() {
             oldBytes[key] = value;
         }
     }
+    // The frozen migration baseline predates the completed queue algorithm.
+    // Its approved upgrade adds the seven-byte unlock hook at +28105 and no
+    // longer guards the eight unused bytes at +27245. Keep every other baseline
+    // byte/site checked, rather than regenerating the fixture from current code.
+    for(uint32_t rva=0x27245;rva<0x2724d;++rva)
+        assert(oldBytes.erase({"battle-enhancements","SpellQueueFix",rva})==1);
+    assert(oldSites.emplace("battle-enhancements","SpellQueueFix",0x28105,7).second);
+    const uint8_t unlockOriginal[]={0x0f,0xb6,0x8e,0xb0,0x3a,0x01,0x00};
+    for(uint32_t i=0;i<sizeof(unlockOriginal);++i)
+        assert(oldBytes.emplace(ByteKey{"battle-enhancements","SpellQueueFix",0x28105+i},unlockOriginal[i]).second);
     for (auto &[name, c] : packages) {
         auto &d = c.definition;
         assert(d.imageBase == 0x400000 && d.imageSize == 0x2b00000);
@@ -71,6 +81,6 @@ int main() {
     assert(slots.parameters.size() == 2 && slots.parameters[0].value == 1 && slots.parameters[1].value == 1);
     auto &arena = slots.segments.at(packages.at("add-spell-slots").symbols.at("state:arena").first);
     assert(arena.kind == Kind::Data && arena.size == 0x280000);
-    std::cout << "Migration matched " << oldSites.size() << " original patch sites and " << oldBytes.size()
+    std::cout << "Migration baseline plus queue upgrade matched " << oldSites.size() << " original patch sites and " << oldBytes.size()
               << " guarded bytes across all four packages.\n";
 }

@@ -16,8 +16,7 @@ struct Selection {
     std::string id, key;
 };
 Package Import(const Table &table, const Image &image, const std::vector<Selection> &selected,
-               const std::string &id, const std::string &section, bool ignoreLua = false,
-               bool children = true);
+               const std::string &id, const std::string &section, bool ignoreLua = false);
 // Publishes a complete package. Existing exports are never overwritten implicitly.
 void Export(const Package &package, const fs::path &directory);
 } // namespace PatchScript

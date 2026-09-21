@@ -9,12 +9,12 @@ int Main(const std::vector<std::string> &args) {
         if (args.size() < 3)
             throw std::runtime_error("Usage: tos-patch check patch.toml [--exe TOS.exe] | list table.CT | "
                                      "convert table.CT --exe TOS.exe --entry ID[=Key] --output folder [--id "
-                                     "ID] [--section Section] [--ignore-table-lua] [--no-children]");
+                                     "ID] [--section Section] [--ignore-table-lua]");
         auto command = args[1];
         fs::path input = fs::u8path(args[2]), exe, output;
         std::vector<Selection> selected;
         std::string id = "imported.ct", section = "ImportedPatches";
-        bool ignore = false, children = true;
+        bool ignore = false;
         for (size_t i = 3; i < args.size(); ++i) {
             auto arg = args[i];
             if (arg == "--ignore-table-lua") {
@@ -22,8 +22,8 @@ int Main(const std::vector<std::string> &args) {
                 continue;
             }
             if (arg == "--no-children") {
-                children = false;
-                continue;
+                throw std::runtime_error("--no-children is no longer supported: automatic child "
+                                         "activation follows the saved Cheat Engine table options.");
             }
             if (++i >= args.size())
                 throw std::runtime_error("Missing value for " + arg);
@@ -58,13 +58,14 @@ int Main(const std::vector<std::string> &args) {
             auto t = Table::Read(input);
             for (auto &e : t.entries)
                 std::cout << e.id << "\t" << (e.script.empty() ? (e.group ? "group" : "value") : "script")
-                          << "\t" << e.name << "\n";
+                          << "\t" << e.name << (e.activateChildren ? " [auto-enables children]" : "")
+                          << "\n";
         } else if (command == "convert") {
             if (exe.empty() || output.empty())
                 throw std::runtime_error("convert requires --exe and --output");
             if (id == "imported.ct")
                 id = "imported." + output.filename().u8string();
-            auto p = Import(Table::Read(input), Image::Read(exe), selected, id, section, ignore, children);
+            auto p = Import(Table::Read(input), Image::Read(exe), selected, id, section, ignore);
             Export(p, output);
             std::cout << "Exported " << p.scripts.size() << " scripts to " << output.u8string() << "\n";
         } else

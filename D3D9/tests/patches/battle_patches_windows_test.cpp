@@ -627,5 +627,5 @@ int main() {
     Combinations();
     Rejection();
     ExecuteHooks();
-    std::puts("Battle patch tests passed: 32 configurations, 65 sites, original-byte and destination guards, native hooks and config.");
+    std::puts("Battle patch tests passed: 32 configurations, 66 sites, original-byte and destination guards, native hooks and config.");
 }

@@ -90,6 +90,14 @@ bool Identifier(const std::string &s) {
                c == '-' || c == '.';
     });
 }
+std::string DefaultFeature(const Package &p, const std::string &id) {
+    if (p.features.size() == 1)
+        return p.features.front().key;
+    for (const auto &feature : p.features)
+        if (feature.key == id)
+            return feature.key;
+    return {};
+}
 } // namespace
 Image Image::Read(const fs::path &path) {
     auto raw = ReadText(path, 512 * 1024 * 1024);
@@ -222,13 +230,15 @@ Package ReadPackage(const fs::path &manifest) {
         Require(s, "Invalid script");
         Fields(*s, {"id", "name", "file", "feature", "writable"});
         Script script;
-        script.id = String(*s, "id");
         script.file = String(*s, "file");
-        script.feature = String(*s, "feature");
-        script.name = (*s)["name"].value_or(script.id);
-        Require(Identifier(script.id) && ids.insert(Lower(script.id)).second, "Invalid/duplicate script ID");
-        Require(features.count(script.feature), "Unknown script feature");
         fs::path rel = fs::u8path(script.file);
+        script.id = s->contains("id") ? String(*s, "id") : rel.stem().u8string();
+        script.name = s->contains("name") ? String(*s, "name") : script.id;
+        script.feature = s->contains("feature") ? String(*s, "feature") : DefaultFeature(p, script.id);
+        Require(Identifier(script.id) && ids.insert(Lower(script.id)).second, "Invalid/duplicate script ID");
+        Require(!script.feature.empty(), "Cannot infer feature for script " + script.id +
+                                            "; specify feature explicitly");
+        Require(features.count(script.feature), "Unknown script feature");
         auto full = fs::weakly_canonical(root / rel);
         Require(!rel.is_absolute() && rel.extension() == ".asm" && !rel.has_root_name(),
                 "Script must be a relative .asm path");
@@ -270,17 +280,25 @@ std::string Manifest(const Package &p) {
         for (auto &dep : p.features)
             if (dep.bit & f.dependencies)
                 dependencies.push_back(dep.key);
-        features.push_back(toml::table{{"key", f.key}, {"requires", dependencies}});
+        toml::table feature{{"key", f.key}};
+        if (!dependencies.empty())
+            feature.insert("requires", dependencies);
+        features.push_back(std::move(feature));
     }
     for (auto &s : p.scripts) {
         toml::array writable;
         for (auto &name : s.writable)
             writable.push_back(name);
-        scripts.push_back(toml::table{{"id", s.id},
-                                      {"name", s.name},
-                                      {"file", s.file},
-                                      {"feature", s.feature},
-                                      {"writable", writable}});
+        toml::table script{{"file", s.file}};
+        if (s.id != fs::u8path(s.file).stem().u8string())
+            script.insert("id", s.id);
+        if (s.name != s.id)
+            script.insert("name", s.name);
+        if (s.feature != DefaultFeature(p, s.id))
+            script.insert("feature", s.feature);
+        if (!writable.empty())
+            script.insert("writable", writable);
+        scripts.push_back(std::move(script));
     }
     for (auto &v : p.parameters)
         parameters.push_back(toml::table{{"key", v.key},

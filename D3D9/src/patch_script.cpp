@@ -668,6 +668,19 @@ class Compiler {
         if (cmd == "imul" && operands.size() == 2 && Reg(Trim(operands[0])) &&
             operands[1].find('[') == std::string::npos && !Reg(Trim(operands[1])))
             operands.insert(operands.begin() + 1, operands[0]);
+        // CE's x86 integer memory/immediate shorthand defaults to DWORD.
+        // AsmTK requires the size explicitly. Limit the default to these forms:
+        // register operands infer their own width, and other instruction families
+        // (such as movzx and x87) have different sizing rules.
+        static const std::set<std::string> memoryImmediate = {
+            "adc", "add", "and", "cmp", "mov", "or", "sbb", "sub", "test", "xor"};
+        if (memoryImmediate.count(cmd) && operands.size() == 2) {
+            auto memory = Trim(operands[0]);
+            auto source = Lower(Trim(operands[1]));
+            if (!memory.empty() && memory.front() == '[' &&
+                source.find('[') == std::string::npos && !Reg(source))
+                operands[0] = "dword ptr " + memory;
+        }
         std::string normalized = prefix + cmd;
         bool branch =
             (cmd == "call" || cmd == "jmp" || (cmd.size() > 1 && cmd[0] == 'j') || cmd.rfind("loop", 0) == 0);

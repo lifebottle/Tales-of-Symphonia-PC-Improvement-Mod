@@ -21,7 +21,7 @@ enum {
     Preview,
     Status,
     IgnoreLua,
-    Children,
+    ActivationNote,
     OpenCt,
     OpenExe,
     OpenOut,
@@ -92,7 +92,7 @@ void Layout() {
     Place(labels[4], w / 2, 117, 90, 23);
     Place(controls[Section], w / 2 + 90, 112, w / 2 - 102, 25);
     Place(controls[IgnoreLua], 12, 145, w - 24, 23);
-    Place(controls[Children], 12, 171, w - 24, 23);
+    Place(controls[ActivationNote], 12, 171, w - 24, 23);
     Place(labels[5], 12, 205, left - 16, 22);
     Place(labels[6], left + 12, 205, 90, 22);
     Place(controls[Key], left + 105, 200, w - left - 117, 25);
@@ -114,7 +114,8 @@ void LoadTable() {
     for (size_t i = 0; i < table.entries.size(); ++i) {
         auto &e = table.entries[i];
         auto title =
-            Wide(e.name + " [" + e.id + "]" + (e.script.empty() && !e.group ? " (value/pointer)" : ""));
+            Wide(e.name + " [" + e.id + "]" + (e.script.empty() && !e.group ? " (value/pointer)" : "") +
+                 (e.activateChildren ? " (auto-enables children)" : ""));
         TVINSERTSTRUCTW insert{};
         insert.hParent = e.parent.empty() ? TVI_ROOT : items.at(e.parent);
         insert.hInsertAfter = TVI_LAST;
@@ -181,8 +182,7 @@ void Start(bool exporting) {
     auto input = table;
     auto exe = fs::path(Text(ExePath)), output = fs::path(Text(OutPath));
     auto id = Utf8(Text(Id)), section = Utf8(Text(Section));
-    bool ignore = SendMessageW(controls[IgnoreLua], BM_GETCHECK, 0, 0) == BST_CHECKED,
-         children = SendMessageW(controls[Children], BM_GETCHECK, 0, 0) == BST_CHECKED;
+    bool ignore = SendMessageW(controls[IgnoreLua], BM_GETCHECK, 0, 0) == BST_CHECKED;
     if (exe.empty() || (exporting && output.empty()))
         throw std::runtime_error("Choose the game executable and an export folder.");
     busy = true;
@@ -190,10 +190,10 @@ void Start(bool exporting) {
         if (key != Status)
             EnableWindow(h, FALSE);
     Set(Status, exporting ? "Validating and exporting readable scripts…" : "Validating selected entries…");
-    worker = std::thread([input, exe, output, id, section, ignore, children, selections, exporting] {
+    worker = std::thread([input, exe, output, id, section, ignore, selections, exporting] {
         auto result = std::make_unique<Result>();
         try {
-            auto package = Import(input, Image::Read(exe), selections, id, section, ignore, children);
+            auto package = Import(input, Image::Read(exe), selections, id, section, ignore);
             if (exporting)
                 Export(package, output);
             result->ok = true;
@@ -206,6 +206,9 @@ void Start(bool exporting) {
                     if (feature.dependencies & dependency.bit)
                         result->text += " requires " + dependency.key;
             }
+            result->text += "\r\nIncluded scripts:";
+            for (const auto &script : package.scripts)
+                result->text += "\r\n" + script.name + " -> " + script.feature;
             if (exporting)
                 result->text += "\r\nCopy the folder into the game's patches directory. Follow INSTALL.txt, "
                                 "then restart.";
@@ -241,9 +244,8 @@ LRESULT CALLBACK Proc(HWND hwnd, UINT message, WPARAM w, LPARAM l) {
                 Make(L"BUTTON", pair.second, WS_TABSTOP, pair.first);
             Make(L"BUTTON", L"Ignore table-level Lua (only if selected scripts are independent of it)",
                  BS_AUTOCHECKBOX | WS_TABSTOP, IgnoreLua);
-            Make(L"BUTTON", L"Include group children and scripts configured to activate children",
-                 BS_AUTOCHECKBOX | WS_TABSTOP, Children);
-            SendMessageW(controls[Children], BM_SETCHECK, BST_CHECKED, 0);
+            Make(L"STATIC", L"Children follow the table's activation options, including nested entries.",
+                 0, ActivationNote);
             Make(WC_TREEVIEWW, L"",
                  TVS_CHECKBOXES | TVS_HASLINES | TVS_LINESATROOT | TVS_HASBUTTONS | TVS_SHOWSELALWAYS |
                      WS_BORDER | WS_TABSTOP,

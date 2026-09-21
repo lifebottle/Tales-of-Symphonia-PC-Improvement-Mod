@@ -8,10 +8,8 @@ version = '1'
 
 [[features]]
 key = 'Enabled'
-requires = []
 
 [[scripts]]
-feature = 'Enabled'
 file = 'entry-1.asm'
 id = '1'
 name = 'CT 1: Fixture 1'

@@ -8,11 +8,7 @@ image_size = 0x2b00000
 
 [[features]]
 key = "Enabled"
-requires = []
 
 [[scripts]]
-id = "Enabled"
-name = "Enabled"
 file = "Enabled.asm"
-feature = "Enabled"
 writable = ["mem_menu_buffer", "mem_status", "mem_rows"]

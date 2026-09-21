@@ -52,7 +52,7 @@ Table Table::Read(const fs::path &path) {
     return table;
 }
 Package Import(const Table &table, const Image &image, const std::vector<Selection> &selected,
-               const std::string &id, const std::string &section, bool ignoreLua, bool children) {
+               const std::string &id, const std::string &section, bool ignoreLua) {
     if (table.hasLua && !ignoreLua)
         throw std::runtime_error(
             "Table-level Lua is present. Explicitly ignore it only for independent static entries.");
@@ -67,39 +67,60 @@ Package Import(const Table &table, const Image &image, const std::vector<Selecti
     p.imageBase = image.base;
     p.imageSize = image.size;
     p.module = image.module;
-    std::map<std::string, std::string> roots;
+    std::map<std::string, size_t> roots;
     std::set<std::string> keys, seen;
     for (auto &s : selected) {
         auto key = s.key.empty() ? "Entry" + s.id : s.key;
         if (!std::regex_match(key, std::regex("[A-Za-z_][A-Za-z_0-9]{0,79}")) ||
             !keys.insert(Lower(key)).second)
             throw std::runtime_error("Feature keys must be unique INI identifiers");
-        if (!entries.count(s.id) || !roots.emplace(s.id, key).second)
+        if (!entries.count(s.id) || !roots.emplace(s.id, p.features.size()).second)
             throw std::runtime_error("Unknown/duplicate selected CT ID: " + s.id);
         p.features.push_back({uint32_t(1) << p.features.size(), 0, key});
     }
-    std::function<void(const std::string &, std::string)> visit = [&](const std::string &id,
-                                                                      std::string key) {
+    std::function<void(const std::string &, size_t)> visit = [&](const std::string &id, size_t feature) {
+        // An explicitly selected child keeps its own INI key, but enabling its
+        // parent must still activate it. Record this edge even if an earlier
+        // selection already visited the child (CLI selection order is arbitrary).
+        auto root = roots.find(id);
+        if (root != roots.end() && root->second != feature) {
+            p.features[feature].dependencies |= p.features[root->second].bit;
+            feature = root->second;
+        }
         if (!seen.insert(id).second)
             return;
         const auto &e = *entries.at(id);
-        if (roots.count(id))
-            key = roots[id];
         if (e.callbacks)
             throw std::runtime_error("Entry " + e.id + " (" + e.name +
                                      "): activation callbacks are unsupported");
         if (!e.script.empty())
             p.scripts.push_back(
-                {e.id, "CT " + e.id + ": " + e.name, "entry-" + e.id + ".asm", key, e.script, {}});
+                {e.id, "CT " + e.id + ": " + e.name, "entry-" + e.id + ".asm",
+                 p.features[feature].key, e.script, {}});
         else if (!e.group)
             throw std::runtime_error("Entry " + e.id + " (" + e.name +
                                      "): pointer/value records and freezes are unsupported");
-        if (children && (e.group || e.activateChildren))
+        // CE applies this option to immediate children. Each child then uses
+        // its own option; being a group or hiding children does not activate them.
+        if (e.activateChildren)
             for (auto &child : e.children)
-                visit(child, key);
+                visit(child, feature);
     };
     for (auto &s : selected)
         visit(s.id, roots[s.id]);
+    PatchFramework::Definition activation;
+    activation.features = p.features;
+    uint32_t scripted = 0;
+    for (const auto &script : p.scripts)
+        for (const auto &feature : p.features)
+            if (script.feature == feature.key)
+                scripted |= feature.bit;
+    for (const auto &s : selected)
+        if (!(PatchFramework::Dependencies(activation, p.features[roots[s.id]].bit) & scripted))
+            throw std::runtime_error("Entry " + s.id + " (" + entries.at(s.id)->name +
+                                     "): selection does not activate any scripts. Select the desired "
+                                     "child entries explicitly, or set the parent's Activate children "
+                                     "as well option in Cheat Engine and save the table.");
     Compile(p, &image, true);
     // A second compile validates the actual exported text and explicit writable
     // metadata using precisely the runtime path, without a reference executable.
@@ -147,6 +168,10 @@ void Export(const Package &p, const fs::path &directory) {
         for (auto &feature : p.features)
             readme += feature.key + "=0\n";
         readme += "\nChange the desired feature values to 1. No settings are changed by export.\n";
+        for (const auto &feature : p.features)
+            for (const auto &dependency : p.features)
+                if (feature.dependencies & dependency.bit)
+                    readme += feature.key + " also enables " + dependency.key + ".\n";
         write(staging / "INSTALL.txt", readme);
         auto checked = ReadPackage(staging / "patch.toml");
         Compile(checked);

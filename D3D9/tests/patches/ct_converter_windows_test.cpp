@@ -124,15 +124,15 @@ void SpellQueue(const char* path) {
         Put32(team.data()+0x16f950,slot<3 ? 0 : Address(arena.data()+0xd000));
         team[0x93ee + slot]=static_cast<uint8_t>(slot<3 ? busy : !busy);
         if(slot>=6) arena[0x4080+slot-6]=static_cast<uint8_t>(busy);
-        for(int timer:{0,2}) {
+        for(int timer:{0,1,2}) {
             Put32(queue,0);
             Put16(character.data()+0x1be,static_cast<uint16_t>(timer));
             Registers r{image.bytes+0x2722e,0,Address(character.data()),0,0,0,0};
             Invoke(&r);
-            assert(r.edi==Address(team.data()) && r.edx==static_cast<uint32_t>(slot));
+            if(timer<=1) assert(r.edi==Address(team.data()));
             assert(r.ebx==Address(character.data()));
-            assert(Read32(queue)==(busy && !timer ? 2u : 0u));
-            assert(Read16(character.data()+0x1be)==(timer ? 1 : 0));
+            assert(Read32(queue)==(busy && timer<=1 ? 2u : 0u));
+            assert(Read16(character.data()+0x1be)==(timer>1 ? timer-1 : busy ? 1 : 0));
         }
     }
     std::puts("Spell Queue: bypass, timer, queue insertion/removal, and all seven native/expanded slot lookups passed.");

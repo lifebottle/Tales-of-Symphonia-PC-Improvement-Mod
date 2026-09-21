@@ -20,22 +20,22 @@ void Config(Definition d) {
  assert(options.enabled==0 && options.parameters==std::vector<float>({1,1}));
  WritePrivateProfileStringW(L"AddSpellSlots",L"Enabled",L"1",ini);
  wchar_t value[32];
- GetPrivateProfileStringW(L"AddSpellSlots",L"PARTY_SLOTS",L"",value,32,ini);
+ GetPrivateProfileStringW(L"AddSpellSlots",L"PartySlots",L"",value,32,ini);
  assert(std::wstring(value)==L"1");
  for(int party=1;party<=4;++party) for(int enemy=1;enemy<=3;++enemy) {
-  assert(WritePrivateProfileStringW(L"AddSpellSlots",L"PARTY_SLOTS",std::to_wstring(party).c_str(),ini));
-  assert(WritePrivateProfileStringW(L"AddSpellSlots",L"ENEMY_SLOTS",std::to_wstring(enemy).c_str(),ini));
+  assert(WritePrivateProfileStringW(L"AddSpellSlots",L"PartySlots",std::to_wstring(party).c_str(),ini));
+  assert(WritePrivateProfileStringW(L"AddSpellSlots",L"EnemySlots",std::to_wstring(enemy).c_str(),ini));
   options=ReadOptions(d,ini);
   assert(options.parameters[0]==party && options.parameters[1]==enemy);
  }
  for(const auto* bad:{L"0",L"-1",L"5",L"nan",L"inf",L"2oops",L"4294967296"}) {
-  WritePrivateProfileStringW(L"AddSpellSlots",L"PARTY_SLOTS",bad,ini);
+  WritePrivateProfileStringW(L"AddSpellSlots",L"PartySlots",bad,ini);
   options=ReadOptions(d,ini);
   assert(options.parameters[0]==1 && options.parameters[1]==3);
  }
- WritePrivateProfileStringW(L"AddSpellSlots",L"PARTY_SLOTS",L"4",ini);
+ WritePrivateProfileStringW(L"AddSpellSlots",L"PartySlots",L"4",ini);
  for(const auto* bad:{L"0",L"4",L"nan",L"xyz"}) {
-  WritePrivateProfileStringW(L"AddSpellSlots",L"ENEMY_SLOTS",bad,ini);
+  WritePrivateProfileStringW(L"AddSpellSlots",L"EnemySlots",bad,ini);
   options=ReadOptions(d,ini);
   assert(options.parameters[0]==4 && options.parameters[1]==1);
  }
