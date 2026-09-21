@@ -6,7 +6,7 @@ A drop-in `d3d9.dll` proxy for the Steam release of *Tales of Symphonia* with fo
 2. **Texture replacement** — TSFix-compatible: hashes every DDS the game loads via D3DX with the same CRC32 TSFix uses, and swaps in `textures/replace/<CRC32>.dds` if present. Existing TSFix texture packs work without renaming. Textures loaded from `PATCH` folders are also created at their native DDS resolution instead of being downscaled to the size the game asks for.
 3. **Fast-forward cycle** — press **F6** to cycle **1× → 2× → 4× → 8× → 16× → 1×**, primarily for getting through dialogue and cutscenes. A label in the upper-right corner shows the active speed and disappears at 1×. Dialogue still uses the normal advance input.
 
-4. **JSON patch definitions** — a reusable native patch runtime with INI options and a versioned mod-loader API. The shipped definitions contain Artes Sphere, New Free Run, Manual Over Limit, Over Limit Gauge, Disable OvL Victory Drain, Spell Queue Fix, and Lloyd Super Chain. Add or update definitions without rebuilding the DLL; Cheat Engine is not required.
+4. **Readable patch scripts** — a reusable native patch runtime with INI options and a versioned mod-loader API. The shipped definitions contain Artes Sphere, New Free Run, Manual Over Limit, Over Limit Gauge, Disable OvL Victory Drain, Spell Queue Fix, and Lloyd Super Chain. A portable Windows GUI converts Cheat Tables into CE-style assembly packages. Update scripts without rebuilding the DLL; players do not need Cheat Engine.
 
 Works on **native Windows** and **Proton/Wine** (Steam Deck, Linux). TSFix and SpecialK don't run under Wine; this does, because it uses COM wrapping and a small self-contained IAT patch instead of a detours library.
 
@@ -39,15 +39,15 @@ The game addresses are for the Steam release (non-ASLR, image base `0x400000`). 
 
 ### Cross-compile on Linux (primary — for Proton)
 
-Requires CMake 3.15+ and `mingw-w64` (32-bit target — the game is a 32-bit executable).
+Requires CMake 3.31+ and `mingw-w64` (32-bit target — the game is a 32-bit executable).
 
 ```bash
 cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=toolchain-mingw32.cmake -DCMAKE_BUILD_TYPE=Release
 cmake --build build -j
 ```
 
-Output: `build/d3d9.dll`, `build/patches/battle-enhancements.json`, and
-`build/patches/lloyd-super-chain.json`.
+Output: `build/d3d9.dll`, `build/tos-ct-converter.exe`, `build/tos-patch.exe`, and
+the readable package folders in `build/patches/`. Use CPack to create a portable ZIP.
 
 ### Windows (MSVC)
 
@@ -68,9 +68,12 @@ cmake --build build --config Release
    <game_dir>/
    ├── TOS.exe
    ├── d3d9.dll                     ← this mod
+   ├── d3d9_config.ini              ← created on first run
    ├── patches/
-   │   ├── battle-enhancements.json        ← optional battle features
-   │   └── lloyd-super-chain.json          ← optional Lloyd Super Chain
+   │   ├── battle-enhancements/             ← patch.toml and feature .asm files
+   │   ├── add-spell-slots/
+   │   ├── minimum-damage/
+   │   └── lloyd-super-chain/
    ├── Files/
    │   └── WIN/
    │       └── PATCH/
@@ -81,7 +84,6 @@ cmake --build build --config Release
    │               ├── FILEHEADER.TOFHDB
    │               └── TLFILE.TLDAT
    └── textures/
-       ├── d3d9_config.ini               ← created on first run
        └── replace/                 ← <CRC32>.dds files go here
    ```
    Each mod folder must contain **both** `FILEHEADER.TOFHDB` (the file index) and `TLFILE.TLDAT` (the file data). A folder with only `TLFILE.TLDAT` is registered but resolves to nothing.
@@ -160,12 +162,21 @@ alone. Check `[FastForward] Ready` and `[FastForward] ON/OFF` in the log.
 
 The PATCH loader and I/O buffer patches are always applied — they run in `DllMain` before the game's own code, so there is nowhere to read a config from yet.
 
-## JSON patch definitions and optional battle patches
+## Readable patch scripts and optional battle patches
 
-Patches are loaded from `patches/*.json` beside `d3d9.dll`. Copy
-`D3D9/build/patches/` along with the DLL when installing. The
-DLL contains the patch runtime; changing patch assembly or adding features only
-requires updating the JSON.
+Patches are loaded from `patches/*/patch.toml` beside `d3d9.dll`. Each folder
+contains a small manifest and readable CE-style `.asm` files. The DLL assembles
+and validates them at startup, then installs the enabled features.
+
+Use **tos-ct-converter.exe** on Windows to select entries from a saved Cheat Table,
+validate them against TOS.exe, and export a patch folder. No WSL, Python, or
+external assembler is needed. See the [authoring guide](docs/PATCH_AUTHORING.md)
+for the supported CE subset, command-line tool, and package format.
+
+This replaces the previous JSON format: install the new DLL and package folders
+together, then remove the old `.json` files. Legacy files are logged and ignored.
+Existing INI settings are retained. Sources and tools now live in the repository;
+`private/` is not required to build or maintain these packages.
 
 The `[BattleEnhancements]` section is added to `d3d9_config.ini` on launch. All five
 options default to `0`. To enable the requested set, use:
@@ -186,9 +197,9 @@ The gauge and Spell Queue Fix can be used independently. `FreeRunMovementPenalty
 the table's movement multiplier (1.00 normally, 1.15 with Dash); accepted values
 are at least 0 and less than 1. The default is 0.20.
 
-Spell Queue Fix in `battle-enhancements.json` version 1.2.2 supports
-`add-spell-slots.json`, including its expanded party and enemy slots. Both can
-be enabled together. Update the battle JSON and restart; no DLL update is needed.
+Spell Queue Fix in `battle-enhancements/patch.toml` version 1.2.2 supports
+`add-spell-slots/patch.toml`, including its expanded party and enemy slots. Both can
+be enabled together. Update the battle package and restart; no DLL update is needed.
 
 Controls follow the table's controller mappings: hold **LB/L1** to select Sub
 artes for new battle inputs; release it to select Main artes again. This also
@@ -217,7 +228,7 @@ Windows and Proton.
 
 ### Lloyd Super Chain
 
-`patches/lloyd-super-chain.json` adds Super Chain to Lloyd's MAX-gem EX skill
+`patches/lloyd-super-chain/patch.toml` adds Super Chain to Lloyd's MAX-gem EX skill
 list, fixes the chaining windows for Demonic Tiger Blade, Demonic Thrust,
 Raining Tiger Blade, Tempest Thrust, Tempest Beast, and all four Rising Falcon
 variants, and extends the Ability Plus consecutive Level 1 allowance when
@@ -237,8 +248,8 @@ descriptors are rebuilt. No debugger, Python, or on-disk PAC change is needed.
 The log reports `[Patches] lloyd-super-chain 1.0.0: installed 17 patches`.
 An unexpected battle-data layout skips all nine window writes for that rebuild.
 Use a fresh launch when switching from the IDA memory script; both versions use
-the same hook sites. The JSON port has native synthetic tests; its full in-game
-acceptance remains separate from the source installer's recorded battle tests.
+the same hook sites. The script port has native synthetic tests; its full in-game
+acceptance remains separate from live gameplay acceptance.
 
 ## PATCH priority scheme
 

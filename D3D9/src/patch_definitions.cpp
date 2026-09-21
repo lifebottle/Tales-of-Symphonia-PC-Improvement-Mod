@@ -1,105 +1,18 @@
 #include "patch_runtime.h"
-#include "logger.h"
-#include "ini_settings.h"
-#include "../third_party/nlohmann/json.hpp"
-#include <map>
-#include <windows.h>
 #include <algorithm>
 #include <cmath>
-#include <charconv>
-#include <cstring>
-#include <cwchar>
 #include <set>
-#include <stdexcept>
-
 namespace PatchFramework {
 namespace {
 constexpr size_t Limit = 8 * 1024 * 1024;
 bool Identifier(const std::string& s) {
-    return !s.empty() && s.size() <= 80 && std::all_of(s.begin(), s.end(), [](unsigned char c) {
-        return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') ||
-               (c >= '0' && c <= '9') || c == '_' || c == '-' || c == '.';
+    return !s.empty() && s.size() <= 80 && std::all_of(s.begin(),s.end(),[](unsigned char c) {
+        return (c>='a' && c<='z') || (c>='A' && c<='Z') || (c>='0' && c<='9') || c=='_' || c=='-' || c=='.';
     });
 }
-std::string Key(std::string s) {
-    for (auto& c:s) if (c>='A' && c<='Z') c=static_cast<char>(c-'A'+'a');
-    return s;
+std::string Key(std::string s) { for(auto& c:s) if(c>='A' && c<='Z') c+=32; return s; }
+bool Range(size_t offset,size_t count,size_t size) { return offset<=size && count<=size-offset; }
 }
-bool Range(size_t offset, size_t count, size_t size) { return offset <= size && count <= size-offset; }
-using Json = nlohmann::json;
-void Fields(const Json& object, std::initializer_list<const char*> allowed) {
-    if (!object.is_object()) throw std::runtime_error("expected JSON object");
-    for (auto it=object.begin();it!=object.end();++it)
-        if (std::none_of(allowed.begin(),allowed.end(),[&](const char* key) { return it.key()==key; }))
-            throw std::runtime_error("unknown field: "+it.key());
-}
-uint32_t U32(const Json& value) {
-    uint64_t result=0;
-    if (value.is_number_unsigned()) result=value.get<uint64_t>();
-    else if (value.is_number_integer()) {
-        auto n=value.get<int64_t>();
-        if (n<0) throw std::runtime_error("expected unsigned integer");
-        result=static_cast<uint64_t>(n);
-    } else if (value.is_string()) {
-        const auto s=value.get<std::string>();
-        size_t i=0; unsigned base=10;
-        if (s.size()>2 && s[0]=='0' && (s[1]=='x' || s[1]=='X')) { base=16; i=2; }
-        if (i==s.size()) throw std::runtime_error("empty integer");
-        for (;i<s.size();++i) {
-            const char c=s[i];
-            unsigned digit=c>='0' && c<='9' ? c-'0' : c>='a' && c<='f' ? c-'a'+10 : c>='A' && c<='F' ? c-'A'+10 : 99;
-            if (digit>=base || result>(UINT32_MAX-digit)/base) throw std::runtime_error("invalid 32-bit integer: "+s);
-            result=result*base+digit;
-        }
-    } else throw std::runtime_error("expected integer or hex string");
-    if (result>UINT32_MAX) throw std::runtime_error("32-bit integer overflow");
-    return static_cast<uint32_t>(result);
-}
-std::string Text(const Json& value) {
-    if (!value.is_string()) throw std::runtime_error("expected string");
-    auto s=value.get<std::string>();
-    if (s.size()>1024 || s.find('\0')!=std::string::npos) throw std::runtime_error("invalid string length/NUL");
-    return s;
-}
-const Json& Array(const Json& object,const char* key,size_t limit) {
-    static const Json empty=Json::array();
-    const auto it=object.find(key);
-    if (it==object.end()) return empty;
-    if (!it->is_array() || it->size()>limit) throw std::runtime_error(std::string("invalid array: ")+key);
-    return *it;
-}
-std::vector<uint8_t> Hex(const Json& value) {
-    if (!value.is_string()) throw std::runtime_error("expected hex byte string");
-    const auto& s=value.get_ref<const std::string&>();
-    std::vector<uint8_t> bytes;
-    int high=-1;
-    for (char c:s) {
-        if (c==' ' || c=='\t' || c=='\r' || c=='\n') continue;
-        int n=c>='0' && c<='9' ? c-'0' : c>='a' && c<='f' ? c-'a'+10 : c>='A' && c<='F' ? c-'A'+10 : -1;
-        if (n<0) throw std::runtime_error("invalid hex byte");
-        if (high<0) high=n;
-        else { bytes.push_back(static_cast<uint8_t>((high<<4)|n)); high=-1; }
-    }
-    if (high>=0) throw std::runtime_error("odd hex byte count");
-    return bytes;
-}
-float Number(const Json& value) {
-    if (!value.is_number()) throw std::runtime_error("expected numeric parameter value");
-    return value.get<float>();
-}
-std::wstring Wide(const std::string& s) { return std::wstring(s.begin(),s.end()); }
-std::wstring Setting(const Definition& p,const std::wstring& ini,const std::string& key,const wchar_t* fallback) {
-    wchar_t value[128];
-    const auto section=Wide(p.configSection), name=Wide(key);
-    GetPrivateProfileStringW(section.c_str(),name.c_str(),L"",value,128,ini.c_str());
-    if (!value[0]) {
-        IniSettings::WriteDefault(section.c_str(),name.c_str(),fallback,ini.c_str());
-        return fallback;
-    }
-    return value;
-}
-}
-
 bool Validate(const Definition& p,std::string& error) {
     auto fail=[&](const char* s) { error=s; return false; };
     if (!Identifier(p.id) || !Identifier(p.version) || !Identifier(p.configSection) ||
@@ -177,138 +90,9 @@ bool Validate(const Definition& p,std::string& error) {
     }
     error.clear(); return true;
 }
-
-bool Parse(const std::vector<uint8_t>& bytes,Definition& definition,std::string& error) {
-    try {
-        if (bytes.empty() || bytes.size()>Limit || std::find(bytes.begin(),bytes.end(),0)!=bytes.end()) throw std::runtime_error("invalid JSON file size");
-        std::vector<std::set<std::string>> objectKeys;
-        auto callback=[&](int depth,Json::parse_event_t event,Json& value) {
-            if (depth>32) throw std::runtime_error("JSON nesting limit exceeded");
-            if (event==Json::parse_event_t::object_start) objectKeys.emplace_back();
-            if (event==Json::parse_event_t::object_end) objectKeys.pop_back();
-            if (event==Json::parse_event_t::key && !objectKeys.back().insert(value.get<std::string>()).second)
-                throw std::runtime_error("duplicate JSON key: "+value.get<std::string>());
-            return true;
-        };
-        const auto root=Json::parse(bytes.begin(),bytes.end(),callback);
-        Fields(root,{"id","version","config_section","image_size","image_base","features","segments","fixups","guards","parameters"});
-        Definition p;
-        p.id=Text(root.at("id")); p.version=Text(root.value("version",Json("1")));
-        p.configSection=Text(root.at("config_section"));
-        p.imageSize=U32(root.at("image_size")); p.imageBase=U32(root.value("image_base",Json(0)));
-        std::map<std::string,uint32_t> features, segments;
-        const auto& featureList=Array(root,"features",32);
-        for (const auto& f:featureList) {
-            Fields(f,{"key","requires"});
-            auto key=Text(f.at("key"));
-            uint32_t bit=uint32_t(1)<<p.features.size();
-            if (!features.emplace(key,bit).second) throw std::runtime_error("duplicate feature: "+key);
-            p.features.push_back({bit,0,key});
-        }
-        auto feature=[&](const Json& name) {
-            auto key=Text(name); auto it=features.find(key);
-            if (it==features.end()) throw std::runtime_error("unknown feature: "+key);
-            return it->second;
-        };
-        for (size_t i=0;i<featureList.size();++i)
-            for (const auto& dep:Array(featureList[i],"requires",32)) p.features[i].dependencies|=feature(dep);
-        auto append=[&](const std::vector<uint8_t>& data) {
-            if (data.size()>Limit-p.bytes.size()) throw std::runtime_error("payload size limit exceeded");
-            auto offset=static_cast<uint32_t>(p.bytes.size());
-            p.bytes.insert(p.bytes.end(),data.begin(),data.end()); return offset;
-        };
-        for (const auto& s:Array(root,"segments",4096)) {
-            Fields(s,{"id","group","kind","name","bytes","size","rva","expected"});
-            const auto id=Text(s.at("id")), kind=Text(s.at("kind"));
-            if (id.empty() || !segments.emplace(id,static_cast<uint32_t>(p.segments.size())).second)
-                throw std::runtime_error("empty/duplicate segment ID");
-            Kind type;
-            if (kind=="patch") type=Kind::Patch;
-            else if (kind=="code") type=Kind::Code;
-            else if (kind=="data") type=Kind::Data;
-            else throw std::runtime_error("unknown segment kind: "+kind);
-            auto payload=Hex(s.at("bytes"));
-            auto expected=type==Kind::Patch ? Hex(s.at("expected")) : std::vector<uint8_t>{};
-            if (type==Kind::Patch && payload.size()!=expected.size()) throw std::runtime_error("patch and expected lengths differ");
-            if (type!=Kind::Patch && (s.contains("rva") || s.contains("expected"))) throw std::runtime_error("rva/expected only apply to patches");
-            const auto count=static_cast<uint32_t>(payload.size());
-            p.segments.push_back({feature(s.at("group")),type,U32(s.value("size",Json(count))),append(payload),count,
-                                 type==Kind::Patch ? U32(s.at("rva")) : 0,append(expected),Text(s.value("name",Json(id)))});
-        }
-        auto segment=[&](const Json& value) {
-            auto id=Text(value); auto it=segments.find(id);
-            if (it==segments.end()) throw std::runtime_error("unknown segment: "+id);
-            return it->second;
-        };
-        for (const auto& f:Array(root,"fixups",65536)) {
-            Fields(f,{"owner","offset","target","addend","type"});
-            auto type=Text(f.at("type"));
-            uint32_t kind=type=="abs32" ? 1 : type=="rel32" ? 2 : type=="rel8" ? 23 : 0;
-            p.fixups.push_back({segment(f.at("owner")),U32(f.at("offset")),
-                f.at("target").is_null() ? -1 : static_cast<int32_t>(segment(f.at("target"))),
-                U32(f.value("addend",Json(0))),kind});
-        }
-        for (const auto& g:Array(root,"guards",4096)) {
-            Fields(g,{"group","rva","expected"});
-            auto expected=Hex(g.at("expected"));
-            p.guards.push_back({feature(g.at("group")),U32(g.at("rva")),append(expected),static_cast<uint32_t>(expected.size())});
-        }
-        for (const auto& v:Array(root,"parameters",256)) {
-            Fields(v,{"key","group","segment","offset","default","min","max_exclusive"});
-            p.parameters.push_back({feature(v.at("group")),segment(v.at("segment")),U32(v.at("offset")),
-                Number(v.at("default")),Number(v.at("min")),Number(v.at("max_exclusive")),Text(v.at("key"))});
-        }
-        if (!Validate(p,error)) return false;
-        definition=std::move(p); error.clear(); return true;
-    } catch (const std::exception& e) { error=e.what(); return false; }
-}
-
-bool Load(const std::wstring& filename,Definition& definition,std::string& error) {
-    HANDLE file=CreateFileW(filename.c_str(),GENERIC_READ,FILE_SHARE_READ,nullptr,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL,nullptr);
-    if (file==INVALID_HANDLE_VALUE) { error="cannot open definition"; return false; }
-    LARGE_INTEGER size{};
-    if (!GetFileSizeEx(file,&size) || size.QuadPart<0 || size.QuadPart>static_cast<LONGLONG>(Limit)) {
-        CloseHandle(file); error="invalid definition file size"; return false;
-    }
-    std::vector<uint8_t> bytes(static_cast<size_t>(size.QuadPart));
-    DWORD read=0;
-    bool ok=ReadFile(file,bytes.data(),static_cast<DWORD>(bytes.size()),&read,nullptr) && read==bytes.size();
-    CloseHandle(file);
-    if (!ok) { error="cannot read definition"; return false; }
-    return Parse(bytes,definition,error);
-}
-
 uint32_t Dependencies(const Definition& p,uint32_t requested) {
     uint32_t old;
     do { old=requested; for (const auto& f:p.features) if (f.bit & requested) requested|=f.dependencies; } while (old!=requested);
     return requested;
-}
-Options ReadOptions(const Definition& p,const std::wstring& ini) {
-    Options result;
-    for (const auto& f:p.features) {
-        auto value=Setting(p,ini,f.key,L"0");
-        if (value==L"1") result.enabled|=f.bit;
-        else if (value!=L"0") LOG("[Patches] %s: invalid %s; disabled",p.id.c_str(),f.key.c_str());
-    }
-    auto expanded=Dependencies(p,result.enabled);
-    if (expanded!=result.enabled) LOG("[Patches] %s: enabling required dependencies",p.id.c_str());
-    result.enabled=expanded;
-    for (const auto& v:p.parameters) {
-        char buffer[64];
-        const auto converted=std::to_chars(buffer,buffer+sizeof(buffer),v.value);
-        if (converted.ec!=std::errc()) throw std::runtime_error("cannot format parameter default");
-        std::string decimal(buffer,converted.ptr);
-        const auto dot=decimal.find('.');
-        if (dot!=std::string::npos && decimal.find_first_of("eE")==std::string::npos && decimal.size()-dot==2)
-            decimal+='0';
-        auto text=Setting(p,ini,v.key,Wide(decimal).c_str());
-        wchar_t* end=nullptr;
-        float value=std::wcstof(text.c_str(),&end);
-        if (end==text.c_str() || *end || !std::isfinite(value) || value<v.minimum || value>=v.maximum) {
-            LOG("[Patches] %s: invalid %s; using default",p.id.c_str(),v.key.c_str()); value=v.value;
-        }
-        result.parameters.push_back(value);
-    }
-    return result;
 }
 }

@@ -1,0 +1,18 @@
+# Readable patch package, format 1. Feature defaults remain off.
+config_section = 'ImportedPatches'
+format = 1
+id = 'minimum-damage'
+image_base = 4194304
+image_size = 45088768
+version = '1'
+
+[[features]]
+key = 'MinimumDamage'
+requires = []
+
+[[scripts]]
+feature = 'MinimumDamage'
+file = 'entry-2365.asm'
+id = '2365'
+name = 'CT 2365: [Minimum Damage] (Sora3100)'
+writable = []

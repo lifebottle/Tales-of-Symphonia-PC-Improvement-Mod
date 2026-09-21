@@ -38,7 +38,7 @@ struct Session {
     std::vector<Range> ranges;
     std::vector<std::string> installed;
 };
-bool Parse(const std::vector<uint8_t>& bytes, Definition& definition, std::string& error);
+
 bool Load(const std::wstring& filename, Definition& definition, std::string& error);
 bool Validate(const Definition& definition, std::string& error);
 uint32_t Dependencies(const Definition& definition, uint32_t requested);

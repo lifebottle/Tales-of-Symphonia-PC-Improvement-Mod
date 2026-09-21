@@ -19,11 +19,16 @@ void Init(const std::wstring& basePath) {
             }
             const auto directory=basePath+L"\\patches\\";
             WIN32_FIND_DATAW entry{};
-            HANDLE find=FindFirstFileW((directory+L"*.json").c_str(),&entry);
-            if (find==INVALID_HANDLE_VALUE) { LOG("[Patches] No JSON definitions found in patches\\"); return; }
+            HANDLE find=FindFirstFileW((directory+L"*").c_str(),&entry);
+            if (find==INVALID_HANDLE_VALUE) { LOG("[Patches] No patch packages found"); return; }
             std::vector<std::wstring> files;
             do {
-                if (!(entry.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) files.emplace_back(entry.cFileName);
+                const std::wstring name=entry.cFileName;
+                if ((entry.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) && name!=L"." && name!=L"..") {
+                    auto manifest=name+L"\\patch.toml";
+                    if (GetFileAttributesW((directory+manifest).c_str())!=INVALID_FILE_ATTRIBUTES) files.push_back(manifest);
+                } else if (name.size()>=5 && _wcsicmp(name.c_str()+name.size()-5,L".json")==0)
+                    LOG("[Patches] Legacy JSON %ls ignored; install the readable patch package and remove the old JSON",name.c_str());
             } while (FindNextFileW(find,&entry));
             FindClose(find);
             std::sort(files.begin(),files.end());
