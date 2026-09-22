@@ -1,7 +1,7 @@
 # CE-style source is the authoritative patch definition.
 format = 1
 id = "add-spell-slots"
-version = "1.0.0"
+version = "1.0.1"
 config_section = "AddSpellSlots"
 image_base = 0x400000
 image_size = 0x2b00000

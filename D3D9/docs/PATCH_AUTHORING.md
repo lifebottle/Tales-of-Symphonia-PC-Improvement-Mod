@@ -214,13 +214,11 @@ cmake --build D3D9/build --config Release --target d3d9
 cpack --config D3D9/build/CPackConfig.cmake -C Release
 ```
 
-Or cross-compile with the existing MinGW toolchain. Build and run the portable
-compiler tests on Linux:
+Or cross-compile on Linux with the existing MinGW toolchain:
 
 ```sh
-cmake -S D3D9 -B /tmp/tos-patch-native -DCMAKE_BUILD_TYPE=Debug
-cmake --build /tmp/tos-patch-native -j
-ctest --test-dir /tmp/tos-patch-native --output-on-failure
+cmake -S D3D9 -B D3D9/build -DCMAKE_TOOLCHAIN_FILE=toolchain-mingw32.cmake -DCMAKE_BUILD_TYPE=Release
+cmake --build D3D9/build --target d3d9 tos-ct-converter -j
 ```
 
 ## Migrating from JSON / loader API

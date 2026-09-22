@@ -46,7 +46,10 @@ Mem_SpellQueue:
     jne Unison_Exit
     cmp byte [ebx+1B0],C    //Check Char State (Chanting)
     jne Queue_Exit         //
-    cmp word [ebx+1BE],1    //Check Spell Time
+    // Final slot admission runs before this timer hook, but only at timer 0.
+    // Finish every positive countdown, including its last tick. Queue a ready
+    // cast only after it has had a chance to select another free spell slot.
+    cmp word [ebx+1BE],0
     ja DecTimer             //
     movzx edx,byte [ebx+13AB0]
     mov edi,[TOS.exe+6D2EDC]

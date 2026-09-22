@@ -1920,13 +1920,24 @@ native_426BAA:
   pop ebp
   jmp TOS.exe+0x26bb2
 
-// 0x42723d: cmp byte ptr [edx+edi+0x93ee], 0; original banks/slots retain native addresses.
+// The actor's previous slot is not its next cast's reservation. Let chanting
+// progress when choose() can admit this spell into ANY configured slot. Do not
+// assign it here: cast_ready rechecks admission immediately before launching.
+// Preserve the native comparison contract: ZF means capacity is available.
 native_42723D:
-  push ebp
-  lea ebp, [edx+edi+0x93ee]
-  call map_busy
-  cmp byte ptr [ebp], #0
-  pop ebp
+  pushad
+  mov eax, [ebx+0xC]
+  movzx eax, word ptr [eax]
+  push #0
+  push eax
+  push ebx
+  push edi
+  call choose
+  add esp, #16
+  cmp eax, -#1
+  sete al
+  test al, al
+  popad
   jmp TOS.exe+0x27245
 
 // 0x428118: mov byte ptr [ecx+edx+0x93ee], 0; original banks/slots retain native addresses.

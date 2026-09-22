@@ -1,8 +1,0 @@
-Copy this entire folder into patches beside d3d9.dll.
-Enable desired keys in d3d9_config.ini and restart the game.
-Do not simultaneously enable the same hooks in Cheat Engine.
-
-[Fixture]
-Enabled=0
-
-Change the desired feature values to 1. No settings are changed by export.
