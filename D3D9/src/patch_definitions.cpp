@@ -26,6 +26,11 @@ bool Validate(const Definition& p,std::string& error) {
         if (!f.bit || (f.bit & (f.bit-1)) || (bits & f.bit) || !Identifier(f.key) || !keys.insert(Key(f.key)).second)
             return fail("invalid/duplicate feature");
         bits |= f.bit;
+        if (f.enableAbove && (!std::isfinite(*f.enableAbove) ||
+            std::none_of(p.parameters.begin(), p.parameters.end(), [&](const Parameter& v) {
+                return (v.group & f.bit) != 0;
+            })))
+            return fail("inferred feature needs a finite threshold and parameters");
     }
     for (const auto& f:p.features) if (f.dependencies & ~bits) return fail("unknown dependency");
     size_t allocated=0;
@@ -76,6 +81,8 @@ bool Validate(const Definition& p,std::string& error) {
             !Identifier(v.key) || !keys.insert(Key(v.key)).second || !std::isfinite(v.value) ||
             !std::isfinite(v.minimum) || !std::isfinite(v.maximum) || v.value<v.minimum || v.value>=v.maximum)
             return fail("invalid float parameter");
+        if (v.integer && std::trunc(v.value) != v.value)
+            return fail("integer parameter needs an integer default");
         const auto& s=p.segments[v.segment];
         if (s.kind!=Kind::Data || !Range(v.offset,4,s.size) || (v.group & ~s.group))
             return fail("parameter must address its feature's writable state");

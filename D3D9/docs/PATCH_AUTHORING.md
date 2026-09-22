@@ -176,12 +176,16 @@ encoding-specific byte edits.
 
 ## Features and parameters
 
-Feature keys default to off. `requires` names other feature keys in the same
+Boolean feature keys default to off. `requires` names other feature keys in the same
 package; enabling a dependent feature enables its requirements. Registered symbols
 are visible across scripts in the package, with dependencies enforced by the
-runtime compiler.
+runtime compiler. A feature with `enable_above = 1` is instead inferred from its
+parameters: it activates when any associated normalized value exceeds `1`.
+Its key is an internal feature identifier, not an INI toggle; no toggle is read
+or generated. The threshold must be finite and the feature must have at least
+one parameter. Dependencies are resolved after this inference.
 
-Parameters remain float32 INI values, including the existing spell-slot thresholds:
+Parameters are stored as float32 values:
 
 ```toml
 [[parameters]]
@@ -194,9 +198,16 @@ min = 0.0
 max_exclusive = 1.0
 ```
 
-The symbol must address four bytes in that feature's writable allocation. Invalid
-or nonfinite INI values use the default. Existing battle/spell-slot INI sections,
-keys, defaults, and parameter semantics are unchanged.
+The symbol must address four bytes in that feature's writable allocation. Malformed
+or nonfinite INI values use the default. Optional `integer = true` truncates
+fractions toward zero and requires an integer default. Optional `clamp = true`
+clamps finite values after truncation to the accepted range, without rewriting
+user-entered INI values. Both flags default to false; without clamping,
+out-of-range values use the default. The upper bound remains exclusive: integer
+parameters with `min = 1` and `max_exclusive = 5` clamp to 1–4, while float
+parameters clamp to the largest representable float32 below the upper bound.
+Battle Enhancements uses both flags for `PartySpellSlots` (1–4) and
+`EnemySpellSlots` (1–3), with defaults of `1` and an inferred `SpellSlots` feature.
 
 ## Building
 

@@ -22,6 +22,7 @@ struct Script {
 struct Parameter {
     std::string key, feature, script, symbol;
     float value = 0, minimum = 0, maximum = 1;
+    bool integer = false, clamp = false;
 };
 struct Package {
     std::string id, version = "1", section, module = "TOS.exe";

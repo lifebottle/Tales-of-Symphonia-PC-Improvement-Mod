@@ -2,6 +2,7 @@
 #include <cstdint>
 #include <cstddef>
 #include <string>
+#include <optional>
 #include <vector>
 
 // Host-independent definition model. Installation is implemented by the Win32 backend.
@@ -14,11 +15,16 @@ struct Segment {
 };
 struct Fixup { uint32_t owner, offset; int32_t target; uint32_t addend, type; };
 struct Guard { uint32_t group, rva, bytes, count; };
-struct Feature { uint32_t bit, dependencies; std::string key; };
+struct Feature {
+    uint32_t bit, dependencies;
+    std::string key;
+    std::optional<float> enableAbove = std::nullopt; // infer from this feature's parameters
+};
 struct Parameter {
     uint32_t group, segment, offset;
     float value, minimum, maximum; // minimum inclusive, maximum exclusive
     std::string key;
+    bool integer = false, clamp = false;
 };
 struct Definition {
     uint32_t imageSize = 0, imageBase = 0;

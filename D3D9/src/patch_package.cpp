@@ -68,6 +68,12 @@ float Float(const toml::table &t, const char *key) {
     Require(bool(v), std::string("Invalid number: ") + key);
     return float(*v);
 }
+bool Boolean(const toml::table &t, const char *key) {
+    if (!t.contains(key))
+        return false;
+    Require(t[key].is_boolean(), std::string("Invalid boolean: ") + key);
+    return *t[key].value<bool>();
+}
 void Fields(const toml::table &t, std::initializer_list<const char *> allowed) {
     for (const auto &[key, value] : t) {
         (void)value;
@@ -205,12 +211,14 @@ Package ReadPackage(const fs::path &manifest) {
     for (auto &node : Array(t, "features", 32)) {
         auto f = node.as_table();
         Require(f, "Invalid feature");
-        Fields(*f, {"key", "requires"});
+        Fields(*f, {"key", "requires", "enable_above"});
         auto key = String(*f, "key");
         Require(Identifier(key) && keys.insert(Lower(key)).second, "Invalid/duplicate feature key");
         uint32_t bit = uint32_t(1) << p.features.size();
         features[key] = bit;
         p.features.push_back({bit, 0, key});
+        if (f->contains("enable_above"))
+            p.features.back().enableAbove = Float(*f, "enable_above");
     }
     Require(!p.features.empty(), "Package needs features");
     size_t index = 0;
@@ -259,10 +267,10 @@ Package ReadPackage(const fs::path &manifest) {
     for (auto &node : Array(t, "parameters", 256)) {
         auto v = node.as_table();
         Require(v, "Invalid parameter");
-        Fields(*v, {"key", "feature", "script", "symbol", "default", "min", "max_exclusive"});
+        Fields(*v, {"key", "feature", "script", "symbol", "default", "min", "max_exclusive", "integer", "clamp"});
         p.parameters.push_back({String(*v, "key"), String(*v, "feature"), String(*v, "script"),
                                 String(*v, "symbol"), Float(*v, "default"), Float(*v, "min"),
-                                Float(*v, "max_exclusive")});
+                                Float(*v, "max_exclusive"), Boolean(*v, "integer"), Boolean(*v, "clamp")});
     }
     return p;
 }
@@ -281,6 +289,8 @@ std::string Manifest(const Package &p) {
             if (dep.bit & f.dependencies)
                 dependencies.push_back(dep.key);
         toml::table feature{{"key", f.key}};
+        if (f.enableAbove)
+            feature.insert("enable_above", double(*f.enableAbove));
         if (!dependencies.empty())
             feature.insert("requires", dependencies);
         features.push_back(std::move(feature));
@@ -300,20 +310,26 @@ std::string Manifest(const Package &p) {
             script.insert("writable", writable);
         scripts.push_back(std::move(script));
     }
-    for (auto &v : p.parameters)
-        parameters.push_back(toml::table{{"key", v.key},
+    for (auto &v : p.parameters) {
+        toml::table parameter{{"key", v.key},
                                          {"feature", v.feature},
                                          {"script", v.script},
                                          {"symbol", v.symbol},
                                          {"default", double(v.value)},
                                          {"min", double(v.minimum)},
-                                         {"max_exclusive", double(v.maximum)}});
+                                         {"max_exclusive", double(v.maximum)}};
+        if (v.integer)
+            parameter.insert("integer", true);
+        if (v.clamp)
+            parameter.insert("clamp", true);
+        parameters.push_back(std::move(parameter));
+    }
     t.insert("features", features);
     t.insert("scripts", scripts);
     if (!parameters.empty())
         t.insert("parameters", parameters);
     std::ostringstream out;
-    out << "# Readable patch package, format 1. Feature defaults remain off.\n" << t << '\n';
+    out << "# Readable patch package, format 1.\n" << t << '\n';
     return out.str();
 }
 } // namespace PatchScript

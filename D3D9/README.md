@@ -81,13 +81,9 @@ cmake --build build --config Release --target tos-ct-converter
        │   ├── ManualOverLimit.asm
        │   ├── NewFreeRun.asm
        │   ├── OverLimitGauge.asm
-       │   └── SpellQueueFix.asm
-       ├── add-spell-slots/
-       │   ├── patch.toml
-       │   ├── guards.asm
-       │   ├── helpers.asm
-       │   ├── hooks.asm
-       │   └── state.asm
+       │   ├── SpellQueueFix.asm
+       │   ├── NoSpellPause.asm
+       │   └── AddSpellSlots.asm
        └── lloyd-super-chain/
            ├── patch.toml
            └── Enabled.asm

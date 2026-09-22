@@ -2,6 +2,7 @@
 #include "logger.h"
 #include "ini_settings.h"
 #include <windows.h>
+#include <algorithm>
 #include <charconv>
 #include <cmath>
 #include <stdexcept>
@@ -23,16 +24,14 @@ std::wstring Setting(const Definition &p, const std::wstring &ini, const std::st
 Options ReadOptions(const Definition &p, const std::wstring &ini) {
     Options result;
     for (const auto &f : p.features) {
+        if (f.enableAbove)
+            continue;
         auto value = Setting(p, ini, f.key, L"0");
         if (value == L"1")
             result.enabled |= f.bit;
         else if (value != L"0")
             LOG("[Patches] %s: invalid %s; disabled", p.id.c_str(), f.key.c_str());
     }
-    auto expanded = Dependencies(p, result.enabled);
-    if (expanded != result.enabled)
-        LOG("[Patches] %s: enabling required dependencies", p.id.c_str());
-    result.enabled = expanded;
     for (const auto &v : p.parameters) {
         char buffer[64];
         const auto converted = std::to_chars(buffer, buffer + sizeof(buffer), v.value);
@@ -46,12 +45,34 @@ Options ReadOptions(const Definition &p, const std::wstring &ini) {
         auto text = Setting(p, ini, v.key, Wide(decimal).c_str());
         wchar_t *end = nullptr;
         float value = std::wcstof(text.c_str(), &end);
-        if (end == text.c_str() || *end || !std::isfinite(value) || value < v.minimum || value >= v.maximum) {
+        if (end == text.c_str() || *end || !std::isfinite(value)) {
             LOG("[Patches] %s: invalid %s; using default", p.id.c_str(), v.key.c_str());
             value = v.value;
+        } else {
+            if (v.integer)
+                value = std::trunc(value);
+            if (v.clamp) {
+                const float upper = std::nextafter(v.maximum, v.minimum);
+                value = std::clamp(value, v.integer ? std::ceil(v.minimum) : v.minimum,
+                                   v.integer ? std::floor(upper) : upper);
+            } else if (value < v.minimum || value >= v.maximum) {
+                LOG("[Patches] %s: invalid %s; using default", p.id.c_str(), v.key.c_str());
+                value = v.value;
+            }
         }
         result.parameters.push_back(value);
     }
+    for (const auto &f : p.features) {
+        if (!f.enableAbove)
+            continue;
+        for (size_t i = 0; i < p.parameters.size(); ++i)
+            if ((p.parameters[i].group & f.bit) && result.parameters[i] > *f.enableAbove)
+                result.enabled |= f.bit;
+    }
+    auto expanded = Dependencies(p, result.enabled);
+    if (expanded != result.enabled)
+        LOG("[Patches] %s: enabling required dependencies", p.id.c_str());
+    result.enabled = expanded;
     return result;
 }
 } // namespace PatchFramework

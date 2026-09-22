@@ -136,7 +136,8 @@ bool Install(Session& session, const Definition& definition, uint8_t* image, siz
     if (options.parameters.size()!=definition.parameters.size()) return fail("parameter count mismatch");
     for (size_t i=0;i<definition.parameters.size();++i) {
         const auto& p=definition.parameters[i]; const auto value=options.parameters[i];
-        if (!std::isfinite(value) || value<p.minimum || value>=p.maximum) return fail("parameter out of range");
+        if (!std::isfinite(value) || value<p.minimum || value>=p.maximum ||
+            (p.integer && std::trunc(value)!=value)) return fail("parameter out of range");
     }
     const uint32_t enabled = Dependencies(definition,options.enabled);
     if (!enabled) return true;

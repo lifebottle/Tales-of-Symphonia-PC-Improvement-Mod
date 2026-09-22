@@ -1,7 +1,7 @@
 # CE-style source is the authoritative patch definition.
 format = 1
 id = "battle-enhancements"
-version = "1.3.1"
+version = "1.4.0"
 config_section = "BattleEnhancements"
 image_base = 0x400000
 image_size = 0x2b00000
@@ -49,3 +49,34 @@ writable = ["QueueList"]
 key = "NoSpellPause"
 [[scripts]]
 file = "NoSpellPause.asm"
+
+[[features]]
+key = "SpellSlots"
+enable_above = 1
+
+[[scripts]]
+file = "AddSpellSlots.asm"
+feature = "SpellSlots"
+writable = ["mem_arena"]
+
+[[parameters]]
+key = "PartySpellSlots"
+feature = "SpellSlots"
+script = "AddSpellSlots"
+symbol = "PARTY_SLOTS"
+integer = true
+clamp = true
+default = 1
+min = 1
+max_exclusive = 5
+
+[[parameters]]
+key = "EnemySpellSlots"
+feature = "SpellSlots"
+script = "AddSpellSlots"
+symbol = "ENEMY_SLOTS"
+integer = true
+clamp = true
+default = 1
+min = 1
+max_exclusive = 4

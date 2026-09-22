@@ -16,8 +16,9 @@ Existing INI settings are retained. Sources and tools now live in the repository
 
 ## Battle Enhancements
 
-The `[BattleEnhancements]` section is added to `d3d9_config.ini` on launch. All five
-options default to `0`. To enable all five features, use:
+The `[BattleEnhancements]` section is added to `d3d9_config.ini` on launch. All six
+boolean options default to `0`; both spell-slot counts default to `1`. To enable
+the boolean features and expand spell capacity, use:
 
 ```ini
 [BattleEnhancements]
@@ -26,7 +27,10 @@ NewFreeRun=1
 ManualOverLimit=1
 OverLimitGauge=1
 SpellQueueFix=1
+NoSpellPause=1
 FreeRunMovementPenalty=0.20
+PartySpellSlots=4
+EnemySpellSlots=3
 ```
 
 Restart after changes. New Free Run and Manual Over Limit automatically enable
@@ -35,9 +39,8 @@ The gauge and Spell Queue Fix can be used independently. `FreeRunMovementPenalty
 the table's movement multiplier (1.00 normally, 1.15 with Dash); accepted values
 are at least 0 and less than 1. The default is 0.20.
 
-Spell Queue Fix in [battle-enhancements/patch.toml](battle-enhancements/patch.toml) version 1.3.1 includes the
-completed queue algorithm and supports [add-spell-slots/patch.toml](add-spell-slots/patch.toml), including
-all expanded party and enemy slot settings in either installation order. Enable
+Spell Queue Fix in [battle-enhancements/patch.toml](battle-enhancements/patch.toml) version 1.4.0 includes the
+completed queue algorithm and supports all expanded party and enemy slot settings. Enable
 it with `[BattleEnhancements] SpellQueueFix=1`, independently or alongside the
 other battle features. Install the current DLL and package folders together, then
 restart. Compact manifests require the updated manifest loader.
@@ -54,8 +57,8 @@ Manual Over Limit includes the table's damage-based gauge gain and portrait/
 party-limit adjustments. The gauge uses the game's own battle HUD drawing code.
 Free Run includes the directly-above/below-enemy correction.
 
-Installation occurs once during D3D initialization. The log reports
-`[Patches] battle-enhancements 1.3.1: installed 66 patches` with all five features enabled. Unexpected
+Installation occurs once during D3D initialization. The log reports the package
+version and installed patch count for the enabled features. Unexpected
 instructions, conflicting hooks, or an unsupported executable disable the entire
 requested set for that launch, with the failing site logged. Existing texture,
 archive, and fast-forward features continue independently. Do not simultaneously
@@ -63,33 +66,32 @@ enable these same scripts in Cheat Engine. Disabling an INI option prevents its
 runtime hooks on the next launch; it does not undo arte assignments or other
 state already saved by the game.
 
-## Additional Spell Slots
+### Additional Spell Slots
 
-[add-spell-slots/patch.toml](add-spell-slots/patch.toml) expands spell storage with
-separate code and writable state. Enable it in `d3d9_config.ini`, then restart:
+Battle Enhancements expands spell storage with separate code and writable state.
+Set the counts in `d3d9_config.ini`, then restart:
 
 ```ini
-[AddSpellSlots]
-Enabled=1
-PartySlots=1
-EnemySlots=1
+[BattleEnhancements]
+PartySpellSlots=4
+EnemySpellSlots=3
 ```
 
-`Enabled` defaults to `0`; both slot settings default to `1`. Use `PartySlots`
-values 1 through 4 and `EnemySlots` values 1 through 3 for the supported integer
-configurations. The settings are float32 thresholds: accepted values are at least
-1 and less than 5 for party slots, and at least 1 and less than 4 for enemy slots.
-Invalid or nonfinite values fall back to the defaults. Spell Queue Fix supports
-all 12 integer configurations in either installation order.
+Both settings default to `1`. Fractions are truncated, then `PartySpellSlots`
+is clamped to 1–4 and `EnemySpellSlots` to 1–3. Missing, malformed, or nonfinite
+values use `1`. Expansion is enabled automatically when either resulting count
+exceeds `1`; if both are `1` or unset, it is disabled. There is no separate
+enable switch. Clamping does not rewrite user-entered INI values. Spell Queue Fix
+supports all 12 integer configurations and remains independently selectable.
 
-Version 1.0.1 lets chanting progress when any configured slot can admit the
+Chanting progresses when any configured slot can admit the
 pending spell, even if the actor's previous slot is occupied. Final admission
-rechecks capacity before assigning a slot. Battle Enhancements 1.3.1 also lets
+rechecks capacity before assigning a slot. Spell Queue Fix also lets
 the last chant tick reach zero before applying queue waits, so additional slots
-work with Spell Queue Fix enabled or disabled. Update both package folders and
-restart; no DLL rebuild or INI changes are required.
+work with Spell Queue Fix enabled or disabled.
 
-The source is divided into helpers, state, hooks, and guards. Change the INI
+The source is in [battle-enhancements/AddSpellSlots.asm](battle-enhancements/AddSpellSlots.asm),
+with sections for helpers, writable state, hooks, and guards. Change the INI
 settings to configure capacity; the assembly contains the maintained allocation,
 lifecycle, and original-byte checks.
 
@@ -116,28 +118,3 @@ The log reports `[Patches] lloyd-super-chain 1.0.0: installed 17 patches`.
 An unexpected battle-data layout skips all nine window writes for that rebuild.
 Use a fresh launch when switching from the IDA memory script; both versions use
 the same hook sites.
-
-## Source provenance
-
-These readable packages replace the former runtime JSON definitions. Their
-assembly is maintained directly in this folder and copied unchanged to releases.
-
-- **Battle Enhancements 1.3.1** preserves the maintained native port of selected
-  TOS NoTSFix v26.9.1 table scripts (table script authors: sdail). It includes the
-  port's input/combo/shortcut fixes, live control-mode handling for Manual Over
-  Limit, and the completed Spell Queue Fix from sdail's CT entry 2692 (dated
-  2026-08-18), formerly maintained as `spell-queue-fix-2`. The queue keeps its
-  ordering/timer behavior, with expanded-slot busy lookups, a separate unlock
-  hook at +28105, and byte-sized lock resets. Reimporting the original table
-  does not reproduce these later fixes.
-- **Additional Spell Slots 1.0.1** preserves the maintained native port of
-  `spell_slots_expanded_memory.s`, including separate code/state allocation,
-  float32 configuration thresholds, original-byte guards, and all 162 patch sites.
-  Its source is divided into helpers, state, hooks, and guards.
-- **Lloyd Super Chain 1.0.0** preserves the maintained assembly implementing the
-  descriptor-rebuild, MAX-gem menu, and Ability Plus changes.
-- **Minimum Damage (legacy, no longer bundled)** comes from CT entry 2365, “[Minimum Damage] (Sora3100),” in
-  TOS NoTSFix v26.9.1. It changes every nonzero HP delta to -1, including healing;
-  the migration intentionally preserves that behavior.
-
-The full external CT and game executable are not included.

@@ -1106,7 +1106,8 @@ class Compiler {
                 if (f.key == p.feature)
                     group = f.bit;
             d.parameters.push_back(
-                {group, uint32_t(it->second.first), it->second.second, p.value, p.minimum, p.maximum, p.key});
+                {group, uint32_t(it->second.first), it->second.second, p.value, p.minimum, p.maximum, p.key,
+                 p.integer, p.clamp});
         }
         if (std::none_of(d.segments.begin(), d.segments.end(), [](auto &s) { return s.kind == Kind::Patch; }))
             Fail("Selected scripts do not install any patches");
