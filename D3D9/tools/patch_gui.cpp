@@ -210,7 +210,7 @@ void Start(bool exporting) {
             for (const auto &script : package.scripts)
                 result->text += "\r\n" + script.name + " -> " + script.feature;
             if (exporting)
-                result->text += "\r\nCopy the folder into the game's patches directory. Follow INSTALL.txt, "
+                result->text += "\r\nCopy the folder into the game's mods/asm directory. Follow INSTALL.txt, "
                                 "then restart.";
         } catch (const std::exception &e) {
             result->text = e.what();

@@ -162,7 +162,7 @@ void Export(const Package &p, const fs::path &directory) {
         for (auto &script : p.scripts)
             write(staging / fs::u8path(script.file), script.text);
         std::string readme =
-            "Copy this entire folder into patches beside d3d9.dll.\nEnable desired keys in d3d9_config.ini "
+            "Copy this entire folder into mods/asm in the game folder beside d3d9.dll.\nEnable desired keys in d3d9_config.ini "
             "and restart the game.\nDo not simultaneously enable the same hooks in Cheat Engine.\n\n[" +
             p.section + "]\n";
         for (auto &feature : p.features)

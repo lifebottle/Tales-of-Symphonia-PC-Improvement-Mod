@@ -11,6 +11,7 @@
 
 #include <windows.h>
 #include <cstdio>
+#include <cstring>
 
 // ============================================================================
 // Game addresses
@@ -97,25 +98,58 @@ static void CallArchiveRootInit(const char* path, const char* separator, int abs
 // Multi-PATCH archive loader
 // ============================================================================
 
+static char g_tlfilePath[MAX_PATH]{};
+
+static void InitTLFilePath(HMODULE module)
+{
+    char modulePath[MAX_PATH];
+    DWORD length = GetModuleFileNameA(module, modulePath, MAX_PATH);
+    if (length == 0 || length >= MAX_PATH) {
+        LOG("[Patch] Could not resolve DLL directory; skipping mods/tlfile");
+        return;
+    }
+
+    char* separator = strrchr(modulePath, '\\');
+    if (!separator) {
+        LOG("[Patch] DLL path has no directory; skipping mods/tlfile");
+        return;
+    }
+    *separator = '\0';
+    int count = snprintf(g_tlfilePath, sizeof(g_tlfilePath), "%s\\mods\\tlfile", modulePath);
+    if (count < 0 || count >= static_cast<int>(sizeof(g_tlfilePath))) {
+        g_tlfilePath[0] = '\0';
+        LOG("[Patch] DLL directory is too long for mods/tlfile; skipping custom archives");
+    }
+}
+
 // Priority scheme:
 //   PATCH R01 (normal): base + 0x3000
 //   Custom folder 1:    base + 0x3010
 //   Custom folder N:    base + 0x3000 + N*0x10
 static void __cdecl LoadMultiPatchArchives(const char* patchPath)
 {
-    LOG("[Patch] patchPath = \"%s\"", patchPath);
+    LOG("[Patch] Stock PATCH path = \"%s\"", patchPath);
 
     // Call original sub_625890 for normal R01 PATCH loading
     CallAddRootPath(patchPath, 0x3000);
 
-    // Enumerate subdirectories
+    if (!g_tlfilePath[0])
+        return;
+
+    LOG("[Patch] TLFile mod directory = \"%s\"", g_tlfilePath);
+
+    // Enumerate custom archives beside the DLL, independently of the stock path.
     char wildcard[MAX_PATH];
-    sprintf(wildcard, "%s\\*", patchPath);
+    int count = snprintf(wildcard, sizeof(wildcard), "%s\\*", g_tlfilePath);
+    if (count < 0 || count >= static_cast<int>(sizeof(wildcard))) {
+        LOG("[Patch] TLFile search path is too long; skipping custom archives");
+        return;
+    }
 
     WIN32_FIND_DATAA fd;
     HANDLE hFind = FindFirstFileA(wildcard, &fd);
     if (hFind == INVALID_HANDLE_VALUE) {
-        LOG("[Patch] PATCH directory empty or not found, skipping");
+        LOG("[Patch] No TLFile mod directories found in mods/tlfile (err=%u)", GetLastError());
         return;
     }
 
@@ -131,7 +165,11 @@ static void __cdecl LoadMultiPatchArchives(const char* patchPath)
         }
 
         char fullPath[MAX_PATH];
-        sprintf(fullPath, "%s\\%s", patchPath, fd.cFileName);
+        count = snprintf(fullPath, sizeof(fullPath), "%s\\%s", g_tlfilePath, fd.cFileName);
+        if (count < 0 || count >= static_cast<int>(sizeof(fullPath))) {
+            LOG("[Patch] TLFile mod path is too long; skipping \"%s\"", fd.cFileName);
+            continue;
+        }
 
         int absPriority = *(int*)(uintptr_t)ADDR_BASE_PRIORITY + priorityOffset;
         LOG("[Patch] Loading \"%s\" (priority 0x%X)", fullPath, absPriority);
@@ -142,7 +180,7 @@ static void __cdecl LoadMultiPatchArchives(const char* patchPath)
     } while (FindNextFileA(hFind, &fd));
 
     FindClose(hFind);
-    LOG("[Patch] Finished enumerating PATCH subdirectories");
+    LOG("[Patch] Finished enumerating mods/tlfile subdirectories");
 }
 
 // Install the PATCH hook: overwrite call at 0x5A2177 with our trampoline
@@ -231,10 +269,11 @@ static LONG CALLBACK VehHandler(PEXCEPTION_POINTERS pExInfo)
 // ============================================================================
 namespace ArchiveLoader {
 
-void InstallAll()
+void InstallAll(HMODULE module)
 {
     LOG("[Patch] Installing archive loading patches...");
 
+    InitTLFilePath(module);
     IncreaseIOBufferSize();
     InstallMultiPatchHook();
 

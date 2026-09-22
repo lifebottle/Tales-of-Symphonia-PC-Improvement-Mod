@@ -24,8 +24,8 @@ see the [patch README](../patches/README.md).
 6. Choose a **new export folder** and click **Export**. Existing folders are never
    overwritten; use a new folder for each revised export. Failed exports leave
    the previous export and both input files intact.
-7. Copy the exported folder into `patches` beside `d3d9.dll`, enable the desired
-   keys in `d3d9_config.ini`, and restart. `INSTALL.txt` lists the keys. Avoid
+7. Copy the exported folder into the game's `mods/asm` directory, enable the
+   desired keys in `d3d9_config.ini`, and restart. `INSTALL.txt` lists the keys. Avoid
    installing two revisions of the same package or enabling the same hooks in CE.
 
 The converter never attaches to the game or enables installed patches. It reads
@@ -56,7 +56,7 @@ Lua or permit Lua inside selected scripts.
 ## Package layout
 
 ```text
-patches/
+mods/asm/
   my-enhancement/
     patch.toml
     entry-2365.asm

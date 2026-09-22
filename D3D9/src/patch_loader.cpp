@@ -17,10 +17,10 @@ void Init(const std::wstring& basePath) {
             if (GetPrivateProfileIntW(L"Patches",L"AutoLoad",1,ini.c_str())==0) {
                 LOG("[Patches] Automatic loading disabled; API remains available"); return;
             }
-            const auto directory=basePath+L"\\patches\\";
+            const auto directory=basePath+L"\\mods\\asm\\";
             WIN32_FIND_DATAW entry{};
             HANDLE find=FindFirstFileW((directory+L"*").c_str(),&entry);
-            if (find==INVALID_HANDLE_VALUE) { LOG("[Patches] No patch packages found"); return; }
+            if (find==INVALID_HANDLE_VALUE) { LOG("[Patches] No patch packages found in mods/asm"); return; }
             std::vector<std::wstring> files;
             do {
                 const std::wstring name=entry.cFileName;

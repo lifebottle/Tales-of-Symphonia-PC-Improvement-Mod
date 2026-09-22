@@ -12,14 +12,15 @@ scripts; INSTALL.txt lists feature dependencies. Exports omit redundant manifest
 fields and empty lists; custom CT IDs and descriptions are preserved.
 
 INSTALLING PATCHES
-Copy d3d9.dll and the desired complete folders from patches into the game
-folder beside TOS.exe. Features start disabled; enable their keys in
- d3d9_config.ini and restart. Keep a backup of your previous mod installation.
+Copy d3d9.dll into the game folder beside TOS.exe. Copy the desired complete
+package folders from mods/asm into mods/asm in the game folder.
+Features start disabled; enable their keys in d3d9_config.ini and restart.
+Keep a backup of your previous mod installation.
 This DLL replaces the old JSON patch format. Old JSON files are ignored.
 Do not enable the same patches in Cheat Engine at the same time.
 
 The authoring guide in docs/PATCH_AUTHORING.md explains supported CE syntax,
 INI configuration and API version 2. See
- patches/README.md for bundled patch settings, controls, compatibility, and origins.
+ mods/asm/README.md for bundled patch settings, controls, compatibility, and origins.
 
 The converter does not modify TOS.exe, attach to a game, or change INI settings.

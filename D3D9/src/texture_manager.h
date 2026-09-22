@@ -4,13 +4,13 @@
  * Scans for replacement textures, computes CRC32 hashes, handles injection.
  * 
  * Directory layout:
- *   <game_dir>/textures/dump/     - dumped original textures (CRC32.dds)
- *   <game_dir>/textures/replace/  - replacement textures (CRC32.dds)
+ *   <game_dir>/mods/textures/dump/     - dumped original textures (CRC32.dds)
+ *   <game_dir>/mods/textures/replace/  - replacement textures (CRC32.dds)
  *
  * Workflow:
  *   1. On texture creation/load, compute CRC32 of the source data
- *   2. Optionally dump the texture to textures/dump/<crc32>.dds
- *   3. Check if textures/replace/<crc32>.dds exists
+ *   2. Optionally dump the texture to mods/textures/dump/<crc32>.dds
+ *   3. Check if mods/textures/replace/<crc32>.dds exists
  *   4. If it does, load and return the replacement texture instead
  */
 

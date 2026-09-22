@@ -20,7 +20,7 @@
  *   4. Game loads textures via D3DXCreateTextureFromFileInMemoryEx
  *      -> hook computes a TSFix-compatible CRC32 of the DDS blob and forces
  *         native DDS resolution (Width/Height = 0)
- *   5. Game calls SetTexture -> replacement from textures/replace/ is swapped in
+ *   5. Game calls SetTexture -> replacement from mods/textures/replace/ is swapped in
  */
 
 #include <windows.h>
@@ -276,7 +276,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 
             // Install binary patches (multi-PATCH loader, I/O buffer increase).
             // This runs before any game code, patching TOS.exe in-place.
-            ArchiveLoader::InstallAll();
+            ArchiveLoader::InstallAll(hModule);
 
             // Real d3d9.dll is loaded lazily on first API call, NOT here.
             // Loading it during DllMain can cause the loader to resolve

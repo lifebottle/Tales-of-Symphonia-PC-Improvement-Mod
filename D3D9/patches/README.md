@@ -1,6 +1,6 @@
 # Readable patches
 
-Patches are loaded from `patches/*/patch.toml` beside `d3d9.dll`. Each folder
+Patches are loaded from `mods/asm/*/patch.toml` beside `d3d9.dll`. Each folder
 contains a small manifest and readable CE-style `.asm` files. The DLL assembles
 and validates them at startup, then installs the enabled features.
 

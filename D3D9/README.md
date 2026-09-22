@@ -2,8 +2,8 @@
 
 A drop-in `d3d9.dll` proxy for the Steam release of *Tales of Symphonia* with four features:
 
-1. **Multi-PATCH archive loader** — patches `TOS.exe` in memory so that every subfolder of the game's `Files/WIN/PATCH` directory is mounted as an additional archive root, with a higher priority than the stock `R01` data. Multiple TLFile mods can be installed side by side without repacking. Also raises the game's I/O buffer from 256 MB to 1 GB so larger modded files load.
-2. **Texture replacement** — TSFix-compatible: hashes every DDS the game loads via D3DX with the same CRC32 TSFix uses, and swaps in `textures/replace/<CRC32>.dds` if present. Existing TSFix texture packs work without renaming. Textures loaded from `PATCH` folders are also created at their native DDS resolution instead of being downscaled to the size the game asks for.
+1. **Multi-PATCH archive loader** — patches `TOS.exe` in memory so that every subfolder of the game's `mods/tlfile` directory is mounted as an additional archive root, with a higher priority than the stock `R01` data. Multiple TLFile mods can be installed side by side without repacking. Also raises the game's I/O buffer from 256 MB to 1 GB so larger modded files load.
+2. **Texture replacement** — TSFix-compatible: hashes every DDS the game loads via D3DX with the same CRC32 TSFix uses, and swaps in `mods/textures/replace/<CRC32>.dds` if present. Existing TSFix texture packs work without renaming. Textures loaded from TLFile mod folders are also created at their native DDS resolution instead of being downscaled to the size the game asks for.
 3. **Fast-forward cycle** — press **F6** to cycle **1× → 2× → 4× → 8× → 16× → 1×**, primarily for getting through dialogue and cutscenes. A label in the upper-right corner shows the active speed and disappears at 1×. Dialogue still uses the normal advance input.
 4. **Readable patch scripts** — a reusable native patch runtime with INI options and a versioned mod-loader API. The [bundled patches](patches/README.md) include battle enhancements, additional spell slots, and Lloyd Super Chain. A portable Windows GUI converts Cheat Tables into CE-style assembly packages. Update scripts without rebuilding the DLL; players do not need Cheat Engine.
 
@@ -14,7 +14,7 @@ Works on **native Windows** and **Proton/Wine** (Steam Deck, Linux). TSFix and S
 ```
 TOS.exe loads d3d9.dll (our proxy)
   ├─ DllMain: patch TOS.exe in place
-  │    ├─ 0x5A2177  call → trampoline that loads Files\WIN\PATCH\R01 then every PATCH\<subdir>
+  │    ├─ 0x5A2177  call → trampoline that loads Files\WIN\PATCH\R01 then every mods\tlfile\<subdir>
   │    └─ 0x5C1380 / 0x5C13F0  I/O buffer 0x10000000 → 0x40000000
   │
   └─ Direct3DCreate9[Ex]() returns our IDirect3D9[Ex] proxy
@@ -28,7 +28,7 @@ TOS.exe loads d3d9.dll (our proxy)
             └─ SetTexture() intercepts texture binding:
                  1. Look up CRC32 from the IAT hook map
                  2. If no hash, fall back to LockRect pixel hashing
-                 3. Check textures/replace/<CRC32>.dds
+                 3. Check mods/textures/replace/<CRC32>.dds
                  4. If found, load it and swap it in (cached afterwards)
 ```
 
@@ -67,50 +67,40 @@ cmake --build build --config Release --target tos-ct-converter
 ## Installation
 
 1. Copy `d3d9.dll` next to `TOS.exe`.
-2. Copy the `patches/` directory into the same game directory. When building from source, use `D3D9/patches/` from the checkout:
+2. Copy the desired complete ASM package folders into `mods/asm/`. When building from source, take the packages directly from `D3D9/patches/` in the checkout; builds do not copy them into the build directory. Keep each package's `patch.toml` and all its `.asm` files together. See the [patch README](patches/README.md) for settings and controls.
+3. Put TLFile mods in subfolders of `mods/tlfile/`, and TSFix-style textures in `mods/textures/replace/`. Replacement textures can be grouped in nested pack folders:
 
    ```
    <game_dir>/
    ├── TOS.exe
    ├── d3d9.dll
-   └── patches/
-       ├── README.md                   ← patch configuration and controls
-       ├── battle-enhancements/
-       │   ├── patch.toml              ← package manifest
-       │   ├── ArtesSphere.asm
-       │   ├── ManualOverLimit.asm
-       │   ├── NewFreeRun.asm
-       │   ├── OverLimitGauge.asm
-       │   ├── SpellQueueFix.asm
-       │   ├── NoSpellPause.asm
-       │   └── AddSpellSlots.asm
-       └── lloyd-super-chain/
-           ├── patch.toml
-           └── Enabled.asm
-   ```
-
-   Keep each package's `patch.toml` and all its `.asm` files together in its subfolder. See the [patch README](patches/README.md) for settings and controls.
-3. Put TLFile mods in subfolders of `Files/WIN/PATCH` (not the top-level game directory), and TSFix-style textures in `textures/replace/`:
-
-   ```
-   <game_dir>/
-   ├── TOS.exe
-   ├── d3d9.dll                     ← this mod
    ├── d3d9_config.ini              ← created on first run
-   ├── Files/
-   │   └── WIN/
-   │       └── PATCH/
-   │           ├── 01 MyModA/       ← each subfolder is loaded as its own archive root
-   │           │   ├── FILEHEADER.TOFHDB
-   │           │   └── TLFILE.TLDAT
-   │           └── 02 MyModB/
-   │               ├── FILEHEADER.TOFHDB
-   │               └── TLFILE.TLDAT
-   └── textures/
-       └── replace/                 ← <CRC32>.dds files go here
+   └── mods/
+       ├── asm/
+       │   ├── battle-enhancements/
+       │   │   ├── patch.toml
+       │   │   ├── AddSpellSlots.asm
+       │   │   └── ...              ← keep all of the package's ASM files
+       │   └── lloyd-super-chain/
+       │       ├── patch.toml
+       │       └── Enabled.asm
+       ├── textures/
+       │   ├── replace/
+       │   │   └── 02 Improved PC Textures/
+       │   │       └── 1e5c8a5e.dds
+       │   └── dump/               ← generated DDS dumps when enabled
+       └── tlfile/
+           └── 00 Patched Artes/
+               ├── FILEHEADER.TOFHDB
+               └── TLFILE.TLDAT
    ```
-   Each mod folder must contain **both** `FILEHEADER.TOFHDB` (the file index) and `TLFILE.TLDAT` (the file data). A folder with only `TLFILE.TLDAT` is registered but resolves to nothing.
+
+   Each TLFile mod folder must contain **both** `FILEHEADER.TOFHDB` (the file index) and `TLFILE.TLDAT` (the file data). A folder with only `TLFILE.TLDAT` is registered but resolves to nothing.
 4. Run the game.
+
+### Updating an existing installation
+
+Move custom mod subfolders from `Files/WIN/PATCH/` into `mods/tlfile/`, move ASM package folders from `patches/` into `mods/asm/`, and move the existing `textures/` directory into `mods/textures/` (including `replace/` and `dump/`). The old custom-mod locations are no longer scanned. Leave the stock PATCH archives in place; the game still loads them normally. Configuration and log locations are unchanged.
 
 ### Proton / Steam Deck
 
@@ -128,17 +118,17 @@ Created automatically on first run:
 
 ```ini
 [TextureProxy]
-; Dump all textures as DDS files to textures/dump/
+; Dump all textures as DDS files to mods/textures/dump/
 DumpTextures=0
 
-; Replace textures from textures/replace/
+; Replace textures from mods/textures/replace/
 ReplaceTextures=1
 
 ; Log texture hashes, replacements and dumps to tos_improvement_mod.log
 EnableLogging=1
 
 ; Load D3DX textures at their native DDS resolution instead of the size
-; the game requests (needed for hi-res textures shipped in PATCH folders)
+; the game requests (needed for hi-res textures shipped in TLFile mod folders)
 NativeTextureSize=1
 
 [FastForward]
@@ -187,7 +177,7 @@ The PATCH loader and I/O buffer patches are always applied — they run in `DllM
 
 ## Readable patches
 
-The DLL loads enabled CE-style assembly packages from `patches/*/patch.toml` at
+The DLL loads enabled CE-style assembly packages from `mods/asm/*/patch.toml` at
 startup. See the [patch README](patches/README.md) for bundled features, INI
 settings, controls, compatibility notes, and source provenance.
 
@@ -197,7 +187,7 @@ scripts and compact manifests.
 
 ## PATCH priority scheme
 
-The game resolves file lookups by priority. `R01` gets `base + 0x3000`; each additional subfolder gets `base + 0x3010`, `+0x3020`, … in directory enumeration order (NTFS: alphabetical). A higher priority wins, so later folders override earlier ones, and every subfolder overrides `R01`.
+The game resolves file lookups by priority. `R01` gets `base + 0x3000`; each additional `mods/tlfile` subfolder gets `base + 0x3010`, `+0x3020`, … in directory enumeration order (NTFS: alphabetical). A higher priority wins, so later folders override earlier ones, and every subfolder overrides `R01`.
 
 ## Supported DDS formats (replacement textures)
 
@@ -212,7 +202,7 @@ Replacement DDS files are loaded by a built-in loader (no D3DX dependency), stag
 
 | Tag        | Meaning                                              |
 |------------|------------------------------------------------------|
-| `[Patch]`  | Binary patches, PATCH subfolders found and priorities |
+| `[Patch]`  | Binary patches, TLFile mod folders found and priorities |
 | `[IAT]`    | D3DX hook installation                               |
 | `[D3DX]`   | CRC32 of each texture created through D3DX           |
 | `[SetTex]` | Texture replacement activity                         |
@@ -247,12 +237,13 @@ src/
 - On Proton, make sure `WINEDLLOVERRIDES="d3d9=n,b"` is set.
 - Check the log for `[VEH] ACCESS VIOLATION` and `[Patch] WARNING` lines.
 
-**Mods in PATCH subfolders aren't loading**
-- Make sure the folders are under `Files/WIN/PATCH/`, not a `PATCH` folder next to `TOS.exe`. The log's `[Patch] patchPath = "..."` line shows the exact directory being scanned.
+**TLFile mods aren't loading**
+- Make sure the folders are under `mods/tlfile/` beside `TOS.exe` and `d3d9.dll`. The log's `[Patch] TLFile mod directory = "..."` line shows the exact directory being scanned.
 - Check the log for `[Patch] Loading "<path>" (priority 0x...)` lines — one per subfolder.
 - Each subfolder needs both `FILEHEADER.TOFHDB` and `TLFILE.TLDAT`. A `[Patch] Loading` line only means the folder was registered, not that its index was valid.
 
 **No textures are being replaced**
+- Put replacement DDS files under `mods/textures/replace/`; nested pack folders are supported.
 - Check for `[IAT] Hooked D3DXCreateTextureFromFileInMemoryEx` in the log.
 - Check `[D3DX] Tracked texture ... CRC32=` lines and confirm the filename matches.
 - Confirm the replacement DDS uses a supported format.

@@ -25,8 +25,8 @@ void TextureManager::Init(const std::wstring& basePath) {
     if (m_initialized) return;
 
     m_basePath    = basePath;
-    m_dumpPath    = basePath + L"\\textures\\dump";
-    m_replacePath = basePath + L"\\textures\\replace";
+    m_dumpPath    = basePath + L"\\mods\\textures\\dump";
+    m_replacePath = basePath + L"\\mods\\textures\\replace";
 
     EnsureDirectories();
     LoadConfig();
@@ -53,16 +53,16 @@ void TextureManager::LoadConfig() {
         FILE* f = _wfopen(configPath.c_str(), L"w");
         if (f) {
             fprintf(f, "[TextureProxy]\n");
-            fprintf(f, "; Set to 1 to dump all textures to textures/dump/ as DDS files\n");
+            fprintf(f, "; Set to 1 to dump all textures to mods/textures/dump/ as DDS files\n");
             fprintf(f, "; The filename will be the CRC32 hash: e.g. A1B2C3D4.dds\n");
             fprintf(f, "DumpTextures=0\n\n");
-            fprintf(f, "; Set to 1 to replace textures from textures/replace/\n");
+            fprintf(f, "; Set to 1 to replace textures from mods/textures/replace/\n");
             fprintf(f, "; Place your replacement DDS files named by CRC32 hash\n");
             fprintf(f, "ReplaceTextures=1\n\n");
             fprintf(f, "; Set to 1 to log texture hashes, replacements and dumps to tos_improvement_mod.log\n");
             fprintf(f, "EnableLogging=1\n\n");
             fprintf(f, "; Set to 1 to load D3DX textures at their native DDS resolution\n");
-            fprintf(f, "; instead of the size the game requests (needed for hi-res PATCH textures)\n");
+            fprintf(f, "; instead of the size the game requests (needed for hi-res TLFile mod textures)\n");
             fprintf(f, "NativeTextureSize=1\n");
             fclose(f);
         }
@@ -87,8 +87,10 @@ void TextureManager::LoadConfig() {
 }
 
 void TextureManager::EnsureDirectories() {
-    // Create directory tree: textures/, textures/dump/, textures/replace/
-    std::wstring texDir = m_basePath + L"\\textures";
+    // Create the mods parent before the texture directories.
+    std::wstring modsDir = m_basePath + L"\\mods";
+    CreateDirectoryW(modsDir.c_str(), nullptr);
+    std::wstring texDir = modsDir + L"\\textures";
     CreateDirectoryW(texDir.c_str(), nullptr);
     CreateDirectoryW(m_dumpPath.c_str(), nullptr);
     CreateDirectoryW(m_replacePath.c_str(), nullptr);
@@ -120,7 +122,7 @@ void TextureManager::ScanReplacements() {
     }
 
     if (count == 0)
-        LOG("[TexMgr] No replacement textures found in textures/replace/");
+        LOG("[TexMgr] No replacement textures found in mods/textures/replace/");
     else
         LOG("[TexMgr] Scanned %d replacement texture(s)", count);
 }
