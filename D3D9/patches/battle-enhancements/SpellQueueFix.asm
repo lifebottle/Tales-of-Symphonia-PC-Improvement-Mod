@@ -2,7 +2,7 @@
 // Leave +2723D to AddSpellSlots; only the entry's 15 bytes are overwritten.
 assert(TOS.exe+0x2722e,74 1F 0F B6 93 B0 3A 01 00 8B 3D DC 2E AD 00)
 assert(TOS.exe+0x2727b,F6 83 90 02 00 00 10 0F 85 32 01 00 00 0F BF 83 FA 12 00 00 25 07 00 00 80)
-assert(TOS.exe+0x28105,0F B6 8E B0 3A 01 00)
+assert(TOS.exe+0x27539,C6 86 B0 01 00 00 16)
 assert(TOS.exe+0x2724d,74 2C)
 assert(TOS.exe+0x2724f,85 C0)
 assert(TOS.exe+0x27251,75 28)
@@ -25,7 +25,7 @@ assert(TOS.exe+0x27267,90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 
 
 define(SpellQueue,TOS.exe+0x2722e) // resolved from aobscanmodule
 define(Ret_SpellQueue,TOS.exe+0x2727b) // resolved from aobscanmodule
-define(SpellQueueEnd,TOS.exe+28105)
+define(SpellQueueEnd,TOS.exe+27539)
 alloc(Mem_SpellQueue,$2000,SpellQueue)
 alloc(QueueList,4)
 
@@ -42,8 +42,9 @@ Mem_SpellQueue:
     test eax,eax        //Check Unknown
     jne Ret_SpellQueue  //
     mov eax,[TOS.exe+6D2EDC]
-    cmp byte [eax+9108],0
-    jne Unison_Exit
+    // v26.9.3 keeps normal queue handling during Unison.
+    //cmp byte [eax+9108],0
+    //jne Unison_Exit
     cmp byte [ebx+1B0],C    //Check Char State (Chanting)
     jne Queue_Exit         //
     // Final slot admission runs before this timer hook, but only at timer 0.
@@ -130,9 +131,9 @@ Queue_Exit2:
     jmp RemoveQueue
 //============================================================================//
 Mem_UnlockTimer:
-    // Unlock before the native/expanded busy-clear hook at +28118.
-    // Replay the displaced slot load without changing registers or flags.
-    movzx ecx,byte [esi+13AB0]
+    // v26.9.3 unlocks at the state transition; AddSpellSlots owns +28118.
+    // Replay the displaced state write without changing registers or flags.
+    mov byte [esi+1B0],16
     mov byte [QueueList+3],0
     jmp Ret_SpellQueueEnd
 //===[Functions]==============================================================//
@@ -206,7 +207,7 @@ SpellQueue:
     db 8B 3D DC 2E AD 00
 
 SpellQueueEnd:
-    db 0F B6 8E B0 3A 01 00
+    db C6 86 B0 01 00 00 16
 
 dealloc(Mem_SpellQueue)
 dealloc(QueueList)
@@ -274,30 +275,17 @@ TOS.exe+272A0: A9 00 00 40 00        - test eax,TOS.exe
 }
 
 {
-// ORIGINAL CODE - [END MAGIC] INJECTION POINT: TOS.exe+28105
+// ORIGINAL CODE - [END NEW] INJECTION POINT: TOS.exe+27539
 
-TOS.exe+280F3: 51                       - push ecx
-TOS.exe+280F4: 56                       - push esi
-TOS.exe+280F5: 8B 75 08                 - mov esi,[ebp+08]
-TOS.exe+280F8: 0F B6 86 B0 3A 01 00     - movzx eax,byte ptr [esi+00013AB0]
-TOS.exe+280FF: 50                       - push eax
-TOS.exe+28100: E8 DB 5D 04 00           - call TOS.exe+6DEE0
+TOS.exe+27525: 7D 0C                    - jnl TOS.exe+27533
+TOS.exe+27527: B9 14 00 00 00           - mov ecx,00000014
+TOS.exe+2752C: 66 89 8E 9C 02 00 00     - mov [esi+0000029C],cx
+TOS.exe+27533: 8B 86 C4 02 00 00        - mov eax,[esi+000002C4]
 // ---------- INJECTING HERE ----------
-TOS.exe+28105: 0F B6 8E B0 3A 01 00     - movzx ecx,byte ptr [esi+00013AB0]
+TOS.exe+27539: C6 86 B0 01 00 00 16     - mov byte ptr [esi+000001B0],16
 // ---------- DONE INJECTING  ----------
-TOS.exe+2810C: 8B 15 DC 2E AD 00        - mov edx,[TOS.exe+6D2EDC]
-TOS.exe+28112: 8B 45 0C                 - mov eax,[ebp+0C]
-TOS.exe+28115: 83 C4 04                 - add esp,04
-// AddSpellSlots owns this busy-clear site when enabled.
-TOS.exe+28118: C6 84 11 EE 93 00 00 00  - mov byte ptr [ecx+edx+000093EE],00
-TOS.exe+28120: 80 60 35 FC              - and byte ptr [eax+35],-04
-TOS.exe+28124: 5E                       - pop esi
-TOS.exe+28125: 59                       - pop ecx
-TOS.exe+28126: 5D                       - pop ebp
-TOS.exe+28127: C3                       - ret
-TOS.exe+28128: CC                       - int 3
-TOS.exe+28129: CC                       - int 3
-TOS.exe+2812A: CC                       - int 3
-TOS.exe+2812B: CC                       - int 3
-TOS.exe+2812C: CC                       - int 3
+TOS.exe+27540: 8B 88 18 07 00 00        - mov ecx,[eax+00000718]
+TOS.exe+27546: 8B C1                    - mov eax,ecx
+TOS.exe+27548: 85 C0                    - test eax,eax
+TOS.exe+2754A: 74 12                    - je TOS.exe+2755E
 }
