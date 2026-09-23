@@ -1,9 +1,10 @@
-// Additional spell slots: maintained CE-style source.
+// Additional spell slots and concurrent Unison Mystic Artes.
+// Maintained CE-style source; MA fixes share this allocator and its lifecycle.
 // Native helpers and writable arena remain separately allocated.
 [ENABLE]
 
 // Helpers
-alloc(mem_spell_code,0x1c10)
+alloc(mem_spell_code,0x2000)
 define(BC_GLOBAL,TOS.exe+0x6d2edc)
 define(DATA,ARENA + 0x4000)
 define(ALLOWED,DATA + 0x100)
@@ -266,6 +267,7 @@ choose_next:
 choose_next_bound:
   cmp ecx, #10
   jb choose_scan
+choose_find:
   movzx ecx, byte ptr [esi+0x1320]
   and ecx, #1
   call find_free
@@ -281,14 +283,62 @@ choose_done:
   pop ebx
   pop ebp
   ret
+// During Unison, all party MAs and summons may share the expanded spell slots.
+// Empty native reservations are not loaded attacks. Loaded slots retain owner,
+// whitelist, capacity and resource-bank checks.
 choose_unison:
-// Ordinary spells on either side use the ownership/overlap checks and expanded
-// storage during Unison. Special/cinematic requests retain native routing.
   cmp edi, #512
   jae choose_unison_legacy
-  cmp byte ptr [ALLOWED+edi], #0
-  jne choose_scan_start
+  cmp byte ptr [mm_allowed+edi], #0
+  je choose_unison_legacy
+  xor ecx, ecx
+choose_unison_scan:
+  mov eax, ecx
+  call busy_addr
+  cmp byte ptr [eax], #0
+  je choose_unison_next
+  mov eax, ecx
+  call slot_addr
+  cmp dword ptr [eax+#4], #0
+  je choose_unison_next
+  cmp dword ptr [eax+#444], esi
+  je choose_no
+  movzx eax, word ptr [eax+#454]
+  cmp eax, #512
+  jae choose_no
+  cmp byte ptr [mm_allowed+eax], #0
+  je choose_no
+choose_unison_next:
+  inc ecx
+  cmp ecx, #3
+  jne choose_unison_bound
+  mov ecx, #6
+choose_unison_bound:
+  cmp ecx, #10
+  jb choose_unison_scan
+  jmp choose_find
+
+// Unsupported cinematic artes retain native routing, but must wait for every
+// loaded slot to finish rather than overwriting another MA's resources.
 choose_unison_legacy:
+  xor ecx, ecx
+choose_legacy_scan:
+  mov eax, ecx
+  call busy_addr
+  cmp byte ptr [eax], #0
+  je choose_legacy_next
+  mov eax, ecx
+  call slot_addr
+  cmp dword ptr [eax+#4], #0
+  jne choose_no
+choose_legacy_next:
+  inc ecx
+  cmp ecx, #3
+  jne choose_legacy_bound
+  mov ecx, #6
+choose_legacy_bound:
+  cmp ecx, #10
+  jb choose_legacy_scan
   movzx eax, byte ptr [esi+0x13AB0]
   cmp eax, #2
   jb choose_store
@@ -307,11 +357,7 @@ find_free:
   xor eax, eax
   cmp byte ptr [ebx+0x93EE], #0
   je free_done
-  cmp byte ptr [ebx+0x9108], #0
-  je free_party_extra
-  mov eax, #1
-  cmp byte ptr [ebx+0x93EF], #0
-  je free_done
+// Party slots are 0, 2, 6, 7. Slot 1 remains an enemy slot during Unison.
 free_party_extra:
   cmp dword ptr [DATA+#60], 0x40000000
   jb free_none
@@ -510,6 +556,18 @@ general_capacity:
   jmp TOS.exe+0x28984
 
 unison_a:
+  pushfd
+  pushad
+  mov esi, ebx
+  call mm_slot_header
+  test eax, eax
+  jz unison_a_unassigned
+  popad
+  popfd
+  jmp unison_a_extra
+unison_a_unassigned:
+  popad
+  popfd
 // An extra slot already assigned to this cast must survive subsequent
 // Unison ticks. Skip the stock busy lookup/XOR, which only supports 0/1.
   mov al, [ebx+0x13AB0]
@@ -528,6 +586,18 @@ unison_a_read:
 unison_a_extra:
   jmp TOS.exe+0x259bf
 unison_b:
+  pushfd
+  pushad
+  mov esi, ebx
+  call mm_slot_header
+  test eax, eax
+  jz unison_b_unassigned
+  popad
+  popfd
+  jmp unison_b_extra
+unison_b_unassigned:
+  popad
+  popfd
   mov al, [ebx+0x13AB0]
   cmp al, #2
   je unison_b_extra
@@ -650,7 +720,7 @@ snapshot_valid:
   jb snapshot_done
   cmp ecx, #512
   jae snapshot_done
-  cmp byte ptr [ALLOWED+ecx], #0
+  cmp byte ptr [mm_allowed+ecx], #0
   je snapshot_done
   mov [edi+#112], ecx
   mov eax, [edx+#444]
@@ -3887,3 +3957,816 @@ assert(TOS.exe+0x4eb7c0,f0 80 42 00)
 assert(TOS.exe+0x4eb81c,f0 80 42 00)
 assert(TOS.exe+0x4eb84c,f0 80 42 00)
 assert(TOS.exe+0x4eb87c,f0 80 42 00)
+
+
+// Concurrent Unison Mystic Artes and summons, using the spell-slot lifecycle.
+// Each caster retains its own resources, portraits and busy flag.
+alloc(mem_multi_ma,0x1000)
+alloc(ma_state,0x200)
+alloc(ma_whitelist,0x400)
+registersymbol(mm_allowed)
+
+mem_multi_ma:
+// Do not let an MA cancel other party members' casts during Unison.
+mm_exclusive:
+  push ecx
+  cmp byte ptr [edx+0x9108], #0
+  je mm_exclusive_native
+  test byte ptr [eax+0x1320], #1
+  jnz mm_exclusive_native
+  mov ecx, [eax+#12]
+  test ecx, ecx
+  jz mm_exclusive_native
+  movzx ecx, word ptr [ecx]
+  cmp ecx, #512
+  jae mm_exclusive_native
+  cmp byte ptr [mm_mystic+ecx], #0
+  je mm_exclusive_native
+mm_exclusive_allow:
+  movzx eax, byte ptr [edx+0x934C]
+  pop ecx
+  jmp TOS.exe+0x633F7
+mm_exclusive_native:
+  pop ecx
+  mov [edx+0x13298], eax
+  jmp TOS.exe+0x6331F
+
+// Let the remaining Unison MA chants finish despite another active MA.
+mm_chant_gate:
+    push ecx
+    mov eax, [TOS.exe+0x6d2edc]
+    cmp byte ptr [eax+0x9108], #0
+    je mm_chant_native
+    test byte ptr [edi+0x1320], #1
+    jne mm_chant_native
+    mov ecx, [edi+#12]
+    test ecx, ecx
+    jz mm_chant_native
+    movzx ecx, word ptr [ecx]
+    cmp ecx, #512
+    jae mm_chant_native
+    cmp byte ptr [mm_mystic+ecx], #0
+    je mm_chant_native
+mm_chant_allow:
+    mov edx, eax
+    xor eax, eax
+    pop ecx
+    ret
+mm_chant_native:
+    pop ecx
+    jmp TOS.exe+0x28840
+
+// ESI actor -> EAX boolean; EBX battle and EDX arte.
+mm_is_unison_ma:
+    mov ebx,[TOS.exe+0x6d2edc]
+    test ebx,ebx
+    jz mm_invalid
+    cmp byte ptr [ebx+0x9108],#0
+    je mm_invalid
+    test esi,esi
+    jz mm_invalid
+    test byte ptr [esi+0x1320],#1
+    jnz mm_invalid
+    mov edx,[esi+#12]
+    test edx,edx
+    jz mm_invalid
+    movzx edx,word ptr [edx]
+    cmp edx, #512
+    jae mm_invalid
+    cmp byte ptr [mm_mystic+edx], #0
+    je mm_invalid
+    mov eax,#1
+    ret
+
+// ESI actor -> EAX owned slot header or zero; EBX battle, EDI slot, EDX arte.
+mm_slot_header:
+    call mm_is_unison_ma
+    test eax,eax
+    jz mm_invalid
+    movzx edi,byte ptr [esi+0x13ab0]
+    cmp edi,#10
+    jae mm_invalid
+    cmp edi,#3
+    jb mm_header_slot
+    cmp edi,#6
+    jb mm_invalid
+mm_header_slot:
+    mov eax,edi
+    call slot_addr
+    cmp [eax+#444],esi
+    jne mm_invalid
+    cmp word ptr [eax+#454],dx
+    jne mm_invalid
+    cmp dword ptr [eax+#4],#0
+    je mm_invalid
+    ret
+mm_invalid:
+    xor eax,eax
+    ret
+mm_portrait_load:
+    pushfd
+    pushad
+    push #0
+    jmp mm_load_common
+mm_portrait_load_second:
+    pushfd
+    pushad
+    push #1
+    jmp mm_load_common
+mm_portrait_load_ebx:
+    pushfd
+    pushad
+    mov esi,ebx
+    push #0
+mm_load_common:
+    call mm_is_unison_ma
+    test eax,eax
+    jz mm_load_done
+    call mm_slot_header
+    test eax,eax
+    jz mm_load_missing
+    mov edx,[esp]
+    mov ecx,[eax+edx*#4+#404]
+    test ecx,ecx
+    jz mm_load_missing
+    mov [ebx+0x15b2b8],ecx
+    mov [esp+#28],ecx
+    mov eax,edi
+    shl eax,#8
+    add eax,0x53530000
+    add eax,edx
+    mov [esp+#44],eax
+    mov edx,edi
+    add edx,#112
+    cmp edi,#6
+    jb mm_tag_ready
+    lea edx,[edi+0x53510000]
+mm_tag_ready:
+    mov [esp+#48],edx
+    mov [ma_state],ebx
+    lea edx,[ma_state+0x100+edi*#8]
+    mov [edx],esi
+    mov [edx+#4],eax
+mm_load_done:
+    add esp,#4
+    popad
+    popfd
+    jmp TOS.exe+0x1831c0
+mm_load_missing:
+    add esp,#4
+    popad
+    popfd
+    xor eax,eax
+    ret
+mm_portrait_select:
+    pushfd
+    pushad
+    test byte ptr [esp+#44],0x80
+    jz mm_select_done
+    mov dword ptr [ma_state+#4],#0
+    call mm_slot_header
+    test eax,eax
+    jz mm_select_done
+    cmp [ma_state],ebx
+    jne mm_select_done
+    lea ecx,[ma_state+0x100+edi*#8]
+    cmp [ecx],esi
+    jne mm_select_done
+    mov eax,[ecx+#4]
+    mov [ma_state+#4],eax
+mm_select_done:
+    popad
+    popfd
+    push ebp
+    mov ebp,esp
+    push ebx
+    mov bl,[ebp+#12]
+    jmp TOS.exe+0x60c17
+mm_portrait_draw:
+    pushfd
+    push ecx
+    mov ecx,0x0d00001b
+    cmp [ma_state],eax
+    jne mm_draw_done
+    cmp dword ptr [ma_state+#4],#0
+    je mm_draw_done
+    mov ecx,[ma_state+#4]
+mm_draw_done:
+    mov [eax+0x15b208],ecx
+    pop ecx
+    popfd
+    jmp TOS.exe+0x515e3
+mm_portrait_scale:
+    cmp dword ptr [edx+ecx*#4+0x15b1ec],0x0d00001b
+    je mm_scale_done
+    push eax
+    mov eax,[edx+ecx*#4+0x15b1ec]
+    and eax,0xffff0000
+    cmp eax,0x53530000
+    pop eax
+mm_scale_done:
+    jmp TOS.exe+0x7c411
+
+// MA animation swaps use the caster's slot; native model restores are unchanged.
+mm_model_load:
+    pushfd
+    pushad
+    mov esi,[esp+#40]
+    call mm_is_unison_ma
+    test eax,eax
+    jz mm_model_done
+    call mm_slot_header
+    test eax,eax
+    jz mm_model_missing
+    mov eax,[eax+#408]
+    test eax,eax
+    jz mm_model_missing
+    mov [esp+#48],eax
+mm_model_done:
+    popad
+    popfd
+    jmp TOS.exe+0x3e600
+mm_model_missing:
+    popad
+    popfd
+    xor eax,eax
+    ret
+
+// Refresh repositioned model coordinates before Unison collision-distance math.
+mm_placement_transform:
+    pushfd
+    push eax
+    mov eax,[TOS.exe+0x6d2edc]
+    cmp byte ptr [eax+0x9108],#0
+    je mm_transform_done
+// This call follows an explicit reposition. Freeze flags must not reuse
+// the old model position when calculating the melee starting distance.
+    mov dword ptr [esp+#20],#0
+mm_transform_done:
+    pop eax
+    popfd
+    jmp TOS.exe+0x370d0
+
+
+// An MA owns only its assigned slot; other casts keep their reservations.
+mm_reserve_40C806:
+    pushad
+    mov esi,esi
+    call mm_is_unison_ma
+    test eax,eax
+    jz mm_reserve_40C806_native
+    popad
+    test esp,esp
+    ret
+mm_reserve_40C806_native:
+    popad
+    cmp byte ptr [edx+eax+0x93EE], #0
+    ret
+mm_reserve_40D054:
+    pushad
+    mov esi,esi
+    call mm_is_unison_ma
+    test eax,eax
+    jz mm_reserve_40D054_native
+    popad
+    test esp,esp
+    ret
+mm_reserve_40D054_native:
+    popad
+    cmp byte ptr [edx+eax+0x93EE], #0
+    ret
+mm_reserve_40D624:
+    pushad
+    mov esi,esi
+    call mm_is_unison_ma
+    test eax,eax
+    jz mm_reserve_40D624_native
+    popad
+    test esp,esp
+    ret
+mm_reserve_40D624_native:
+    popad
+    cmp byte ptr [edx+eax+0x93EE], #0
+    ret
+mm_reserve_40E097:
+    pushad
+    mov esi,esi
+    call mm_is_unison_ma
+    test eax,eax
+    jz mm_reserve_40E097_native
+    popad
+    test esp,esp
+    ret
+mm_reserve_40E097_native:
+    popad
+    cmp byte ptr [edx+eax+0x93EE], #0
+    ret
+mm_reserve_40EB05:
+    pushad
+    mov esi,esi
+    call mm_is_unison_ma
+    test eax,eax
+    jz mm_reserve_40EB05_native
+    popad
+    test esp,esp
+    ret
+mm_reserve_40EB05_native:
+    popad
+    cmp byte ptr [ecx+edi+0x93EE], #0
+    ret
+mm_reserve_40F443:
+    pushad
+    mov esi,esi
+    call mm_is_unison_ma
+    test eax,eax
+    jz mm_reserve_40F443_native
+    popad
+    test esp,esp
+    ret
+mm_reserve_40F443_native:
+    popad
+    cmp byte ptr [edx+eax+0x93EE], #0
+    ret
+mm_reserve_40F9B0:
+    pushad
+    mov esi,ebx
+    call mm_is_unison_ma
+    test eax,eax
+    jz mm_reserve_40F9B0_native
+    popad
+    test esp,esp
+    ret
+mm_reserve_40F9B0_native:
+    popad
+    cmp byte ptr [ecx+edx+0x93EE], #0
+    ret
+mm_reserve_417721:
+    pushad
+    mov esi,esi
+    call mm_is_unison_ma
+    test eax,eax
+    jz mm_reserve_417721_native
+    popad
+    test esp,esp
+    ret
+mm_reserve_417721_native:
+    popad
+    cmp byte ptr [ecx+eax+0x93EE], #0
+    ret
+mm_reserve_419BC2:
+    pushad
+    mov esi,ebx
+    call mm_is_unison_ma
+    test eax,eax
+    jz mm_reserve_419BC2_native
+    popad
+    test esp,esp
+    ret
+mm_reserve_419BC2_native:
+    popad
+    cmp byte ptr [eax+ecx+0x93EE], #0
+    ret
+mm_reserve_41A451:
+    pushad
+    mov esi,esi
+    call mm_is_unison_ma
+    test eax,eax
+    jz mm_reserve_41A451_native
+    popad
+    test esp,esp
+    ret
+mm_reserve_41A451_native:
+    popad
+    cmp byte ptr [ecx+eax+0x93EE], #0
+    ret
+mm_reserve_41EA94:
+    pushad
+    mov esi,esi
+    call mm_is_unison_ma
+    test eax,eax
+    jz mm_reserve_41EA94_native
+    popad
+    test esp,esp
+    ret
+mm_reserve_41EA94_native:
+    popad
+    cmp byte ptr [ecx+eax+0x93EE], bl
+    ret
+mm_release_melee:
+    pushfd
+    pushad
+    call mm_is_unison_ma
+    test eax,eax
+    jz mm_release_melee_native
+    call mm_slot_header
+    test eax,eax
+    jz mm_release_melee_done
+    mov eax,edi
+    call busy_addr
+    mov byte ptr [eax],#0
+mm_release_melee_done:
+    popad
+    popfd
+    ret
+mm_release_melee_native:
+    popad
+    popfd
+    mov [ecx+eax+0x93EE],bl
+    ret
+
+// Spell/summon script cleanup callbacks also hard-code the party side's slot.
+// The hooks enter at the release CALL, with its original argument on the stack.
+// Each continuation skips both native busy writes and their stack adjustment.
+mm_cleanup_spell:
+    pushfd
+    pushad
+    push TOS.exe+0x17D94
+    jmp mm_cleanup_common
+mm_cleanup_mystic:
+    pushfd
+    pushad
+    push TOS.exe+0x1A8D4
+    jmp mm_cleanup_common
+mm_cleanup_summon:
+    pushfd
+    pushad
+    push TOS.exe+0x1B88C
+mm_cleanup_common:
+    mov esi,[ebp+#8]
+    call mm_is_unison_ma
+    test eax,eax
+    jz mm_cleanup_native
+    call mm_slot_header
+    test eax,eax
+    jz mm_cleanup_finished
+    push edi
+    call TOS.exe+0x6DEE0
+    add esp,#4
+    mov eax,edi
+    call busy_addr
+    mov byte ptr [eax],#0
+mm_cleanup_finished:
+// The native continuations expect the script state in EAX or ECX.
+    mov eax,[ebp+#12]
+    mov [esp+#32],eax
+    mov [esp+#28],eax
+    mov eax,[esp]
+    mov [esp+#40],eax
+    add esp,#4
+    popad
+    popfd
+    ret #4
+mm_cleanup_native:
+    add esp,#4
+    popad
+    popfd
+    jmp TOS.exe+0x6DEE0
+
+// Portrait battle/selection and ten owner/texture records. Zero-initialized.
+ma_state:
+  dd #0, #0
+ma_state+0x100:
+  dd #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0
+
+// Ordinary overlap whitelist plus every party MA and summon.
+ma_whitelist:
+mm_allowed:
+  db #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0
+  db #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0
+  db #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0
+  db #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0
+  db #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0
+  db #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0
+  db #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0
+  db #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0
+  db #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #1, #0, #0, #0
+  db #0, #0, #1, #1, #1, #0, #0, #1, #1, #0, #0, #0, #0, #0, #0, #0
+  db #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0
+  db #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0
+  db #0, #0, #0, #0, #0, #0, #0, #0, #0, #1, #1, #1, #0, #1, #1, #1
+  db #0, #1, #1, #1, #0, #1, #1, #1, #0, #1, #1, #1, #0, #1, #1, #1
+  db #1, #0, #1, #1, #1, #1, #1, #1, #1, #1, #0, #0, #0, #1, #1, #0
+  db #1, #1, #0, #1, #1, #0, #1, #1, #0, #1, #1, #1, #1, #1, #0, #1
+  db #1, #1, #1, #1, #1, #1, #0, #1, #0, #1, #0, #1, #1, #1, #1, #1
+  db #0, #0, #0, #0, #0, #0, #1, #1, #1, #1, #1, #1, #1, #1, #1, #1
+  db #1, #1, #1, #1, #1, #1, #0, #0, #1, #0, #0, #0, #0, #0, #0, #0
+  db #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0
+  db #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0
+  db #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0
+  db #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0
+  db #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0
+  db #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0
+  db #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0
+  db #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0
+  db #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0
+  db #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0
+  db #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0
+  db #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0
+  db #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0
+
+// MA-specific behavior: 140, 146-148, 151-152, 263, 279-282, 284-293, 296.
+ma_whitelist+0x200:
+mm_mystic:
+  db #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0
+  db #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0
+  db #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0
+  db #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0
+  db #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0
+  db #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0
+  db #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0
+  db #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0
+  db #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #1, #0, #0, #0
+  db #0, #0, #1, #1, #1, #0, #0, #1, #1, #0, #0, #0, #0, #0, #0, #0
+  db #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0
+  db #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0
+  db #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0
+  db #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0
+  db #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0
+  db #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0
+  db #0, #0, #0, #0, #0, #0, #0, #1, #0, #0, #0, #0, #0, #0, #0, #0
+  db #0, #0, #0, #0, #0, #0, #0, #1, #1, #1, #1, #0, #1, #1, #1, #1
+  db #1, #1, #1, #1, #1, #1, #0, #0, #1, #0, #0, #0, #0, #0, #0, #0
+  db #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0
+  db #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0
+  db #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0
+  db #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0
+  db #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0
+  db #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0
+  db #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0
+  db #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0
+  db #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0
+  db #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0
+  db #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0
+  db #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0
+  db #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0, #0
+
+// Original game instructions, independent of the extra-slot allocation layout.
+
+assert(TOS.exe+0x63319,89 82 98 32 01 00)
+TOS.exe+0x63319:
+  jmp mm_exclusive
+  nop #1
+
+assert(TOS.exe+0x27216,E8 25 16 00 00)
+TOS.exe+0x27216:
+  call mm_chant_gate
+
+assert(TOS.exe+0xC72F,E8 8C 6A 17 00)
+TOS.exe+0xC72F:
+  call mm_portrait_load
+
+assert(TOS.exe+0xCF7D,E8 3E 62 17 00)
+TOS.exe+0xCF7D:
+  call mm_portrait_load
+
+assert(TOS.exe+0xD54D,E8 6E 5C 17 00)
+TOS.exe+0xD54D:
+  call mm_portrait_load
+
+assert(TOS.exe+0xD7F8,E8 C3 59 17 00)
+TOS.exe+0xD7F8:
+  call mm_portrait_load_second
+
+assert(TOS.exe+0xDFC0,E8 FB 51 17 00)
+TOS.exe+0xDFC0:
+  call mm_portrait_load
+
+assert(TOS.exe+0xEA2D,E8 8E 47 17 00)
+TOS.exe+0xEA2D:
+  call mm_portrait_load
+
+assert(TOS.exe+0xF36C,E8 4F 3E 17 00)
+TOS.exe+0xF36C:
+  call mm_portrait_load
+
+assert(TOS.exe+0xF96E,E8 4D 38 17 00)
+TOS.exe+0xF96E:
+  call mm_portrait_load_ebx
+
+assert(TOS.exe+0x176E0,E8 DB BA 16 00)
+TOS.exe+0x176E0:
+  call mm_portrait_load
+
+assert(TOS.exe+0x19B80,E8 3B 96 16 00)
+TOS.exe+0x19B80:
+  call mm_portrait_load_ebx
+
+assert(TOS.exe+0x1A410,E8 AB 8D 16 00)
+TOS.exe+0x1A410:
+  call mm_portrait_load
+
+assert(TOS.exe+0x1EA53,E8 68 47 16 00)
+TOS.exe+0x1EA53:
+  call mm_portrait_load
+
+assert(TOS.exe+0x60C10,55 8B EC 53 8A 5D 0C)
+TOS.exe+0x60C10:
+  jmp mm_portrait_select
+  nop #2
+
+assert(TOS.exe+0x515D9,C7 80 08 B2 15 00 1B 00 00 0D)
+TOS.exe+0x515D9:
+  jmp mm_portrait_draw
+  nop #5
+
+assert(TOS.exe+0x7C406,81 BC 8A EC B1 15 00 1B 00 00 0D)
+TOS.exe+0x7C406:
+  jmp mm_portrait_scale
+  nop #6
+
+assert(TOS.exe+0xC95B,E8 A0 1C 03 00)
+TOS.exe+0xC95B:
+  call mm_model_load
+
+assert(TOS.exe+0xE32D,E8 CE 02 03 00)
+TOS.exe+0xE32D:
+  call mm_model_load
+
+assert(TOS.exe+0x73884,E8 47 38 FC FF)
+TOS.exe+0x73884:
+  call mm_placement_transform
+
+assert(TOS.exe+0x7389F,E8 2C 38 FC FF)
+TOS.exe+0x7389F:
+  call mm_placement_transform
+
+
+// MA reservation and cleanup hooks.
+assert(TOS.exe+0xC806,80 bc 02 ee 93 00 00 00)
+TOS.exe+0xC806:
+  call mm_reserve_40C806
+  nop #3
+
+assert(TOS.exe+0xD054,80 bc 02 ee 93 00 00 00)
+TOS.exe+0xD054:
+  call mm_reserve_40D054
+  nop #3
+
+assert(TOS.exe+0xD624,80 bc 02 ee 93 00 00 00)
+TOS.exe+0xD624:
+  call mm_reserve_40D624
+  nop #3
+
+assert(TOS.exe+0xE097,80 bc 02 ee 93 00 00 00)
+TOS.exe+0xE097:
+  call mm_reserve_40E097
+  nop #3
+
+assert(TOS.exe+0xEB05,80 bc 39 ee 93 00 00 00)
+TOS.exe+0xEB05:
+  call mm_reserve_40EB05
+  nop #3
+
+assert(TOS.exe+0xF443,80 bc 02 ee 93 00 00 00)
+TOS.exe+0xF443:
+  call mm_reserve_40F443
+  nop #3
+
+assert(TOS.exe+0xF9B0,80 bc 11 ee 93 00 00 00)
+TOS.exe+0xF9B0:
+  call mm_reserve_40F9B0
+  nop #3
+
+assert(TOS.exe+0x17721,80 bc 01 ee 93 00 00 00)
+TOS.exe+0x17721:
+  call mm_reserve_417721
+  nop #3
+
+assert(TOS.exe+0x19BC2,80 bc 08 ee 93 00 00 00)
+TOS.exe+0x19BC2:
+  call mm_reserve_419BC2
+  nop #3
+
+assert(TOS.exe+0x1A451,80 bc 01 ee 93 00 00 00)
+TOS.exe+0x1A451:
+  call mm_reserve_41A451
+  nop #3
+
+assert(TOS.exe+0x1EA94,38 9c 01 ee 93 00 00)
+TOS.exe+0x1EA94:
+  call mm_reserve_41EA94
+  nop #2
+
+assert(TOS.exe+0xDD39,88 9c 01 ee 93 00 00)
+TOS.exe+0xDD39:
+  call mm_release_melee
+  nop #2
+
+assert(TOS.exe+0xF079,88 9c 01 ee 93 00 00)
+TOS.exe+0xF079:
+  call mm_release_melee
+  nop #2
+
+// Preserve other MAs when a spell or summon finishes.
+assert(TOS.exe+0x17D53,e8 88 61 05 00)
+TOS.exe+0x17D53:
+  call mm_cleanup_spell
+
+assert(TOS.exe+0x1A894,e8 47 36 05 00)
+TOS.exe+0x1A894:
+  call mm_cleanup_mystic
+
+assert(TOS.exe+0x1B873,e8 68 26 05 00)
+TOS.exe+0x1B873:
+  call mm_cleanup_summon
+
+// Static arte metadata: Unison duration, in frames (word at descriptor +0x56).
+// Keep the Unison window open for the MA animations. These writes are enabled
+// with SpellSlots; every party MA and summon uses 453 frames.
+// Falcon's Crest
+assert(TOS.exe+0x4DDA86,5A 00)
+TOS.exe+0x4DDA86:
+  dw #513
+// Holy Judgement
+assert(TOS.exe+0x4DE326,96 00)
+TOS.exe+0x4DE326:
+  dw #513
+// Indignation Judgment
+assert(TOS.exe+0x4DE206,50 00)
+TOS.exe+0x4DE206:
+  dw #513
+// Sacred Light
+assert(TOS.exe+0x4DD846,50 00)
+TOS.exe+0x4DD846:
+  dw #513
+// Fairy Circle
+assert(TOS.exe+0x4DE1A6,50 00)
+TOS.exe+0x4DE1A6:
+  dw #513
+// Summon: Fire
+assert(TOS.exe+0x4DDD26,50 00)
+TOS.exe+0x4DDD26:
+  dw #513
+// Summon: Water
+assert(TOS.exe+0x4DDD86,50 00)
+TOS.exe+0x4DDD86:
+  dw #513
+// Luminous Bind
+assert(TOS.exe+0x4DBE66,5A 00)
+TOS.exe+0x4DBE66:
+  dw #513
+// Divine Judgement
+assert(TOS.exe+0x4DBB06,5A 00)
+TOS.exe+0x4DBB06:
+  dw #513
+// Infernal Ruin
+assert(TOS.exe+0x4DE3E6,5A 00)
+TOS.exe+0x4DE3E6:
+  dw #513
+// Crimson Devastation
+assert(TOS.exe+0x4DE446,5A 00)
+TOS.exe+0x4DE446:
+  dw #513
+// Fanged Finality
+assert(TOS.exe+0x4DD006,5A 00)
+TOS.exe+0x4DD006:
+  dw #513
+// Shining Bind
+assert(TOS.exe+0x4DE266,5A 00)
+TOS.exe+0x4DE266:
+  dw #513
+
+// Summon variant, arte 286
+assert(TOS.exe+0x4DDDE6,50 00)
+TOS.exe+0x4DDDE6:
+  dw #513
+
+// Summon variant, arte 290
+assert(TOS.exe+0x4DDE46,50 00)
+TOS.exe+0x4DDE46:
+  dw #513
+
+// Summon variant, arte 287
+assert(TOS.exe+0x4DDEA6,50 00)
+TOS.exe+0x4DDEA6:
+  dw #513
+
+// Summon variant, arte 288
+assert(TOS.exe+0x4DDF06,50 00)
+TOS.exe+0x4DDF06:
+  dw #513
+
+// Summon variant, arte 289
+assert(TOS.exe+0x4DDF66,50 00)
+TOS.exe+0x4DDF66:
+  dw #513
+
+// Summon variant, arte 291
+assert(TOS.exe+0x4DDFC6,50 00)
+TOS.exe+0x4DDFC6:
+  dw #513
+
+// Summon variant, arte 293
+assert(TOS.exe+0x4DE026,50 00)
+TOS.exe+0x4DE026:
+  dw #513
+
+// Summon variant, arte 292
+assert(TOS.exe+0x4DE086,50 00)
+TOS.exe+0x4DE086:
+  dw #513
+
+// Summon variant, arte 282
+assert(TOS.exe+0x4DE0E6,50 00)
+TOS.exe+0x4DE0E6:
+  dw #513

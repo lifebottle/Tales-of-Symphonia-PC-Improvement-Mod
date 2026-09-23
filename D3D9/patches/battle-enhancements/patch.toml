@@ -1,7 +1,7 @@
 # CE-style source is the authoritative patch definition.
 format = 1
 id = "battle-enhancements"
-version = "1.4.0"
+version = "1.6.1"
 config_section = "BattleEnhancements"
 image_base = 0x400000
 image_size = 0x2b00000
@@ -57,7 +57,7 @@ enable_above = 1
 [[scripts]]
 file = "AddSpellSlots.asm"
 feature = "SpellSlots"
-writable = ["mem_arena"]
+writable = ["mem_arena", "ma_state"]
 
 [[parameters]]
 key = "PartySpellSlots"

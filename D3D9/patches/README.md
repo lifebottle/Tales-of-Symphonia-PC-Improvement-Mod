@@ -39,7 +39,7 @@ The gauge and Spell Queue Fix can be used independently. `FreeRunMovementPenalty
 the table's movement multiplier (1.00 normally, 1.15 with Dash); accepted values
 are at least 0 and less than 1. The default is 0.20.
 
-Spell Queue Fix in [battle-enhancements/patch.toml](battle-enhancements/patch.toml) version 1.4.0 includes the
+Spell Queue Fix in [battle-enhancements/patch.toml](battle-enhancements/patch.toml) includes the
 completed queue algorithm and supports all expanded party and enemy slot settings. Enable
 it with `[BattleEnhancements] SpellQueueFix=1`, independently or alongside the
 other battle features. Install the current DLL and package folders together, then
@@ -94,6 +94,36 @@ The source is in [battle-enhancements/AddSpellSlots.asm](battle-enhancements/Add
 with sections for helpers, writable state, hooks, and guards. Change the INI
 settings to configure capacity; the assembly contains the maintained allocation,
 lifecycle, and original-byte checks.
+
+Battle Enhancements 1.6.1 extends concurrent Unison support to every party
+Mystic Arte and all summon variants: Falcon's Crest, Holy Judgement,
+Indignation Judgment, Sacred Light, Fairy Circle, Luminous Bind, Divine
+Judgement, Infernal Ruin, Crimson Devastation, Fanged Finality, Shining Bind,
+and summons (arte IDs 282 and 284–293). Set
+`[BattleEnhancements] PartySpellSlots=4` for four concurrent party casts, or
+`PartySpellSlots=2` for two. Enemy slot 1 does not increase the party limit.
+
+`AddSpellSlots.asm` keeps each caster's resources, portraits, and cleanup tied
+to its assigned slot, including spell and summon cleanup callbacks. Finishing
+one MA cannot release another caster's slot. Crimson Devastation retains its
+distinct second portrait.
+The patch also allows MA chants to finish, corrects melee starting positions,
+and prevents the native Unison slot toggle from losing an active MA's slot.
+The concurrent MA exceptions apply during Unison only. This does not unlock or
+assign Mystic Artes; keep your existing arte-assignment setup.
+
+Lloyd, Kratos, Raine, and Genis were previously verified together in game.
+The expanded set has passed compiled-helper simulations for admission, slot
+limits, portrait/model selection, reservations, and cleanup; the additional
+MA combinations still need in-game validation.
+
+The spell-slot patch sets all 22 party MA/summon Unison timers to 453 frames
+(`0x1C5`), including the thirteen originally listed artes.
+
+There is no separate Multi Mystic Arte package or enable switch. If you installed
+the earlier standalone `mods/asm/multi-mystic-arte/` folder, remove it before
+using this update to avoid duplicate hooks. Existing Battle Enhancements options
+and slot-count defaults are unchanged.
 
 ## Lloyd Super Chain
 
