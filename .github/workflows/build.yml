@@ -4,10 +4,18 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - main
+    - main
+    tags:
+    - "*"
   pull_request:
     branches:
-      - main
+    - main
+
+env:
+  _IS_BUILD_CANARY: "false"
+  _IS_GITHUB_RELEASE: "false"
+  _RELEASE_NAME: Tales-of-Symphonia-ModLoader
+  _BUILD_BRANCH: "${{ github.ref }}"
 
 permissions:
   contents: read
@@ -28,20 +36,10 @@ jobs:
           sudo update-alternatives --set i686-w64-mingw32-gcc /usr/bin/i686-w64-mingw32-gcc-posix
           sudo update-alternatives --set i686-w64-mingw32-g++ /usr/bin/i686-w64-mingw32-g++-posix
 
-      - name: Configure
-        run: >
-          cmake -S . -B build
-          -DCMAKE_TOOLCHAIN_FILE=toolchain-mingw32.cmake
-          -DCMAKE_BUILD_TYPE=Release
-
-      - name: Build DLL
-        run: cmake --build build --target d3d9 --parallel
-
-      - name: Package
-        run: >
-          cpack --config build/CPackConfig.cmake
-          -G ZIP
-          -B "$PWD/dist"
+      - name: Build
+        run: bash .github/workflows/build.sh
+        env:
+          _BUILD_VERSION: "1.0.0-${{ github.run_number }}"
 
       - name: Upload ZIP
         uses: actions/upload-artifact@v7

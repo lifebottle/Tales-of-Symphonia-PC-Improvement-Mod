@@ -87,5 +87,5 @@ install(FILES third_party/zydis/dependencies/zycore/LICENSE DESTINATION licenses
 install(FILES README.md DESTINATION .)
 set(CPACK_GENERATOR ZIP)
 set(CPACK_PACKAGE_NAME TOS-Improvement-Mod)
-set(CPACK_PACKAGE_VERSION 1.0.0)
+set(CPACK_PACKAGE_VERSION 0.0.0-0)
 include(CPack)
