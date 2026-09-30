@@ -1,0 +1,12 @@
+format = 1
+id = "qol"
+version = "1.0.0"
+config_section = "QoL"
+image_base = 0x400000
+image_size = 0x2b01000
+
+[[features]]
+key = "SkippableFMVs"
+
+[[scripts]]
+file = "SkippableFMVs.asm"

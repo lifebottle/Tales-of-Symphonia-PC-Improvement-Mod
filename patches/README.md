@@ -64,6 +64,15 @@ Adds Super Chain to Lloyd's MAX-gem EX skill list, makes all of his Level 3 arte
 Enabled=1
 ```
 
+## QoL
+
+This section is for quality of life enhancements. Currently the only option is 'SkippableFMVs` which allows you to skip story cutscenes and the end credits.
+
+```ini
+[QoL]
+SkippableFMVs=1
+```
+
 ## Debug
 
 Copy the complete `debug` folder into `mods/asm/debug/` and set these independent
@@ -84,8 +93,6 @@ Draws hitboxes and hurtboxes to screen. Hitboxes are green and hurtboxes are blu
 ### Debug map loader (experimental)
 
 `DebugMapLoader=1` adds a Start-button menu in eligible field/overworld gameplay. Requires companion TLFile for English translation.
-
-
 
 ## Troubleshooting
 
