@@ -452,6 +452,8 @@ mem_payload_e2161_Mem_FreeRun2:
   movzx eax,byte ptr [ebx+0x1322]
   cmp eax,0x0
   je e2161_non_ghost
+  cmp eax,0x9
+  ja e2161_non_ghost
   movzx eax,byte ptr [ebx+0x1321]
   and eax,0x03
   imul eax,eax,0x10
