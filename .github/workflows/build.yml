@@ -12,13 +12,13 @@ on:
     - main
 
 env:
-  _IS_BUILD_CANARY: "false"
-  _IS_GITHUB_RELEASE: "false"
+  _IS_BUILD_CANARY: false
+  _IS_GITHUB_RELEASE: false
   _RELEASE_NAME: Tales-of-Symphonia-ModLoader
   _BUILD_BRANCH: "${{ github.ref }}"
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -41,9 +41,42 @@ jobs:
         env:
           _BUILD_VERSION: "1.0.0-${{ github.run_number }}"
 
-      - name: Upload ZIP
+      - name: Publish PR artifacts
+        if: env._IS_GITHUB_RELEASE == 'false' && success()
         uses: actions/upload-artifact@v7
         with:
           path: dist/*.zip
           archive: false
           if-no-files-found: error
+
+      - name: Move canary tag to this commit
+        if: env._IS_GITHUB_RELEASE == 'true' && env._IS_BUILD_CANARY == 'true' && success()
+        uses: richardsimko/update-tag@v2
+        with:
+          tag_name: canary
+
+      - name: Publish Canary release
+        if: env._IS_GITHUB_RELEASE == 'true' && env._IS_BUILD_CANARY == 'true' && success()
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "dist/*.zip"
+          artifactErrorsFailBuild: true
+          allowUpdates: true
+          generateReleaseNotes: true
+          prerelease: true
+          makeLatest: false
+          removeArtifacts: true
+          tag: canary
+          name: "${{ env._RELEASE_NAME }}-${{ env._RELEASE_VERSION }}"
+          body: |
+            This is an automated canary build and may contain untested changes.
+
+      - name: Publish Stable release
+        if: env._IS_GITHUB_RELEASE == 'true' && env._IS_BUILD_CANARY == 'false' && success()
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "dist/*.zip"
+          artifactErrorsFailBuild: true
+          generateReleaseNotes: true
+          makeLatest: true
+          name: "${{ env._RELEASE_NAME }}-${{ env._RELEASE_VERSION }}"
