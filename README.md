@@ -1,4 +1,4 @@
-# D3D9 (Name TBD)
+# Tales of Symphonia Mod Loader
 
 A drop-in `d3d9.dll` proxy for the Steam release of *Tales of Symphonia*. Works on native Windows and Proton/Wine (Steam Deck, Linux).
 
