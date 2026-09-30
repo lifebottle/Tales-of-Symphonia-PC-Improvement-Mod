@@ -64,8 +64,6 @@ Adds Super Chain to Lloyd's MAX-gem EX skill list, makes all of his Level 3 arte
 Enabled=1
 ```
 
-Defaults to `0`. Works independently of Battle Enhancements. Restart after changing it.
-
 ## Debug
 
 Copy the complete `debug` folder into `mods/asm/debug/` and set these independent
@@ -78,9 +76,16 @@ Hurtboxes=0
 HitboxAlpha=0.20
 EnemiesDontAttack=0
 DealMinimumDamage=0 ; boolean
+DebugMapLoader=1
 ```
 
 Draws hitboxes and hurtboxes to screen. Hitboxes are green and hurtboxes are blue. Alpha controls the opacity of the overlay.
+
+### Debug map loader (experimental)
+
+`DebugMapLoader=1` adds a Start-button menu in eligible field/overworld gameplay. Requires companion TLFile for English translation.
+
+
 
 ## Troubleshooting
 

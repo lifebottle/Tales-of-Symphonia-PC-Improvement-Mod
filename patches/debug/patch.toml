@@ -1,7 +1,7 @@
 # Shared hooks activate when either independent 0/1 display setting is enabled.
 format = 1
 id = "debug"
-version = "1.1.0"
+version = "1.2.0"
 config_section = "Debug"
 image_base = 0x400000
 image_size = 0x2b01000
@@ -66,3 +66,10 @@ min = 0
 # Next float32 above 1: clamping to the exclusive bound includes exactly 1.0.
 max_exclusive = 1.0000001192092896
 clamp = true
+
+[[features]]
+key = "DebugMapLoader"
+
+[[scripts]]
+file = "DebugMapLoader.asm"
+writable = ["mapmenu_data"]
