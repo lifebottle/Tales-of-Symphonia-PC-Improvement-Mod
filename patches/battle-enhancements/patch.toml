@@ -13,15 +13,15 @@ file = "ArtesSphere.asm"
 writable = ["mem_payload_BattleMenu", "mem_payload_ShortcutState", "mem_payload_ArtesMenu", "mem_payload_UnisonMenu", "mem_payload_CurrentState", "mem_payload_ControlID", "mem_payload_UnisonID", "mem_payload_LoopCounter", "mem_payload_MainControls", "mem_payload_StoredControls", "mem_payload_PageSwitch", "mem_payload_FreeRunActive", "mem_payload_LockA", "mem_payload_LockB", "mem_payload_LockX", "mem_payload_LockRS", "mem_payload_CharBuffer", "mem_payload_PageCache"]
 
 [[features]]
-key = "NewFreeRun"
+key = "FreeRun"
 requires = ["ArtesSphere"]
 [[scripts]]
-file = "NewFreeRun.asm"
+file = "FreeRun.asm"
 writable = ["mem_payload_freerun_mem", "mem_payload_e47_chr_freerun", "mem_payload_e2161_mval", "mem_payload_MovementSpeed", "mem_payload_PenaltySpeed"]
 [[parameters]]
 key = "FreeRunMovementPenalty"
-feature = "NewFreeRun"
-script = "NewFreeRun"
+feature = "FreeRun"
+script = "FreeRun"
 symbol = "PenaltySpeed"
 default = 0.2
 min = 0

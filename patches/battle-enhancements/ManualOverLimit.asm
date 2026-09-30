@@ -213,6 +213,6 @@ TOS.exe+0x80738:
 // Preserve the two-byte patch boundary of the original short JNZ.
   jmp short OverLimitVictoryEnd
 
-// NewFreeRun / CT 2189: Math Functions
+// FreeRun / CT 2189: Math Functions
 
-// NewFreeRun / CT 2159: New Stick Walk Check
+// FreeRun / CT 2159: New Stick Walk Check

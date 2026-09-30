@@ -194,7 +194,7 @@ TOS.exe+0x76794:
   nop #3
 e2159_Ret_StickWalkCheck:
 
-// NewFreeRun / CT 47: fr poc 1 (Disables Jump During Freerun)
+// FreeRun / CT 47: fr poc 1 (Disables Jump During Freerun)
 
 // fr poc 1 (Disables Jump During Freerun)
 mem_payload_e47_newmem6:
@@ -418,7 +418,7 @@ TOS.exe+0x761c9:
   nop #2
 e47_returnhere:
 
-// NewFreeRun / CT 2161: Free Run 2
+// FreeRun / CT 2161: Free Run 2
 
 // Free Run 2
 mem_payload_e2161_Mem_FreeRun2:
@@ -553,7 +553,7 @@ TOS.exe+0x84cc9:
   nop
 e2161_Ret_FreeRun2:
 
-// NewFreeRun / CT 2752: Free Run 3 (Fix directly above or below enemy)
+// FreeRun / CT 2752: Free Run 3 (Fix directly above or below enemy)
 
 // Free Run 3 (Fix directly above or below enemy)
 mem_payload_e2752_Mem_MoveSideCheck:

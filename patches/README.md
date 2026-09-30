@@ -15,7 +15,7 @@ Add to `d3d9_config.ini`. Booleans default to `0`, spell slot counts default to 
 ```ini
 [BattleEnhancements]
 ArtesSphere=1
-NewFreeRun=1
+FreeRun=1
 ManualOverLimit=1
 OverLimitGauge=1
 SpellQueueFix=1
@@ -28,7 +28,7 @@ EnemySpellSlots=3
 | Option | Notes |
 |--------|-------|
 | `ArtesSphere` | Enabled automatically by New Free Run and Manual Over Limit. |
-| `NewFreeRun` | Hold LT to free run. |
+| `FreeRun` | Hold LT to free run. |
 | `FreeRunMovementPenalty` | (0 to <1, default 0.20) is subtracted from movement speed when free running |
 | `ManualOverLimit` | Press RT to trigger when conditions are met. Also prevents the victory drain. |
 | `OverLimitGauge` | Damage-based gauge gain, drawn with the game's own HUD code. Works independently. |
