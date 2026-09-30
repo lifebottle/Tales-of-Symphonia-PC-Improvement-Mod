@@ -1,0 +1,82 @@
+# CE-style source is the authoritative patch definition.
+format = 1
+id = "battle-enhancements"
+version = "1.6.1"
+config_section = "BattleEnhancements"
+image_base = 0x400000
+image_size = 0x2b01000
+
+[[features]]
+key = "ArtesSphere"
+[[scripts]]
+file = "ArtesSphere.asm"
+writable = ["mem_payload_BattleMenu", "mem_payload_ShortcutState", "mem_payload_ArtesMenu", "mem_payload_UnisonMenu", "mem_payload_CurrentState", "mem_payload_ControlID", "mem_payload_UnisonID", "mem_payload_LoopCounter", "mem_payload_MainControls", "mem_payload_StoredControls", "mem_payload_PageSwitch", "mem_payload_FreeRunActive", "mem_payload_LockA", "mem_payload_LockB", "mem_payload_LockX", "mem_payload_LockRS", "mem_payload_CharBuffer", "mem_payload_PageCache"]
+
+[[features]]
+key = "NewFreeRun"
+requires = ["ArtesSphere"]
+[[scripts]]
+file = "NewFreeRun.asm"
+writable = ["mem_payload_freerun_mem", "mem_payload_e47_chr_freerun", "mem_payload_e2161_mval", "mem_payload_MovementSpeed", "mem_payload_PenaltySpeed"]
+[[parameters]]
+key = "FreeRunMovementPenalty"
+feature = "NewFreeRun"
+script = "NewFreeRun"
+symbol = "PenaltySpeed"
+default = 0.2
+min = 0
+max_exclusive = 1
+
+[[features]]
+key = "ManualOverLimit"
+requires = ["ArtesSphere"]
+[[scripts]]
+file = "ManualOverLimit.asm"
+
+[[features]]
+key = "OverLimitGauge"
+[[scripts]]
+file = "OverLimitGauge.asm"
+writable = ["mem_payload_e726_tempstr"]
+
+[[features]]
+key = "SpellQueueFix"
+[[scripts]]
+file = "SpellQueueFix.asm"
+writable = ["QueueList"]
+
+[[features]]
+key = "NoSpellPause"
+[[scripts]]
+file = "NoSpellPause.asm"
+
+[[features]]
+key = "SpellSlots"
+enable_above = 1
+
+[[scripts]]
+file = "AddSpellSlots.asm"
+feature = "SpellSlots"
+writable = ["mem_arena", "ma_state"]
+
+[[parameters]]
+key = "PartySpellSlots"
+feature = "SpellSlots"
+script = "AddSpellSlots"
+symbol = "PARTY_SLOTS"
+integer = true
+clamp = true
+default = 1
+min = 1
+max_exclusive = 5
+
+[[parameters]]
+key = "EnemySpellSlots"
+feature = "SpellSlots"
+script = "AddSpellSlots"
+symbol = "ENEMY_SLOTS"
+integer = true
+clamp = true
+default = 1
+min = 1
+max_exclusive = 4
