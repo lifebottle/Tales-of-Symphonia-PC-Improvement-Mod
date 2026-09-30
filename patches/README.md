@@ -33,7 +33,7 @@ EnemySpellSlots=3
 | `ManualOverLimit` | Press RT to trigger when conditions are met. Also prevents the victory drain. |
 | `OverLimitGauge` | Damage-based gauge gain, drawn with the game's own HUD code. Works independently. |
 | `SpellQueueFix` | Allow spells to be cast in the order that they are ready. |
-| `NoSpellPause` | Boolean toggle. |
+| `NoSpellPause` | Disables spell pause (EXPERIMENTAL) |
 | `PartySpellSlots` | 1-4 concurrent party casts. |
 | `EnemySpellSlots` | 1-3 concurrent enemy casts. |
 
