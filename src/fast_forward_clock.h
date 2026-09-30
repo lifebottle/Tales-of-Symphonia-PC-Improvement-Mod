@@ -41,9 +41,9 @@ private:
 // Losing focus cancels fast-forward and consumes any held key until release.
 class SpeedCycle {
 public:
-    bool Update(bool focused, bool down) {
+    bool Update(bool focused, bool down, bool resetDown) {
         const unsigned previous = speed_;
-        if (!focused) speed_ = 1;
+        if (!focused || resetDown) speed_ = 1;
         else if (down && !down_) speed_ = speed_ == 16 ? 1 : speed_ * 2;
         down_ = down;
         return previous != speed_;

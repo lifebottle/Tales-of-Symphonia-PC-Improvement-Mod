@@ -35,6 +35,7 @@ A drop-in `d3d9.dll` proxy for the Steam release of *Tales of Symphonia*. Works 
 |-----|--------|
 | **F5** | Reload replacement textures |
 | **F6** | Cycle fast-forward speed |
+| **F7** | Return to normal speed |
 
 ## Fast-forward notes
 
@@ -56,7 +57,8 @@ NativeTextureSize=1   ; load hi-res textures at native size
 
 [FastForward]
 Enabled=1
-ToggleKey=0x75        ; Windows virtual-key code (F6 = 0x75, F7 = 0x76)
+ToggleKey=0x75        ; cycle speed (F6)
+ResetKey=0x76         ; return to normal speed (F7)
 DisableVSync=1        ; needed for high speeds; may cause tearing
 ```
 

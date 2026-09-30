@@ -22,6 +22,7 @@ std::once_flag initOnce;
 std::atomic<bool> installed{false};
 std::atomic<unsigned> currentSpeed{1};
 int hotkey = VK_F6;
+int resetHotkey = VK_F7;
 bool disableVSync = true;
 
 BOOL WINAPI ReadCounter(LARGE_INTEGER* value) {
@@ -126,6 +127,13 @@ void Init(const std::wstring& basePath) {
         if (end != key.c_str() && AtEnd(end) && parsedKey >= 1 && parsedKey <= 254)
             hotkey = static_cast<int>(parsedKey);
         else LOG("[FastForward] Invalid ToggleKey; using F6");
+
+        const auto resetKey = Setting(path, L"ResetKey", L"0x76");
+        const auto parsedResetKey = std::wcstoul(resetKey.c_str(), &end, 0);
+        if (end != resetKey.c_str() && AtEnd(end) && parsedResetKey >= 1 && parsedResetKey <= 254)
+            resetHotkey = static_cast<int>(parsedResetKey);
+        else LOG("[FastForward] Invalid ResetKey; using F7");
+
         disableVSync = Setting(path, L"DisableVSync", L"1") != L"0";
         if (!enabled) {
             LOG("[FastForward] Disabled by config");
@@ -136,8 +144,8 @@ void Init(const std::wstring& basePath) {
             return;
         }
         installed.store(true);
-        LOG("[FastForward] Ready: key=0x%02X, cycle=1x/2x/4x/8x/16x, disableVSync=%d; starts OFF",
-            hotkey, disableVSync);
+        LOG("[FastForward] Ready: key=0x%02X, resetKey=0x%02X, cycle=1x/2x/4x/8x/16x, disableVSync=%d; starts OFF",
+            hotkey, resetHotkey, disableVSync);
     });
 }
 
@@ -148,9 +156,10 @@ void PollHotkey() {
     GetWindowThreadProcessId(GetForegroundWindow(), &foregroundProcess);
     const bool focused = foregroundProcess == GetCurrentProcessId();
     const bool down = (GetAsyncKeyState(hotkey) & 0x8000) != 0;
+    const bool resetDown = (GetAsyncKeyState(resetHotkey) & 0x8000) != 0;
     // Commit the input transition only if we can also commit its clock change.
     auto next = cycle;
-    if (!next.Update(focused, down)) {
+    if (!next.Update(focused, down, resetDown)) {
         cycle = next;
         return;
     }
