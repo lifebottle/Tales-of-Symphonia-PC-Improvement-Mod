@@ -32,7 +32,7 @@ EnemySpellSlots=3
 | `FreeRunMovementPenalty` | (0 to <1, default 0.20) is subtracted from movement speed when free running |
 | `ManualOverLimit` | Press RT to trigger when conditions are met. Also prevents the victory drain. |
 | `OverLimitGauge` | Damage-based gauge gain, drawn with the game's own HUD code. Works independently. |
-| `SpellQueueFix` | Completed queue algorithm. Works independently and with any slot count. |
+| `SpellQueueFix` | Allow spells to be cast in the order that they are ready. |
 | `NoSpellPause` | Boolean toggle. |
 | `PartySpellSlots` | 1-4 concurrent party casts. |
 | `EnemySpellSlots` | 1-3 concurrent enemy casts. |
@@ -58,6 +58,12 @@ Set the counts in the INI. There is no separate enable switch: it turns on autom
 - Unison timers for all 22 party MA/summon artes are set to 453 frames.
 - This does **not** unlock or assign Mystic Artes. Keep your existing arte setup.
 - **Testing status:** Lloyd, Kratos, Raine, and Genis were verified together in game. The other MA combinations passed simulation only and still need in-game validation.
+
+### Spell Queue Fix (v1.6.2)
+
+Uses the new queue from TOS NoTSFix v26.9.5: completed party casts wait in order, guarding or holding a spell removes that caster, and battle end or Unison start clears the queue. Chant timers continue while slots are busy. Extra slots retain their existing capacity and resource checks; enemies use their own admission path.
+
+The update passed isolated hook execution across all battle-option combinations and slot counts, including Unison/Mystic Arte checks. Live battle validation of this queue update is still pending.
 
 ## Lloyd Super Chain
 

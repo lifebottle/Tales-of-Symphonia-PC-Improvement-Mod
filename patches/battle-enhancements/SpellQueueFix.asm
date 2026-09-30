@@ -1,291 +1,178 @@
 // Original bytes verified during CT export.
-// Leave +2723D to AddSpellSlots; only the entry's 15 bytes are overwritten.
-assert(TOS.exe+0x2722e,74 1F 0F B6 93 B0 3A 01 00 8B 3D DC 2E AD 00)
-assert(TOS.exe+0x2727b,F6 83 90 02 00 00 10 0F 85 32 01 00 00 0F BF 83 FA 12 00 00 25 07 00 00 80)
-assert(TOS.exe+0x27539,C6 86 B0 01 00 00 16)
-assert(TOS.exe+0x2724d,74 2C)
-assert(TOS.exe+0x2724f,85 C0)
-assert(TOS.exe+0x27251,75 28)
-assert(TOS.exe+0x27253,0F B7 83 BE 01 00 00)
-assert(TOS.exe+0x2725a,66 85 C0)
-assert(TOS.exe+0x2725d,74 08)
-assert(TOS.exe+0x2725f,48 66 89 83 BE 01 00 00)
-assert(TOS.exe+0x27267,90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90)
+assert(TOS.exe+0x26b13,80 BB B1 01 00 00 05 0F 84 F4 06 00 00 8B 15 DC 2E AD 00)
+assert(TOS.exe+0x27228,8B 4E 38 F6 C1 01 74 1F 0F B6 93 B0 3A 01 00 8B 3D DC 2E AD 00 80 BC 3A EE 93 00 00 00 74 08 F7 C1 00 00 00 20 74 2C)
+assert(TOS.exe+0x67dba,C6 05 52 86 B1 00 00)
+assert(TOS.exe+0x6ff76,C6 87 B0 01 00 00 15)
+assert(TOS.exe+0x7140e,A1 DC 2E AD 00)
+assert(TOS.exe+0x6ff7d,E8 AE 36 FD FF)
+assert(TOS.exe+0x71413,80 8E 08 91 00 00 04)
+assert(TOS.exe+0x7141a,66 C7 80 79 8F 00 00 03 00)
+// Continuations retained by the compatibility adaptation.
+assert(TOS.exe+0x26b26,66 83 BA F0 90 00 00 00 0F 85 E0 06 00 00)
+assert(TOS.exe+0x26ffa,80 BB B1 01 00 00 04 74 49)
+assert(TOS.exe+0x27214,8B FB)
+assert(TOS.exe+0x2724f,85 C0 75 28 0F B7 83 BE 01 00 00 66 85 C0 74 08 48 66 89 83 BE 01 00 00 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90)
+assert(TOS.exe+0x2727b,F6 83 90 02 00 00 10)
 
-{ Game   : TOS.exe
-  Version:
-  Date   : 2026-08-18
-  Author : sdail
-  Description :
-
-  <Optional info>
-}
+// TOS NoTSFix v26.9.5, entry 3164, by sd (2026-09-26).
+// Adapted for the bundled Battle Enhancements. Queue ready party casts, remove
+// guarding/held casters, and reset at battle end / Unison start.
+//
+// The CT NOPs +27228..+2724E, including AddSpellSlots' +2723D hook. Instead,
+// +27228 jumps straight to the native countdown at +2724F. Cast readiness uses
+// the now-detached busy comparison at +27237..+27244, then rejoins our queue at
+// +27245. With extra slots this runs choose(assign=0), including capacity,
+// owner and resource checks; without them it checks the native party slot.
+// No optional symbol references: either feature still works independently.
 
 [ENABLE]
 
-define(SpellQueue,TOS.exe+0x2722e) // resolved from aobscanmodule
-define(Ret_SpellQueue,TOS.exe+0x2727b) // resolved from aobscanmodule
-define(SpellQueueEnd,TOS.exe+27539)
-alloc(Mem_SpellQueue,$2000,SpellQueue)
+define(SpellHold,TOS.exe+26B13)
+define(SpellTimer,TOS.exe+27228)
+define(QueueCapacityResult,TOS.exe+27245)
+define(BattleEnd,TOS.exe+67DBA)
+define(UnisonSlash,TOS.exe+6FF76)
+define(UnisonTrigger,TOS.exe+7140E)
+alloc(Mem_SpellHold,$1000,SpellHold)
 alloc(QueueList,4)
-
-registersymbol(SpellQueue)
-registersymbol(Ret_SpellQueue)
-registersymbol(SpellQueueEnd)
 registersymbol(QueueList)
 
+Mem_SpellHold:
+    pushfd
+    pushad
+    // ECX is scratch across the preceding game calls. Use the actor's side
+    // rather than the CT's test ecx,ecx to keep enemies out of the party FIFO.
+    test byte [ebx+1320],1
+    jnz NativeSpellHold
+    lea edi,[QueueList]
+    cmp byte [ebx+1B1],4
+    je RemoveQueue_Start
+    cmp byte [ebx+1B1],5
+    je RemoveQueue_Start
+    mov edx,[TOS.exe+6D2EDC]
+    cmp byte [edx+9108],0
+    jne ResumeSpellHold
+    mov eax,[ebx+C]
+    test byte [eax+38],1
+    jz ResumeSpellHold
+    // Query slot 0 in the native game. AddSpellSlots replaces the comparison
+    // with its full admission check and ignores this provisional slot index.
+    xor edx,edx
+    jmp TOS.exe+27237
 
-//Make Mem check chanting animation
+Mem_QueueCapacityResult:
+    lea edi,[QueueList]   // LEA preserves the admission comparison's ZF.
+    jne AddQueue_Start
+    cmp dword ptr [edi],0
+    je ResumeSpellHold
+    movzx eax,byte [ebx+1322]
+    cmp byte [edi],al
+    jne WaitSpell
+    shr dword ptr [edi],8
+    jmp ResumeSpellHold
 
-
-Mem_SpellQueue:
-    test eax,eax        //Check Unknown
-    jne Ret_SpellQueue  //
-    mov eax,[TOS.exe+6D2EDC]
-    // v26.9.3 keeps normal queue handling during Unison.
-    //cmp byte [eax+9108],0
-    //jne Unison_Exit
-    cmp byte [ebx+1B0],C    //Check Char State (Chanting)
-    jne Queue_Exit         //
-    // Final slot admission runs before this timer hook, but only at timer 0.
-    // Finish every positive countdown, including its last tick. Queue a ready
-    // cast only after it has had a chance to select another free spell slot.
-    cmp word [ebx+1BE],0
-    ja DecTimer             //
-    movzx edx,byte [ebx+13AB0]
-    mov edi,[TOS.exe+6D2EDC]
-    // AddSpellSlots assigns slots 6..9 only after attaching its buffer.
-    // EXTRA_BUSY = buffer - 8F80; preserve EDI and the comparison flags.
-    cmp edx,6
-    jb NativeBusy
-    cmp edx,9
-    ja NativeBusy
-    push edi
-    mov edi,[edi+16F950]
-    cmp byte [edi+edx-8F86],0
-    pop edi
-    jmp BusyDone
-NativeBusy:
-    cmp byte [edx+edi+93EE],0   //Check Active Team Queue (False)
-BusyDone:
-    je QueueFree                //
-    call Func_SetTimer
+AddQueue_Start:
     xor ecx,ecx
-    movzx eax,byte [ebx+1322]   //Char ID
-    lea edx,[QueueList]
-    //mov byte [edx+3],0
+    movzx eax,byte [ebx+1322]
 AddQueue_Loop:
-    cmp byte [edx+ecx],0
+    cmp byte [edi+ecx],0
     je AddQueue
-    cmp byte [edx+ecx],al
-    je AddQueue_Exit
-AddQueue_Inc:
-    inc ecx
-    cmp ecx,2
-    jbe AddQueue_Loop
-    jmp AddQueue_Exit
-AddQueue:
-    mov byte [edx+ecx],al
-    //mov [QueueList],edx
-AddQueue_Exit:
-    cmp byte [ebx+1B0],C    //Check Char State (Chanting)
-    je Ret_SpellQueue         //
-    //jmp Ret_SpellQueue
-RemoveQueue:
-    mov byte [edx+ecx],0
-    call Func_ReorderQueue
-    jmp Ret_SpellQueue
-QueueFree:
-    call Func_SetTimer
-    lea edx,[QueueList]
-    cmp [edx],0   //Check Queue List (Empty)
-    je DecTimer
-    cmp byte [edx+3],0
-    jne Ret_SpellQueue
-    movzx eax,byte [ebx+1322]
-    cmp byte [edx],al
-    jne Ret_SpellQueue
-    inc byte [edx+3]
-    shr word [edx],8
-    shr word [edx+1],8
-  //  mov [QueueList],edx
-DecTimer:
-    cmp word [ebx+1BE],0
-    je Ret_SpellQueue
-    dec word [ebx+1BE]
-    jmp Ret_SpellQueue
-Unison_Exit:
-    lea ecx,[QueueList]
-    mov byte [ecx+3],0
-    jmp DecTimer
-
-Queue_Exit:
-    lea edx,[QueueList]
-    cmp word [edx],0
-    jne Queue_Exit2
-    cmp byte [edx+2],0
-    jne Queue_Exit2
-    jmp Ret_SpellQueue
-Queue_Exit2:
-    call Func_CheckQueue
-    jmp RemoveQueue
-//============================================================================//
-Mem_UnlockTimer:
-    // v26.9.3 unlocks at the state transition; AddSpellSlots owns +28118.
-    // Replay the displaced state write without changing registers or flags.
-    mov byte [esi+1B0],16
-    mov byte [QueueList+3],0
-    jmp Ret_SpellQueueEnd
-//===[Functions]==============================================================//
-Func_CheckQueue:
-    xor ecx,ecx
-    movzx eax,byte [ebx+1322]   //Char ID
-CheckQueueLoop:
-    cmp byte [edx+ecx],0
-    je FoundChar
-    cmp byte [edx+ecx],al
-    je FoundChar
-    inc ecx
-    cmp ecx,2
-    jbe CheckQueueLoop
-FoundChar:
-    ret
-/*
-AddToQueue:
-    xor ecx,ecx
-    movzx eax,byte [ebx+1322]
-AddToQueueLoop:
-    test byte [QueueList+ecx],al
-    jnz FoundChar
+    cmp byte [edi+ecx],al
+    je WaitSpell
     inc ecx
     cmp ecx,3
-    jbe AddToQueueLoop
-FoundSlot:
-    ret
-*/
-Func_SetTimer:
-    cmp word [ebx+1BE],0    //Check Spell Time
-    jne TimerSet            //
-    mov word [ebx+1BE],1
-TimerSet:
-    ret
+    jb AddQueue_Loop
+    jmp WaitSpell
+AddQueue:
+    mov byte [edi+ecx],al
+WaitSpell:
+    popad
+    popfd
+    jmp TOS.exe+26FFA
 
-Func_ReorderQueue:
-    mov eax,[QueueList]
+RemoveQueue_Start:
+    movzx eax,byte [ebx+1322]
+    call RemoveQueue
+    cmp byte [ebx+1B1],4
+    je WaitSpell
+NativeSpellHold:
+    cmp byte [ebx+1B1],5
+    jne ResumeSpellHold
+    popad
+    popfd
+    jmp TOS.exe+27214
+ResumeSpellHold:
+    popad
+    popfd
+    mov edx,[TOS.exe+6D2EDC]
+    jmp Ret_SpellHold
+
+// EDI = FIFO, AL = character ID. Preserve order, including middle removals.
+// Byte 3 stays zero so removing the third entry never reads past QueueList.
+RemoveQueue:
     xor ecx,ecx
-    xor edx,edx
-ReorderQueueLoop:
-    test al,al
-    jz IncReorderQueue
-    shl edx,8
-    mov dl,al
-IncReorderQueue:
-    shr eax,8
+RemoveQueue_Loop:
+    cmp byte [edi+ecx],0
+    je RemoveQueue_Exit
+    cmp byte [edi+ecx],al
+    je RemoveQueue_Found
     inc ecx
-    cmp ecx,2
-    jbe ReorderQueueLoop
-    mov [QueueList],edx
+    cmp ecx,3
+    jb RemoveQueue_Loop
+    ret
+RemoveQueue_Found:
+    shr word ptr [edi+ecx],8
+    test ecx,ecx
+    jnz RemoveQueue_Exit
+    shr word ptr [edi+1],8
+RemoveQueue_Exit:
     ret
 
-//============================================================================//
-SpellQueue:
-    jmp Mem_SpellQueue
-    nop 8
+Mem_BattleEnd:
+    mov dword ptr [QueueList],0
+    mov byte [TOS.exe+718652],0
+    jmp Ret_BattleEnd
+
+Mem_UnisonSlash:
+    mov byte [edi+1B0],15
+    pushfd
+    pushad
+    movzx eax,byte [edi+1322]
+    lea edi,[QueueList]
+    call RemoveQueue
+    popad
+    popfd
+    // Preserve the original CALL at +6FF7D and its register inputs.
+    jmp Ret_UnisonSlash
+
+Mem_UnisonTrigger:
+    mov dword ptr [QueueList],0
+    mov eax,[TOS.exe+6D2EDC]
+    jmp Ret_UnisonTrigger
+
+SpellHold:
+    jmp Mem_SpellHold
+    nop E
+Ret_SpellHold:
+
+SpellTimer:
+    jmp TOS.exe+2724F
+    nop
+
+QueueCapacityResult:
+    jmp Mem_QueueCapacityResult
+    nop 3
+
+BattleEnd:
+    jmp Mem_BattleEnd
     nop 2
-Ret_SpellQueue:
+Ret_BattleEnd:
 
-SpellQueueEnd:
-    jmp Mem_UnlockTimer
+UnisonSlash:
+    jmp Mem_UnisonSlash
     nop 2
-Ret_SpellQueueEnd:
+Ret_UnisonSlash:
 
-[DISABLE]
-
-SpellQueue:
-    db 74 1F
-    db 0F B6 93 B0 3A 01 00
-    db 8B 3D DC 2E AD 00
-
-SpellQueueEnd:
-    db C6 86 B0 01 00 00 16
-
-dealloc(Mem_SpellQueue)
-dealloc(QueueList)
-
-unregistersymbol(SpellQueue)
-unregistersymbol(Ret_SpellQueue)
-unregistersymbol(SpellQueueEnd)
-unregistersymbol(QueueList)
-
-
-{
-// ORIGINAL CODE - INJECTION POINT: TOS.exe+2722E
-
-TOS.exe+27203: 8B C3                          - mov eax,ebx
-TOS.exe+27205: E8 06 88 00 00                 - call TOS.exe+2FA10
-TOS.exe+2720A: C7 83 AC 01 00 00 02 00 00 00  - mov [ebx+000001AC],00000002
-TOS.exe+27214: 8B FB                          - mov edi,ebx
-TOS.exe+27216: E8 25 16 00 00                 - call TOS.exe+28840
-TOS.exe+2721B: F6 83 BD 36 01 00 03           - test byte ptr [ebx+000136BD],03
-TOS.exe+27222: 8B 74 24 10                    - mov esi,[esp+10]
-TOS.exe+27226: 75 53                          - jne TOS.exe+2727B
-TOS.exe+27228: 8B 4E 38                       - mov ecx,[esi+38]
-TOS.exe+2722B: F6 C1 01                       - test cl,01
-// ---------- INJECTING HERE ----------
-TOS.exe+2722E: 74 1F                          - je TOS.exe+2724F
-// ---------- DONE INJECTING  ----------
-TOS.exe+27230: 0F B6 93 B0 3A 01 00           - movzx edx,byte ptr [ebx+00013AB0]
-TOS.exe+27237: 8B 3D DC 2E AD 00              - mov edi,[TOS.exe+6D2EDC]
-TOS.exe+2723D: 80 BC 3A EE 93 00 00 00        - cmp byte ptr [edx+edi+000093EE],00
-TOS.exe+27245: 74 08                          - je TOS.exe+2724F
-TOS.exe+27247: F7 C1 00 00 00 20              - test ecx,20000000
-TOS.exe+2724D: 74 2C                          - je TOS.exe+2727B
-TOS.exe+2724F: 85 C0                          - test eax,eax
-TOS.exe+27251: 75 28                          - jne TOS.exe+2727B
-TOS.exe+27253: 0F B7 83 BE 01 00 00           - movzx eax,word ptr [ebx+000001BE]
-TOS.exe+2725A: 66 85 C0                       - test ax,ax
-}
-
-{
-// ORIGINAL CODE - INJECTION POINT: TOS.exe+2727B
-
-TOS.exe+27271: 90                    - nop
-TOS.exe+27272: 90                    - nop
-TOS.exe+27273: 90                    - nop
-TOS.exe+27274: 90                    - nop
-TOS.exe+27275: 90                    - nop
-TOS.exe+27276: 90                    - nop
-TOS.exe+27277: 90                    - nop
-TOS.exe+27278: 90                    - nop
-TOS.exe+27279: 90                    - nop
-TOS.exe+2727A: 90                    - nop
-// ---------- INJECTING HERE ----------
-TOS.exe+2727B: F6 83 90 02 00 00 10  - test byte ptr [ebx+00000290],10
-// ---------- DONE INJECTING  ----------
-TOS.exe+27282: 0F 85 32 01 00 00     - jne TOS.exe+273BA
-TOS.exe+27288: 0F BF 83 FA 12 00 00  - movsx eax,word ptr [ebx+000012FA]
-TOS.exe+2728F: 25 07 00 00 80        - and eax,80000007
-TOS.exe+27294: 79 05                 - jns TOS.exe+2729B
-TOS.exe+27296: 48                    - dec eax
-TOS.exe+27297: 83 C8 F8              - or eax,-08
-TOS.exe+2729A: 40                    - inc eax
-TOS.exe+2729B: 75 72                 - jne TOS.exe+2730F
-TOS.exe+2729D: 8B 46 38              - mov eax,[esi+38]
-TOS.exe+272A0: A9 00 00 40 00        - test eax,TOS.exe
-}
-
-{
-// ORIGINAL CODE - [END NEW] INJECTION POINT: TOS.exe+27539
-
-TOS.exe+27525: 7D 0C                    - jnl TOS.exe+27533
-TOS.exe+27527: B9 14 00 00 00           - mov ecx,00000014
-TOS.exe+2752C: 66 89 8E 9C 02 00 00     - mov [esi+0000029C],cx
-TOS.exe+27533: 8B 86 C4 02 00 00        - mov eax,[esi+000002C4]
-// ---------- INJECTING HERE ----------
-TOS.exe+27539: C6 86 B0 01 00 00 16     - mov byte ptr [esi+000001B0],16
-// ---------- DONE INJECTING  ----------
-TOS.exe+27540: 8B 88 18 07 00 00        - mov ecx,[eax+00000718]
-TOS.exe+27546: 8B C1                    - mov eax,ecx
-TOS.exe+27548: 85 C0                    - test eax,eax
-TOS.exe+2754A: 74 12                    - je TOS.exe+2755E
-}
+UnisonTrigger:
+    jmp Mem_UnisonTrigger
+Ret_UnisonTrigger:
