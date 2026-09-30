@@ -66,7 +66,7 @@ Enabled=1
 
 Defaults to `0`. Works independently of Battle Enhancements. Restart after changing it.
 
-## Debug collision overlay
+## Debug
 
 Copy the complete `debug` folder into `mods/asm/debug/` and set these independent
 options in `d3d9_config.ini`:
@@ -75,7 +75,9 @@ options in `d3d9_config.ini`:
 [Debug]
 Hitboxes=0
 Hurtboxes=0
-Alpha=0.20
+HitboxAlpha=0.20
+EnemiesDontAttack=0
+DealMinimumDamage=0 ; boolean
 ```
 
 Draws hitboxes and hurtboxes to screen. Hitboxes are green and hurtboxes are blue. Alpha controls the opacity of the overlay.

@@ -1,7 +1,7 @@
 # Shared hooks activate when either independent 0/1 display setting is enabled.
 format = 1
 id = "debug"
-version = "1.0.0"
+version = "1.1.0"
 config_section = "Debug"
 image_base = 0x400000
 image_size = 0x2b01000
@@ -16,6 +16,12 @@ requires = ["Appearance"]
 key = "Appearance"
 enable_above = 1
 
+[[features]]
+key = "DealMinimumDamage"
+
+[[features]]
+key = "EnemiesDontAttack"
+
 [[scripts]]
 file = "CollisionOverlay.asm"
 writable = ["overlay_data"]
@@ -23,6 +29,12 @@ writable = ["overlay_data"]
 [[scripts]]
 file = "Appearance.asm"
 writable = ["overlay_alpha"]
+
+[[scripts]]
+file = "DealMinimumDamage.asm"
+
+[[scripts]]
+file = "EnemiesDontAttack.asm"
 
 [[parameters]]
 key = "Hitboxes"
@@ -45,11 +57,11 @@ min = 0
 max_exclusive = 2
 
 [[parameters]]
-key = "Alpha"
+key = "HitboxAlpha"
 feature = "Appearance"
 script = "Appearance"
 symbol = "Alpha"
-default = 0.2
+default = 0.20
 min = 0
 # Next float32 above 1: clamping to the exclusive bound includes exactly 1.0.
 max_exclusive = 1.0000001192092896
