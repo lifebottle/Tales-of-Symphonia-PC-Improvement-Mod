@@ -49,25 +49,15 @@ Based on the controller mappings; Steam Input can change the physical buttons.
 
 ### Additional Spell Slots
 
-Set the counts in the INI. There is no separate enable switch: it turns on automatically when either count is above 1. Values are truncated to whole numbers and clamped; missing or invalid values use `1`. Your INI values aren't rewritten.
+Add additional spell slots to allow casting multiple high level spells at the same time. Party and enemy slots are separately configured. Party max is 4, enemy max is 3.
 
-- Chanting continues as long as any configured slot can take the pending spell.
-- Works with Spell Queue Fix on or off.
-- **Unison / Mystic Artes (v1.6.1):** all party Mystic Artes and summons can be cast concurrently during Unison. Use `PartySpellSlots=4` for four at once, or `2` for two. Enemy slots don't affect the party limit.
-- Each caster's resources, portraits, and cleanup are tied to its own slot, so finishing one MA can't release another caster's slot.
-- Unison timers for all 22 party MA/summon artes are set to 453 frames.
-- This does **not** unlock or assign Mystic Artes. Keep your existing arte setup.
-- **Testing status:** Lloyd, Kratos, Raine, and Genis were verified together in game. The other MA combinations passed simulation only and still need in-game validation.
+### Spell Queue Fix
 
-### Spell Queue Fix (v1.6.2)
-
-Uses the new queue from TOS NoTSFix v26.9.5: completed party casts wait in order, guarding or holding a spell removes that caster, and battle end or Unison start clears the queue. Chant timers continue while slots are busy. Extra slots retain their existing capacity and resource checks; enemies use their own admission path.
-
-The update passed isolated hook execution across all battle-option combinations and slot counts, including Unison/Mystic Arte checks. Live battle validation of this queue update is still pending.
+No punishment for running multiple casters. Spells are cast in the order they are ready rather than being stuck in a predetermined order.
 
 ## Lloyd Super Chain
 
-Adds Super Chain to Lloyd's MAX-gem EX skill list, fixes the chain windows for Demonic Tiger Blade, Demonic Thrust, Raining Tiger Blade, Tempest Thrust, Tempest Beast, and all four Rising Falcon variants, and extends the Ability Plus consecutive Level 1 allowance when both skills are active. Once-per-chain and same-arte restrictions still apply.
+Adds Super Chain to Lloyd's MAX-gem EX skill list, makes all of his Level 3 artes chainable, and allows chaining two Level 1 artes together at any point in the combo if Ability Plus is active. Once-per-chain and same-arte restrictions still apply.
 
 ```ini
 [LloydSuperChain]
