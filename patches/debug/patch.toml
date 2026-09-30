@@ -1,0 +1,56 @@
+# Shared hooks activate when either independent 0/1 display setting is enabled.
+format = 1
+id = "debug"
+version = "1.0.0"
+config_section = "Debug"
+image_base = 0x400000
+image_size = 0x2b01000
+
+[[features]]
+key = "CollisionOverlay"
+enable_above = 0
+requires = ["Appearance"]
+
+# Appearance is enabled only as a dependency: normalized Alpha never exceeds 1.
+[[features]]
+key = "Appearance"
+enable_above = 1
+
+[[scripts]]
+file = "CollisionOverlay.asm"
+writable = ["overlay_data"]
+
+[[scripts]]
+file = "Appearance.asm"
+writable = ["overlay_alpha"]
+
+[[parameters]]
+key = "Hitboxes"
+feature = "CollisionOverlay"
+script = "CollisionOverlay"
+symbol = "HitboxesFlag"
+integer = true
+default = 0
+min = 0
+max_exclusive = 2
+
+[[parameters]]
+key = "Hurtboxes"
+feature = "CollisionOverlay"
+script = "CollisionOverlay"
+symbol = "HurtboxesFlag"
+integer = true
+default = 0
+min = 0
+max_exclusive = 2
+
+[[parameters]]
+key = "Alpha"
+feature = "Appearance"
+script = "Appearance"
+symbol = "Alpha"
+default = 0.2
+min = 0
+# Next float32 above 1: clamping to the exclusive bound includes exactly 1.0.
+max_exclusive = 1.0000001192092896
+clamp = true
