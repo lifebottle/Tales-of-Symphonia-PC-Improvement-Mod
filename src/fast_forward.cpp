@@ -21,8 +21,10 @@ std::mutex inputMutex;
 std::once_flag initOnce;
 std::atomic<bool> installed{false};
 std::atomic<unsigned> currentSpeed{1};
-int hotkey = VK_F6;
-int resetHotkey = VK_F7;
+int increaseHotkey = VK_F6;
+int decreaseHotkey = VK_F7;
+int speedStep = 2;
+int maxSpeed = 10;
 bool disableVSync = true;
 
 BOOL WINAPI ReadCounter(LARGE_INTEGER* value) {
@@ -122,17 +124,29 @@ void Init(const std::wstring& basePath) {
         const bool enabled = Setting(path, L"Enabled", L"1") != L"0";
         wchar_t* end = nullptr;
 
-        const auto key = Setting(path, L"ToggleKey", L"0x75");
-        const auto parsedKey = std::wcstoul(key.c_str(), &end, 0);
-        if (end != key.c_str() && AtEnd(end) && parsedKey >= 1 && parsedKey <= 254)
-            hotkey = static_cast<int>(parsedKey);
-        else LOG("[FastForward] Invalid ToggleKey; using F6");
+        const auto increaseKey = Setting(path, L"IncreaseKey", L"0x75");
+        const auto parsedIncreaseKey = std::wcstoul(increaseKey.c_str(), &end, 0);
+        if (end != increaseKey.c_str() && AtEnd(end) && parsedIncreaseKey >= 1 && parsedIncreaseKey <= 254)
+            increaseHotkey = static_cast<int>(parsedIncreaseKey);
+        else LOG("[FastForward] Invalid IncreaseKey; using F6");
 
-        const auto resetKey = Setting(path, L"ResetKey", L"0x76");
-        const auto parsedResetKey = std::wcstoul(resetKey.c_str(), &end, 0);
-        if (end != resetKey.c_str() && AtEnd(end) && parsedResetKey >= 1 && parsedResetKey <= 254)
-            resetHotkey = static_cast<int>(parsedResetKey);
-        else LOG("[FastForward] Invalid ResetKey; using F7");
+        const auto decreaseKey = Setting(path, L"DecreaseKey", L"0x76");
+        const auto parsedDecreaseKey = std::wcstoul(decreaseKey.c_str(), &end, 0);
+        if (end != decreaseKey.c_str() && AtEnd(end) && parsedDecreaseKey >= 1 && parsedDecreaseKey <= 254)
+            decreaseHotkey = static_cast<int>(parsedDecreaseKey);
+        else LOG("[FastForward] Invalid DecreaseKey; using F7");
+
+        const auto speedStepString = Setting(path, L"SpeedStep", L"2");
+        const auto parsedSpeedStep = std::wcstoul(speedStepString.c_str(), &end, 0);
+        if (end != speedStepString.c_str() && AtEnd(end) && parsedSpeedStep >= 2 && parsedSpeedStep <= 254)
+            speedStep = static_cast<int>(parsedSpeedStep);
+        else LOG("[FastForward] Invalid SpeedStep; using 2");
+
+        const auto maxSpeedString = Setting(path, L"MaxSpeed", L"10");
+        const auto parsedMaxSpeed = std::wcstoul(maxSpeedString.c_str(), &end, 0);
+        if (end != maxSpeedString.c_str() && AtEnd(end) && parsedMaxSpeed >= 1 && parsedMaxSpeed <= 254)
+            maxSpeed = static_cast<int>(parsedMaxSpeed);
+        else LOG("[FastForward] Invalid MaxSpeed; using 10");
 
         disableVSync = Setting(path, L"DisableVSync", L"1") != L"0";
         if (!enabled) {
@@ -144,8 +158,8 @@ void Init(const std::wstring& basePath) {
             return;
         }
         installed.store(true);
-        LOG("[FastForward] Ready: key=0x%02X, resetKey=0x%02X, cycle=1x/2x/4x/8x/16x, disableVSync=%d; starts OFF",
-            hotkey, resetHotkey, disableVSync);
+        LOG("[FastForward] Ready: increaseKey=0x%02X, decreaseKey=0x%02X, speedStep=%d, maxSpeed=%d, disableVSync=%d; starts OFF",
+            increaseHotkey, decreaseHotkey, speedStep, maxSpeed, disableVSync);
     });
 }
 
@@ -155,11 +169,11 @@ void PollHotkey() {
     DWORD foregroundProcess = 0;
     GetWindowThreadProcessId(GetForegroundWindow(), &foregroundProcess);
     const bool focused = foregroundProcess == GetCurrentProcessId();
-    const bool down = (GetAsyncKeyState(hotkey) & 0x8000) != 0;
-    const bool resetDown = (GetAsyncKeyState(resetHotkey) & 0x8000) != 0;
+    const bool increaseDown = (GetAsyncKeyState(increaseHotkey) & 0x8000) != 0;
+    const bool decreaseDown = (GetAsyncKeyState(decreaseHotkey) & 0x8000) != 0;
     // Commit the input transition only if we can also commit its clock change.
     auto next = cycle;
-    if (!next.Update(focused, down, resetDown)) {
+    if (!next.Update(focused, increaseDown, decreaseDown, speedStep, maxSpeed)) {
         cycle = next;
         return;
     }

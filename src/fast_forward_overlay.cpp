@@ -33,11 +33,16 @@ std::array<unsigned char, 7> Glyph(char c) {
     case 'T': return {31, 4, 4, 4, 4, 4, 4};
     case 'W': return {17, 17, 17, 21, 21, 21, 10};
     case 'X': return {17, 17, 10, 4, 10, 17, 17};
+    case '0': return {14, 17, 19, 21, 25, 17, 14};
     case '1': return {4, 12, 4, 4, 4, 4, 14};
     case '2': return {14, 17, 1, 2, 4, 8, 31};
+    case '3': return {14, 17, 1, 6, 1, 17, 14};
     case '4': return {2, 6, 10, 18, 31, 2, 2};
+    case '5': return {31, 16, 16, 30, 1, 1, 30};
     case '6': return {14, 16, 16, 30, 17, 17, 14};
+    case '7': return {31, 1, 2, 4, 8, 8, 8};
     case '8': return {14, 17, 17, 14, 17, 17, 14};
+    case '9': return {14, 17, 17, 15, 1, 1, 14};
     default: return {};
     }
 }
@@ -81,7 +86,7 @@ std::vector<Vertex> Label(UINT width, UINT height, unsigned speed) {
 } // namespace
 
 HRESULT DrawOverlay(IDirect3DDevice9* device, unsigned speed) {
-    if (speed != 2 && speed != 4 && speed != 8 && speed != 16) return S_FALSE;
+    if (speed <= 1) return S_FALSE;
     if (!device) return D3DERR_INVALIDCALL;
 
     LocalCom<IDirect3DSurface9> backbuffer;

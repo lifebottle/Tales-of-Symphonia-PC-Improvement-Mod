@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <algorithm>
 
 namespace FastForward {
 
@@ -41,18 +42,30 @@ private:
 // Losing focus cancels fast-forward and consumes any held key until release.
 class SpeedCycle {
 public:
-    bool Update(bool focused, bool down, bool resetDown) {
+    bool Update(bool focused, bool increaseDown, bool decreaseDown, int speedStep, int maxSpeed) {
         const unsigned previous = speed_;
-        if (!focused || resetDown) speed_ = 1;
-        else if (down && !down_) speed_ = speed_ == 16 ? 1 : speed_ * 2;
-        down_ = down;
+        const int current = static_cast<int>(speed_);
+
+        if (!focused)
+            speed_ = 1;
+        else if (increaseDown && !increaseDown_)
+            speed_ = std::clamp(
+                current == 1 ? speedStep : current + speedStep,
+                1,
+                current + speedStep > maxSpeed ? current : maxSpeed
+            );
+        else if (decreaseDown && !decreaseDown_)
+            speed_ = std::clamp(current - speedStep, 1, maxSpeed);
+        increaseDown_ = increaseDown;
+        decreaseDown_ = decreaseDown;
         return previous != speed_;
     }
     unsigned Speed() const { return speed_; }
 
 private:
     unsigned speed_ = 1;
-    bool down_ = false;
+    bool increaseDown_ = false;
+    bool decreaseDown_ = false;
 };
 
 } // namespace FastForward
