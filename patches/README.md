@@ -85,10 +85,9 @@ Hurtboxes=0
 HitboxAlpha=0.20
 EnemiesDontAttack=0
 DealMinimumDamage=0 ; boolean
+DisableEncounters=0
 DebugMapLoader=1
 ```
-
-Draws hitboxes and hurtboxes to screen. Hitboxes are green and hurtboxes are blue. Alpha controls the opacity of the overlay.
 
 ### Debug map loader (experimental)
 
