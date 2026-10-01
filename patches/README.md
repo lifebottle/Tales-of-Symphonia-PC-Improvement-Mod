@@ -66,7 +66,13 @@ Enabled=1
 
 ## QoL
 
-This section is for quality of life enhancements. Currently the only option is 'SkippableFMVs` which allows you to skip story cutscenes and the end credits.
+This section is for quality of life enhancements.
+
+| Option | Notes |
+|--------|-------|
+| `SkippableFMVs` | Allows skipping story cutscenes and the end credits. |
+| `FastText` | Hold B to skip text. |
+| `EnhancedHolyBottles` | Walk through enemies when holy bottle is active, hold B to temporarily disable |
 
 ```ini
 [QoL]
