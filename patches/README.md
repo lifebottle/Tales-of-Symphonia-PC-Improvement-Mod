@@ -5,12 +5,11 @@ Patches load from `mods/asm/*/patch.toml` beside `d3d9.dll`. Each package folder
 ## Installing
 
 - Install the current DLL and the package folders together, keeping each package's `patch.toml` and all `.asm` files in one folder.
-- Enable features in `d3d9_config.ini`, then restart the game.
-- Don't run the same scripts in Cheat Engine at the same time.
+- Enable features in `d3d9_config.ini`.
+- Missing options are added to `d3d9_config.ini` with default values on game start.
+- Options are enumerated at game startup. Changes require a restart.
 
-## Battle Enhancements
-
-Add to `d3d9_config.ini`. Booleans default to `0`, spell slot counts default to `1`.
+### Example Config
 
 ```ini
 [BattleEnhancements]
@@ -19,11 +18,22 @@ FreeRun=1
 ManualOverLimit=1
 OverLimitGauge=1
 SpellQueueFix=1
-NoSpellPause=1
+NoSpellPause=0
 FreeRunMovementPenalty=0.20
 PartySpellSlots=4
 EnemySpellSlots=3
+
+[LloydSuperChain]
+Enabled=1
+
+[QoL]
+SkippableFMVs=1
+EnhancedHolyBottles=1
+FastText=1
 ```
+
+
+## Battle Enhancements
 
 | Option | Notes |
 |--------|-------|
@@ -59,10 +69,9 @@ No punishment for running multiple casters. Spells are cast in the order they ar
 
 Adds Super Chain to Lloyd's MAX-gem EX skill list, makes all of his Level 3 artes chainable, and allows chaining two Level 1 artes together at any point in the combo if Ability Plus is active. Once-per-chain and same-arte restrictions still apply.
 
-```ini
-[LloydSuperChain]
-Enabled=1
-```
+| Option | Notes |
+|--------|-------|
+| `Enabled` | 1 = Enabled, 0 = Disabled |
 
 ## QoL
 
@@ -71,13 +80,8 @@ This section is for quality of life enhancements.
 | Option | Notes |
 |--------|-------|
 | `SkippableFMVs` | Allows skipping story cutscenes and the end credits |
-| `FastText` | Hold B to skip text |
+| `FastText` | Hold B to skip dialogue |
 | `EnhancedHolyBottles` | Walk through enemies when holy bottle is active, hold B to temporarily disable |
-
-```ini
-[QoL]
-SkippableFMVs=1
-```
 
 ## Debug
 
