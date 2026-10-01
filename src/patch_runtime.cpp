@@ -139,18 +139,60 @@ bool Install(Session& session, const Definition& definition, uint8_t* image, siz
         if (!std::isfinite(value) || value<p.minimum || value>=p.maximum ||
             (p.integer && std::trunc(value)!=value)) return fail("parameter out of range");
     }
-    const uint32_t enabled = Dependencies(definition,options.enabled);
+    uint32_t enabled = Dependencies(definition,options.enabled);
     if (!enabled) return true;
     if (std::find(session.installed.begin(),session.installed.end(),definition.id)!=session.installed.end())
         return fail("definition is already installed; restart to update");
+    // Earlier packages keep their hooks. Drop whole conflicting features, then
+    // their dependents, before checking originals or allocating anything.
+    uint32_t blocked = 0;
+    auto checkConflicts = [&](uint32_t group, uint32_t rva, uint32_t count, bool write) {
+        const auto start = reinterpret_cast<uintptr_t>(image + rva);
+        const auto end = start + count;
+        for (const auto& owned : session.ranges) {
+            if (!(write || owned.write) || start >= owned.end || owned.start >= end) continue;
+            for (const auto& feature : definition.features) {
+                if (!(feature.bit & group & enabled & ~blocked)) continue;
+                LOG("[Patches] %s: skipping %s; conflict with an installed package at +0x%X",
+                    definition.id.c_str(), feature.key.c_str(),
+                    static_cast<unsigned>(std::max(start, owned.start) - reinterpret_cast<uintptr_t>(image)));
+            }
+            blocked |= group & enabled;
+            break;
+        }
+    };
+    for (const auto& segment : definition.segments)
+        if ((segment.group & enabled) && segment.kind == Kind::Patch)
+            checkConflicts(segment.group, segment.rva, segment.count, true);
+    for (const auto& guard : definition.guards)
+        if (guard.group & enabled) checkConflicts(guard.group, guard.rva, guard.count, false);
+    uint32_t previous;
+    do {
+        previous = blocked;
+        for (const auto& feature : definition.features) {
+            if (!(feature.bit & enabled & ~blocked) || !(feature.dependencies & blocked)) continue;
+            for (const auto& dependency : definition.features) {
+                if (!(dependency.bit & feature.dependencies & blocked)) continue;
+                LOG("[Patches] %s: skipping %s; required feature %s was skipped",
+                    definition.id.c_str(), feature.key.c_str(), dependency.key.c_str());
+                break;
+            }
+            blocked |= feature.bit;
+        }
+    } while (blocked != previous);
+    // Do not expand dependencies again: that would re-enable blocked features.
+    enabled &= ~blocked;
+    if (!enabled) {
+        LOG("[Patches] %s: all requested features skipped; no patches installed", definition.id.c_str());
+        error.clear();
+        return true;
+    }
+
     std::vector<Session::Range> ranges;
     for (const auto& s:definition.segments) if ((s.group & enabled) && s.kind==Kind::Patch)
         ranges.push_back({reinterpret_cast<uintptr_t>(image+s.rva),reinterpret_cast<uintptr_t>(image+s.rva+s.count),true});
     for (const auto& g:definition.guards) if (g.group & enabled)
         ranges.push_back({reinterpret_cast<uintptr_t>(image+g.rva),reinterpret_cast<uintptr_t>(image+g.rva+g.count),false});
-    for (const auto& a:ranges) for (const auto& b:session.ranges)
-        if ((a.write || b.write) && a.start<b.end && b.start<a.end)
-            return fail("patch/guard conflicts with an installed definition");
     // Reserve all ownership records before committing executable writes.
     auto ownedRanges=session.ranges;
     ownedRanges.insert(ownedRanges.end(),ranges.begin(),ranges.end());
