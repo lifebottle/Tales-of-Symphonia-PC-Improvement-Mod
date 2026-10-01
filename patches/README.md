@@ -27,15 +27,15 @@ EnemySpellSlots=3
 
 | Option | Notes |
 |--------|-------|
-| `ArtesSphere` | Enabled automatically by New Free Run and Manual Over Limit. |
-| `FreeRun` | Hold LT to free run. |
+| `ArtesSphere` | Enabled automatically by New Free Run and Manual Over Limit |
+| `FreeRun` | Hold LT to free run |
 | `FreeRunMovementPenalty` | (0 to <1, default 0.20) is subtracted from movement speed when free running |
-| `ManualOverLimit` | Press RT to trigger when conditions are met. Also prevents the victory drain. |
-| `OverLimitGauge` | Damage-based gauge gain, drawn with the game's own HUD code. Works independently. |
-| `SpellQueueFix` | Allow spells to be cast in the order that they are ready. |
+| `ManualOverLimit` | Press RT to trigger when conditions are met. Also prevents the victory drain |
+| `OverLimitGauge` | Damage-based gauge gain, drawn with the game's own HUD code. Works independently |
+| `SpellQueueFix` | Allow spells to be cast in the order that they are ready |
 | `NoSpellPause` | Disables spell pause (EXPERIMENTAL) |
-| `PartySpellSlots` | 1-4 concurrent party casts. |
-| `EnemySpellSlots` | 1-3 concurrent enemy casts. |
+| `PartySpellSlots` | 1-4 concurrent party casts |
+| `EnemySpellSlots` | 1-3 concurrent enemy casts |
 
 ### Controls
 
@@ -70,8 +70,8 @@ This section is for quality of life enhancements.
 
 | Option | Notes |
 |--------|-------|
-| `SkippableFMVs` | Allows skipping story cutscenes and the end credits. |
-| `FastText` | Hold B to skip text. |
+| `SkippableFMVs` | Allows skipping story cutscenes and the end credits |
+| `FastText` | Hold B to skip text |
 | `EnhancedHolyBottles` | Walk through enemies when holy bottle is active, hold B to temporarily disable |
 
 ```ini
@@ -84,20 +84,15 @@ SkippableFMVs=1
 Copy the complete `debug` folder into `mods/asm/debug/` and set these independent
 options in `d3d9_config.ini`:
 
-```ini
-[Debug]
-Hitboxes=0
-Hurtboxes=0
-HitboxAlpha=0.20
-EnemiesDontAttack=0
-DealMinimumDamage=0 ; boolean
-DisableEncounters=0
-DebugMapLoader=1
-```
-
-### Debug map loader (experimental)
-
-`DebugMapLoader=1` adds a Start-button menu in eligible field/overworld gameplay. Requires companion TLFile for English translation.
+| Option | Notes |
+|--------|-------|
+| `Hitboxes` | Draws hitboxes on weapons/attacks |
+| `Hurtboxes` | Draws hurtboxes on enemies/allies |
+| `HitboxAlpha` | Configurable hitbox/hurtbox alpha, default 0.20 |
+| `EnemiesDontAttack` | Disables enemy AI |
+| `DealMinimumDamage` | Always deal 1 damage to enemies |
+| `DisableEncounters` | Always have enhanced holy bottle active, incompatible with `EnhancedHolyBottles` |
+| `DebugMapLoader` | Press Start to open debug map loader, requires companion TLFile for English translation |
 
 ## Troubleshooting
 
