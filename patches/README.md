@@ -32,6 +32,7 @@ EnhancedHolyBottles=1
 FastText=1
 RheairdMoveSpeedMultiplier=2.0
 RheairdTurnSpeedMultiplier=2.5
+FastBlockPush=1
 ```
 
 
@@ -86,6 +87,7 @@ This section is for quality of life enhancements.
 | `EnhancedHolyBottles` | Walk through enemies when holy bottle is active, hold B to temporarily disable |
 | `RheairdMoveSpeedMultiplier` | Multiplies move speed of Rheaird by this value |
 | `RheairdTurnSpeedMultiplier` | Multiplies turn speed of Rheaird by this value |
+| `FastBlockPush` | Push/pull blocks faster |
 
 ## Debug
 
