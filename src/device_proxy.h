@@ -10,6 +10,7 @@
  */
 
 #include <d3d9.h>
+#include "fast_forward_presentation.h"
 #include <unordered_map>
 #include <mutex>
 #include <cstdint>
@@ -150,6 +151,7 @@ public:
 private:
     void PollTextureReloadHotkey();
     bool m_reloadKeyDown = false;
+    FastForward::Presentation m_presentation;
 
     IDirect3DDevice9*  m_pOriginal;
     IDirect3D9*        m_pD3D9Proxy;

@@ -25,7 +25,7 @@ int increaseHotkey = VK_F6;
 int decreaseHotkey = VK_F7;
 int speedStep = 2;
 int maxSpeed = 10;
-bool disableVSync = true;
+bool disableVSyncAtNormalSpeed = false;
 
 BOOL WINAPI ReadCounter(LARGE_INTEGER* value) {
     // Sampling under the lock also orders simultaneous calls from the game's
@@ -148,7 +148,7 @@ void Init(const std::wstring& basePath) {
             maxSpeed = static_cast<int>(parsedMaxSpeed);
         else LOG("[FastForward] Invalid MaxSpeed; using 10");
 
-        disableVSync = Setting(path, L"DisableVSync", L"1") != L"0";
+        disableVSyncAtNormalSpeed = Setting(path, L"DisableVSync", L"0") != L"0";
         if (!enabled) {
             LOG("[FastForward] Disabled by config");
             return;
@@ -158,8 +158,8 @@ void Init(const std::wstring& basePath) {
             return;
         }
         installed.store(true);
-        LOG("[FastForward] Ready: increaseKey=0x%02X, decreaseKey=0x%02X, speedStep=%d, maxSpeed=%d, disableVSync=%d; starts OFF",
-            increaseHotkey, decreaseHotkey, speedStep, maxSpeed, disableVSync);
+        LOG("[FastForward] Ready: increaseKey=0x%02X, decreaseKey=0x%02X, speedStep=%d, maxSpeed=%d, disableVSyncAt1x=%d; starts OFF",
+            increaseHotkey, decreaseHotkey, speedStep, maxSpeed, disableVSyncAtNormalSpeed);
     });
 }
 
@@ -194,12 +194,8 @@ unsigned CurrentSpeed() {
     return currentSpeed.load();
 }
 
-bool OverridePresentation() {
-    return installed.load() && disableVSync;
-}
-
-void LogPresentationFallback(HRESULT error) {
-    LOG("[FastForward] Immediate presentation failed (0x%08X); retrying requested settings. "
-        "Fast-forward may be limited by VSync.", static_cast<unsigned>(error));
+bool ShouldDisableVSync() {
+    // Accelerated playback always bypasses VSync; the INI controls only 1x.
+    return installed.load() && (currentSpeed.load() > 1 || disableVSyncAtNormalSpeed);
 }
 } // namespace FastForward

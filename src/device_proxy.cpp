@@ -23,6 +23,7 @@ Direct3DDevice9Proxy::Direct3DDevice9Proxy(IDirect3DDevice9* pOriginal, IDirect3
     , m_pD3D9Proxy(pD3D9Proxy)
     , m_refCount(1) {
     LOG("[Device] Proxy IDirect3DDevice9 created");
+    m_presentation.Init(m_pOriginal);
 
     // Install IAT hooks for D3DX texture creation so we can hash
     // the source DDS blob the same way TSFix does.
@@ -150,16 +151,25 @@ HRESULT STDMETHODCALLTYPE Direct3DDevice9Proxy::Reset(D3DPRESENT_PARAMETERS* pPr
     // Clear D3DX texture hash map — all texture pointers are invalidated by Reset
     D3DXHook::ClearAll();
 
-    return FastForward::WithPresentationParameters(pPresentationParameters, [&] {
-        return m_pOriginal->Reset(pPresentationParameters);
-    });
+    const HRESULT result = m_pOriginal->Reset(pPresentationParameters);
+    if (SUCCEEDED(result)) m_presentation.OnGameReset();
+    return result;
 }
 
 HRESULT STDMETHODCALLTYPE Direct3DDevice9Proxy::Present(CONST RECT* pSourceRect, CONST RECT* pDestRect, HWND hDestWindowOverride, CONST RGNDATA* pDirtyRegion) {
+    if (m_presentation.IsResetting()) return D3D_OK;
+    const HRESULT pending = m_presentation.PendingFailure();
+    if (FAILED(pending)) return pending;
     PollTextureReloadHotkey();
     FastForward::PollHotkey();
     FastForward::DrawOverlay(m_pOriginal, FastForward::CurrentSpeed());
-    return m_pOriginal->Present(pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
+    const HRESULT result = m_pOriginal->Present(pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
+    if (FAILED(result)) return result;
+    // Switch after presenting this frame so ResetEx cannot discard its image.
+    // Cross-thread changes are queued to the creation thread's message loop;
+    // accelerated-to-accelerated changes leave the swap chain alone.
+    const HRESULT switched = m_presentation.Update(FastForward::ShouldDisableVSync());
+    return FAILED(switched) ? switched : result;
 }
 
 void Direct3DDevice9Proxy::PollTextureReloadHotkey() {
@@ -286,6 +296,8 @@ HRESULT STDMETHODCALLTYPE Direct3DDevice9Proxy::GetDepthStencilSurface(IDirect3D
 }
 
 HRESULT STDMETHODCALLTYPE Direct3DDevice9Proxy::BeginScene() {
+    const HRESULT result = m_presentation.BeginFrame();
+    if (FAILED(result)) return result;
     return m_pOriginal->BeginScene();
 }
 

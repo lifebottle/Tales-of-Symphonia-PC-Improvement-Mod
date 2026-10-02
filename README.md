@@ -61,7 +61,7 @@ IncreaseKey=0x75      ; increase speed (F6)
 DecreaseKey=0x76      ; decrease speed (F7)
 SpeedStep=2           ; speed increase/decrease step size
 MaxSpeed=10           ; max speed multiplier
-DisableVSync=1        ; needed for high speeds; may cause tearing
+DisableVSync=0        ; V-Sync is always disabled above 1x speed
 ```
 
 ## Supported texture formats
