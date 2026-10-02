@@ -1,6 +1,6 @@
 format = 1
 id = "qol"
-version = "1.1.0"
+version = "1.2.0"
 config_section = "QoL"
 image_base = 0x400000
 image_size = 0x2b01000
@@ -22,3 +22,38 @@ key = "EnhancedHolyBottles"
 
 [[scripts]]
 file = "EnhancedHolyBottles.asm"
+
+# Multipliers activate independently above 1; no additional INI switches.
+[[features]]
+key = "RheairdMoveSpeed"
+enable_above = 1
+
+[[scripts]]
+file = "RheairdMoveSpeed.asm"
+writable = ["move_settings"]
+
+[[parameters]]
+key = "RheairdMoveSpeedMultiplier"
+feature = "RheairdMoveSpeed"
+script = "RheairdMoveSpeed"
+symbol = "move_multiplier"
+default = 1
+min = 1
+max_exclusive = 10
+
+[[features]]
+key = "RheairdTurnSpeed"
+enable_above = 1
+
+[[scripts]]
+file = "RheairdTurnSpeed.asm"
+writable = ["turn_settings"]
+
+[[parameters]]
+key = "RheairdTurnSpeedMultiplier"
+feature = "RheairdTurnSpeed"
+script = "RheairdTurnSpeed"
+symbol = "turn_multiplier"
+default = 1
+min = 1
+max_exclusive = 10

@@ -30,6 +30,8 @@ Enabled=1
 SkippableFMVs=1
 EnhancedHolyBottles=1
 FastText=1
+RheairdMoveSpeedMultiplier=2.0
+RheairdTurnSpeedMultiplier=2.5
 ```
 
 
@@ -82,6 +84,8 @@ This section is for quality of life enhancements.
 | `SkippableFMVs` | Allows skipping story cutscenes and the end credits |
 | `FastText` | Hold B to skip dialogue |
 | `EnhancedHolyBottles` | Walk through enemies when holy bottle is active, hold B to temporarily disable |
+| `RheairdMoveSpeedMultiplier` | Multiplies move speed of Rheaird by this value |
+| `RheairdTurnSpeedMultiplier` | Multiplies turn speed of Rheaird by this value |
 
 ## Debug
 
