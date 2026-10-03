@@ -103,6 +103,7 @@ options in `d3d9_config.ini`:
 | `DealMinimumDamage` | Always deal 1 damage to enemies |
 | `DisableEncounters` | Always have enhanced holy bottle active, incompatible with `EnhancedHolyBottles` |
 | `DebugMapLoader` | Press Start to open debug map loader, requires companion TLFile for English translation |
+| `DrawSkitID` | Draws the current skit ID on the bottom-left of the screen, maps to debug map skit loader |
 
 ## Troubleshooting
 
