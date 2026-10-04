@@ -82,9 +82,9 @@ min = 1
 max_exclusive = 4
 
 [[features]]
-key = "AlwaysAllowSpellCancel"
+key = "NoSpellCancelReqs"
 [[scripts]]
-file = "AlwaysAllowSpellCancel.asm"
+file = "NoSpellCancelReqs.asm"
 
 # A single numeric setting; zero leaves the native camera hook untouched.
 [[features]]

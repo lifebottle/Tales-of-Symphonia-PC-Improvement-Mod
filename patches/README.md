@@ -40,7 +40,6 @@ FastBlockPush=1
 
 | Option | Notes |
 |--------|-------|
-| `AlwaysAllowSpellCancel` | Removes the arte usage requirement for spell canceling that was introduced in Chronicles |
 | `ArtesSphere` | Adds a second set of assignable artes |
 | `FreeRun` | Hold LT to free run |
 | `FreeRunMovementPenalty` | (0 to <1, default 0.20) is subtracted from movement speed when free running |
@@ -49,8 +48,9 @@ FastBlockPush=1
 | `ManualOverLimit` | Press RT to trigger over limit |
 | `OverLimitGauge` | Damage-based gauge gain, drawn with the game's own HUD code. Works independently |
 | `SpellQueueFix` | Allow spells to be cast in the order that they are ready |
-| `NoSpellPause` | Disables spell pause |
 | `NoMysticArteReqs` | Disables weapon and story requirements for Lloyd, Zelos, Kratos, Presea, and Regal MA's. Change Lloyd's low HP requirement to an OVL requirement |
+| `NoSpellCancelReqs` | Removes the arte usage requirement for spell canceling that was introduced in Chronicles |
+| `NoSpellPause` | Disables spell pause |
 | `PartySpellSlots` | 1-4 concurrent party casts |
 | `EnemySpellSlots` | 1-3 concurrent enemy casts |
 
