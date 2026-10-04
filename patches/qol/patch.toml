@@ -64,3 +64,9 @@ key = "FastBlockPush"
 
 [[scripts]]
 file = "FastBlockPush.asm"
+
+[[features]]
+key = "EnableVoicedSkits"
+
+[[scripts]]
+file = "EnableVoicedSkits.asm"
