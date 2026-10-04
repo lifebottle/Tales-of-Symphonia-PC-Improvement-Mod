@@ -15,7 +15,7 @@
 TextureManager::TextureManager()
     : m_dumpEnabled(false)
     , m_replaceEnabled(true)
-    , m_loggingEnabled(true)
+    , m_loggingEnabled(false)
     , m_nativeTextureSize(true)
     , m_initialized(false) {
 }
@@ -60,7 +60,7 @@ void TextureManager::LoadConfig() {
             fprintf(f, "; Place your replacement DDS files named by CRC32 hash\n");
             fprintf(f, "ReplaceTextures=1\n\n");
             fprintf(f, "; Set to 1 to log texture hashes, replacements and dumps to d3d9.log\n");
-            fprintf(f, "EnableLogging=1\n\n");
+            fprintf(f, "EnableLogging=0\n\n");
             fprintf(f, "; Set to 1 to load D3DX textures at their native DDS resolution\n");
             fprintf(f, "; instead of the size the game requests (needed for hi-res TLFile mod textures)\n");
             fprintf(f, "NativeTextureSize=1\n");
@@ -77,7 +77,7 @@ void TextureManager::LoadConfig() {
                              buf, 64, configPath.c_str());
     m_replaceEnabled = (_wtoi(buf) != 0);
 
-    GetPrivateProfileStringW(L"TextureProxy", L"EnableLogging", L"1",
+    GetPrivateProfileStringW(L"TextureProxy", L"EnableLogging", L"0",
                              buf, 64, configPath.c_str());
     m_loggingEnabled = (_wtoi(buf) != 0);
 

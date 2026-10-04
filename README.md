@@ -52,7 +52,7 @@ A drop-in `d3d9.dll` proxy for the Steam release of *Tales of Symphonia*. Works 
 [TextureProxy]
 DumpTextures=0        ; dump textures to mods/textures/dump/
 ReplaceTextures=1     ; enable texture replacement
-EnableLogging=1       ; write d3d9.log
+EnableLogging=0       ; write d3d9.log
 NativeTextureSize=1   ; load hi-res textures at native size
 
 [FastForward]
