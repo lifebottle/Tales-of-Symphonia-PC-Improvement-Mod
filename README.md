@@ -46,7 +46,7 @@ A drop-in `d3d9.dll` proxy for the Steam release of *Tales of Symphonia*. Works 
 
 ## Configuration
 
-`d3d9_config.ini` is created on first run. Restart the game after editing.
+`d3d9_config.ini` is created on first run. Values are read on launch, a restart is required for changes to take effect.
 
 ```ini
 [TextureProxy]
@@ -63,6 +63,9 @@ SpeedStep=2           ; speed increase/decrease step size
 MaxSpeed=10           ; max speed multiplier
 DisableVSync=0        ; V-Sync is always disabled above 1x speed
 ```
+
+More options are covered in [patches/README.md](patches/README.md).
+An example config is provided as `d3d9_config.example.ini`.
 
 ## Supported texture formats
 
