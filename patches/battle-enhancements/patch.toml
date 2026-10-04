@@ -1,7 +1,7 @@
 # CE-style source is the authoritative patch definition.
 format = 1
 id = "battle-enhancements"
-version = "1.6.4"
+version = "1.6.5"
 config_section = "BattleEnhancements"
 image_base = 0x400000
 image_size = 0x2b01000
@@ -85,3 +85,21 @@ max_exclusive = 4
 key = "AlwaysAllowSpellCancel"
 [[scripts]]
 file = "AlwaysAllowSpellCancel.asm"
+
+# A single numeric setting; zero leaves the native camera hook untouched.
+[[features]]
+key = "CameraDistance"
+enable_above = 0
+[[scripts]]
+file = "MinCameraDistance.asm"
+feature = "CameraDistance"
+writable = ["camera_settings"]
+[[parameters]]
+key = "MinCameraDistance"
+feature = "CameraDistance"
+script = "MinCameraDistance"
+symbol = "camera_distance"
+integer = true
+default = 0
+min = 0
+max_exclusive = 101

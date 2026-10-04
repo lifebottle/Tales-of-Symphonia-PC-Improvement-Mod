@@ -40,14 +40,15 @@ FastBlockPush=1
 
 | Option | Notes |
 |--------|-------|
-| `ArtesSphere` | Enabled automatically by New Free Run and Manual Over Limit |
+| `AlwaysAllowSpellCancel` | Removes the arte usage requirement for spell canceling that was introduced in Chronicles |
+| `ArtesSphere` | Adds a second set of assignable artes |
 | `FreeRun` | Hold LT to free run |
 | `FreeRunMovementPenalty` | (0 to <1, default 0.20) is subtracted from movement speed when free running |
 | `ManualOverLimit` | Press RT to trigger when conditions are met. Also prevents the victory drain |
+| `MinCameraDistance` | Keeps the camera from zooming in past a certain distance |
 | `OverLimitGauge` | Damage-based gauge gain, drawn with the game's own HUD code. Works independently |
 | `SpellQueueFix` | Allow spells to be cast in the order that they are ready |
 | `NoSpellPause` | Disables spell pause |
-| `AlwaysAllowSpellCancel` | Removes the arte usage requirement for spell canceling that was introduced in Chronicles |
 | `PartySpellSlots` | 1-4 concurrent party casts |
 | `EnemySpellSlots` | 1-3 concurrent enemy casts |
 
