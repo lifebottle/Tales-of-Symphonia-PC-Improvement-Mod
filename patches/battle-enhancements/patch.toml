@@ -1,7 +1,7 @@
 # CE-style source is the authoritative patch definition.
 format = 1
 id = "battle-enhancements"
-version = "1.6.6"
+version = "1.6.7"
 config_section = "BattleEnhancements"
 image_base = 0x400000
 image_size = 0x2b01000
