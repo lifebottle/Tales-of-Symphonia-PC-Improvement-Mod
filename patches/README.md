@@ -46,7 +46,7 @@ FastBlockPush=1
 | `ManualOverLimit` | Press RT to trigger when conditions are met. Also prevents the victory drain |
 | `OverLimitGauge` | Damage-based gauge gain, drawn with the game's own HUD code. Works independently |
 | `SpellQueueFix` | Allow spells to be cast in the order that they are ready |
-| `NoSpellPause` | Disables spell pause (EXPERIMENTAL) |
+| `NoSpellPause` | Disables spell pause |
 | `PartySpellSlots` | 1-4 concurrent party casts |
 | `EnemySpellSlots` | 1-3 concurrent enemy casts |
 
