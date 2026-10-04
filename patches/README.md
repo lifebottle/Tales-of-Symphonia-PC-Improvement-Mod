@@ -44,12 +44,13 @@ FastBlockPush=1
 | `ArtesSphere` | Adds a second set of assignable artes |
 | `FreeRun` | Hold LT to free run |
 | `FreeRunMovementPenalty` | (0 to <1, default 0.20) is subtracted from movement speed when free running |
-| `MinCameraDistance` | (1 - 100; 0 = disabled) Keeps the camera from zooming in past a certain distance |
+| `MinCameraDistance` | (1 - 100, 0 = disabled) Keeps the camera from zooming in past a certain distance |
 | `NoCameraRotationDuringFreeRun` | Disables camera rotation during free run, use with MinCameraDistance |
-| `ManualOverLimit` | Press RT to trigger when conditions are met. Also prevents the victory drain |
+| `ManualOverLimit` | Press RT to trigger over limit |
 | `OverLimitGauge` | Damage-based gauge gain, drawn with the game's own HUD code. Works independently |
 | `SpellQueueFix` | Allow spells to be cast in the order that they are ready |
 | `NoSpellPause` | Disables spell pause |
+| `NoMysticArteReqs` | Disables weapon and story requirements for Lloyd, Zelos, Kratos, Presea, and Regal MA's. Change Lloyd's low HP requirement to an OVL requirement |
 | `PartySpellSlots` | 1-4 concurrent party casts |
 | `EnemySpellSlots` | 1-3 concurrent enemy casts |
 
