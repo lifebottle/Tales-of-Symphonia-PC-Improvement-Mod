@@ -352,6 +352,12 @@ e47_originalcode:
   push esi
   xor ebx,ebx
   mov [e47_chr_freerun],ebx
+  // The optional camera hook follows actor zero. Refresh only its state so
+  // later party/enemy updates cannot overwrite it; release/ineligibility clears it.
+  test eax,eax
+  jne camera_state_cleared
+  mov [freerun_mem],ebx
+camera_state_cleared:
   mov ebx,eax
   mov eax,[eax*0x4+TOS.exe+0x6D37A8]
   movzx ecx,dl
@@ -375,6 +381,10 @@ e47_StateCheck:
   or byte ptr [FreeRunActive],dl
   mov dl,byte ptr [edi+0x1321]
   mov DWORD PTR [e47_chr_freerun],0x1
+  test ebx,ebx
+  jne camera_state_updated
+  mov dword ptr [freerun_mem],1
+camera_state_updated:
   movzx eax, WORD PTR [ebx*0x4+TOS.exe+0x6D37AA]
   cmp al,0x00
   jle e47_death
