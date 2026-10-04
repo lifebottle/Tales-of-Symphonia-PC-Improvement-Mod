@@ -86,6 +86,7 @@ This section is for quality of life enhancements.
 
 | Option | Notes |
 |--------|-------|
+| `EnableVoicedSkits` | Enables Japanese dub for skits when playing in English |
 | `SkippableFMVs` | Allows skipping story cutscenes and the end credits |
 | `FastText` | Hold B to skip dialogue |
 | `EnhancedHolyBottles` | Walk through enemies when holy bottle is active, hold B to temporarily disable |
