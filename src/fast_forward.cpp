@@ -21,8 +21,8 @@ std::mutex inputMutex;
 std::once_flag initOnce;
 std::atomic<bool> installed{false};
 std::atomic<unsigned> currentSpeed{1};
-int increaseHotkey = VK_F6;
-int decreaseHotkey = VK_F7;
+int increaseHotkey = VK_F10;
+int decreaseHotkey = VK_F9;
 int speedStep = 2;
 int maxSpeed = 10;
 bool disableVSyncAtNormalSpeed = false;
@@ -124,17 +124,17 @@ void Init(const std::wstring& basePath) {
         const bool enabled = Setting(path, L"Enabled", L"1") != L"0";
         wchar_t* end = nullptr;
 
-        const auto increaseKey = Setting(path, L"IncreaseKey", L"0x75");
+        const auto increaseKey = Setting(path, L"IncreaseKey", L"0x79");
         const auto parsedIncreaseKey = std::wcstoul(increaseKey.c_str(), &end, 0);
         if (end != increaseKey.c_str() && AtEnd(end) && parsedIncreaseKey >= 1 && parsedIncreaseKey <= 254)
             increaseHotkey = static_cast<int>(parsedIncreaseKey);
-        else LOG("[FastForward] Invalid IncreaseKey; using F6");
+        else LOG("[FastForward] Invalid IncreaseKey; using F10");
 
-        const auto decreaseKey = Setting(path, L"DecreaseKey", L"0x76");
+        const auto decreaseKey = Setting(path, L"DecreaseKey", L"0x78");
         const auto parsedDecreaseKey = std::wcstoul(decreaseKey.c_str(), &end, 0);
         if (end != decreaseKey.c_str() && AtEnd(end) && parsedDecreaseKey >= 1 && parsedDecreaseKey <= 254)
             decreaseHotkey = static_cast<int>(parsedDecreaseKey);
-        else LOG("[FastForward] Invalid DecreaseKey; using F7");
+        else LOG("[FastForward] Invalid DecreaseKey; using F9");
 
         const auto speedStepString = Setting(path, L"SpeedStep", L"2");
         const auto parsedSpeedStep = std::wcstoul(speedStepString.c_str(), &end, 0);

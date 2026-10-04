@@ -6,7 +6,7 @@ A drop-in `d3d9.dll` proxy for the Steam release of *Tales of Symphonia*. Works 
 
 - **Multiple TLFile mods, no repacking.** Every subfolder of `mods/tlfile/` is loaded on top of the stock data. Later folders override earlier ones (alphabetical order). The I/O buffer is also raised to 1 GB so large modded files load.
 - **Texture replacement.** TSFix-compatible: existing TSFix packs work without renaming. Drop DDS files in `mods/textures/replace/` (nested pack folders are fine). Press **F5** in-game to reload them.
-- **Fast-forward.** Press **F6** to increase speed and **F7** to decrease. Step size and max speed are configurable. A label in the upper-right shows the current speed.
+- **Fast-forward.** Press **F10** to increase speed and **F9** to decrease. Step size and max speed are configurable. A label in the upper-right shows the current speed.
 - **Patch scripts.** Optional patch packages (battle enhancements, debug options, QoL) in `mods/asm/`, no Cheat Engine needed. See [patches](patches/README.md).
 
 ## Installation
@@ -34,8 +34,8 @@ A drop-in `d3d9.dll` proxy for the Steam release of *Tales of Symphonia*. Works 
 | Key | Action |
 |-----|--------|
 | **F5** | Reload replacement textures |
-| **F6** | Cycle fast-forward speed |
-| **F7** | Return to normal speed |
+| **F10** | Cycle fast-forward speed |
+| **F9** | Return to normal speed |
 
 ## Fast-forward notes
 
@@ -57,8 +57,8 @@ NativeTextureSize=1   ; load hi-res textures at native size
 
 [FastForward]
 Enabled=1
-IncreaseKey=0x75      ; increase speed (F6)
-DecreaseKey=0x76      ; decrease speed (F7)
+IncreaseKey=0x79      ; increase speed (F10)
+DecreaseKey=0x78      ; decrease speed (F9)
 SpeedStep=2           ; speed increase/decrease step size
 MaxSpeed=10           ; max speed multiplier
 DisableVSync=0        ; V-Sync is always disabled above 1x speed
