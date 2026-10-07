@@ -956,9 +956,12 @@ projectile_write_done:
   popfd
   jmp TOS.exe+0x6e7a3
 
-// Texture ownership groups for new slots are distinct from existing game groups.
+// Slot 2 must not share release group 114 with the monster HUD textures.
+// Keep its native texture IDs; only slots 6-9 need private texture ID ranges.
 texture_tag_load:
   mov eax, [ebp-0x128]
+  cmp eax, #2
+  je texture_tag_private
   cmp eax, #6
   jb texture_tag_native
 // Texture IDs 0x0D00000C/0D already belong to the shared battle atlas.
@@ -967,6 +970,7 @@ texture_tag_load:
   sub edx, #6
   shl edx, #8
   add edx, 0x53520000
+texture_tag_private:
   add eax, 0x53510000
   jmp TOS.exe+0x6e4bc
 texture_tag_native:
@@ -974,8 +978,11 @@ texture_tag_native:
   jmp TOS.exe+0x6e4bc
 texture_tag_release:
   movzx edx, byte ptr [ebp+#8]
+  cmp edx, #2
+  je texture_release_private
   cmp edx, #6
   jb texture_release_native
+texture_release_private:
   add edx, 0x53510000
   jmp TOS.exe+0x6dffd
 texture_release_native:
@@ -4098,8 +4105,11 @@ mm_load_common:
     mov [esp+#44],eax
     mov edx,edi
     add edx,#112
+    cmp edi,#2
+    je mm_tag_private
     cmp edi,#6
     jb mm_tag_ready
+mm_tag_private:
     lea edx,[edi+0x53510000]
 mm_tag_ready:
     mov [esp+#48],edx
