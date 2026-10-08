@@ -70,3 +70,9 @@ key = "EnableVoicedSkits"
 
 [[scripts]]
 file = "EnableVoicedSkits.asm"
+
+[[features]]
+key = "DisableBackgroundPause"
+
+[[scripts]]
+file = "DisableBackgroundPause.asm"
