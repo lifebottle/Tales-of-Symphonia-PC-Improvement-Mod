@@ -15,8 +15,7 @@ A drop-in `d3d9.dll` proxy for the Steam release of *Tales of Symphonia*. Works 
 2. Copy any patch packages you want into `mods/asm/`. Keep each package's `patch.toml` and all its `.asm` files together.
 3. Put TLFile mods in `mods/tlfile/<mod name>/`. Each folder needs **both** `FILEHEADER.TOFHDB` and `TLFILE.TLDAT`.
 4. Put texture packs in `mods/textures/replace/`.
-5. **Proton only:** set the launch option `WINEDLLOVERRIDES="d3d9=n,b" %command%`.
-6. Run the game.
+5. Run the game.
 
 ```
 <game_dir>/
@@ -29,20 +28,13 @@ A drop-in `d3d9.dll` proxy for the Steam release of *Tales of Symphonia*. Works 
     └── tlfile/<mod>/FILEHEADER.TOFHDB + TLFILE.TLDAT
 ```
 
-## Controls
+## Default Controls
 
 | Key | Action |
 |-----|--------|
 | **F5** | Reload replacement textures |
-| **F10** | Cycle fast-forward speed |
-| **F9** | Return to normal speed |
-
-## Fast-forward notes
-
-- Starts **off** every launch. Losing window focus turns it off.
-- Speeds up everything, menus included. It does not auto-advance dialogue.
-- Audio and movie sync are not corrected, so expect drift at high speeds.
-- Driver or overlay frame caps can limit the speed you actually get.
+| **F9** | Increase game speed |
+| **F10** | Decrease game speed |
 
 ## Configuration
 
@@ -52,7 +44,7 @@ A drop-in `d3d9.dll` proxy for the Steam release of *Tales of Symphonia*. Works 
 [TextureProxy]
 DumpTextures=0        ; dump textures to mods/textures/dump/
 ReplaceTextures=1     ; enable texture replacement
-EnableLogging=0       ; write d3d9.log
+EnableLogging=0       ; verbose per-texture logging to d3d9.log
 NativeTextureSize=1   ; load hi-res textures at native size
 
 [FastForward]
@@ -61,7 +53,7 @@ IncreaseKey=0x79      ; increase speed (F10)
 DecreaseKey=0x78      ; decrease speed (F9)
 SpeedStep=2           ; speed increase/decrease step size
 MaxSpeed=10           ; max speed multiplier
-DisableVSync=0        ; V-Sync is always disabled above 1x speed
+DisableVSync=0        ; disable v-sync at 1x speed
 ```
 
 More options are covered in [patches/README.md](patches/README.md).
@@ -94,4 +86,4 @@ cmake -S . -B build -A Win32
 cmake --build build --config Release --target d3d9
 ```
 
-Output: `build/d3d9.dll`. Patch packages are not copied into the build; take them from `patches/` in the repo.
+Output: `build/d3d9.dll`.
