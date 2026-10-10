@@ -46,11 +46,6 @@ file = "SpellQueueFix.asm"
 writable = ["QueueList"]
 
 [[features]]
-key = "NoSpellPause"
-[[scripts]]
-file = "NoSpellPause.asm"
-
-[[features]]
 key = "SpellSlots"
 enable_above = 1
 
