@@ -4,13 +4,13 @@
 
 #include "texture_manager.h"
 #include "dds_loader.h"
+#include "long_path.h"
 #include "logger.h"
 
 #include <windows.h>
 #include <cstdio>
 #include <cwchar>
 #include <algorithm>
-#include <filesystem>
 
 TextureManager::TextureManager()
     : m_dumpEnabled(false)
@@ -97,37 +97,72 @@ void TextureManager::EnsureDirectories() {
 }
 
 bool TextureManager::ScanReplacements() {
-    namespace fs = std::filesystem;
     std::unordered_map<uint32_t, std::wstring> paths;
 
     int count = 0;
     std::error_code ec;
 
-    fs::recursive_directory_iterator it(m_replacePath, ec), end;
-    for (; !ec && it != end; it.increment(ec)) {
-        const auto& entry = *it;
-        const bool regular = entry.is_regular_file(ec);
-        if (ec)
-            break;
-        if (!regular)
-            continue;
-
-        // Case-insensitive .dds extension check
-        std::wstring ext = entry.path().extension().wstring();
-        if (_wcsicmp(ext.c_str(), L".dds") != 0)
-            continue;
-
-        // Parse stem as hex CRC32: "A1B2C3D4"
-        std::wstring stem = entry.path().stem().wstring();
-        uint32_t crc32 = 0;
-        if (swscanf(stem.c_str(), L"%X", &crc32) == 1) {
-            paths[crc32] = entry.path().wstring();
-            count++;
-        }
+    const std::wstring scanPath = ExtendedFilePath(m_replacePath, ec);
+    if (ec) {
+        LOG("[TexMgr] Cannot resolve replacement path \"%ls\": %s (code=%d)",
+            m_replacePath.c_str(), ec.message().c_str(), ec.value());
+        return false;
     }
 
+    // Use Win32 enumeration directly: CRT-backed filesystem implementations
+    // can still reject extended-length paths during traversal or file status.
+    const auto scanDirectory = [&](const auto& self, const std::wstring& directory) -> void {
+        WIN32_FIND_DATAW data{};
+        HANDLE handle = FindFirstFileW((directory + L"\\*").c_str(), &data);
+        if (handle == INVALID_HANDLE_VALUE) {
+            const DWORD error = GetLastError();
+            if (error != ERROR_FILE_NOT_FOUND) // An empty directory is valid.
+                ec = std::error_code(error, std::system_category());
+            return;
+        }
+        struct FindGuard {
+            HANDLE handle;
+            ~FindGuard() { FindClose(handle); }
+        } guard{handle};
+
+        do {
+            if (wcscmp(data.cFileName, L".") == 0 || wcscmp(data.cFileName, L"..") == 0)
+                continue;
+
+            const std::wstring path = directory + L"\\" + data.cFileName;
+            if (data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
+                // Match the previous scanner's default: do not follow directory
+                // links, which could introduce cycles or leave the replace tree.
+                if (!(data.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT))
+                    self(self, path);
+                if (ec)
+                    return;
+                continue;
+            }
+
+            const std::wstring filename = data.cFileName;
+            const size_t dot = filename.find_last_of(L'.');
+            if (dot == std::wstring::npos || _wcsicmp(filename.c_str() + dot, L".dds") != 0)
+                continue;
+
+            const std::wstring stem = filename.substr(0, dot);
+            uint32_t crc32 = 0;
+            if (swscanf(stem.c_str(), L"%X", &crc32) == 1) {
+                paths[crc32] = path;
+                count++;
+            }
+        } while (FindNextFileW(handle, &data));
+
+        const DWORD error = GetLastError();
+        if (error != ERROR_NO_MORE_FILES)
+            ec = std::error_code(error, std::system_category());
+    };
+    scanDirectory(scanDirectory, scanPath);
+
     if (ec) {
-        LOG("[TexMgr] Replacement scan failed: %s; keeping previous textures", ec.message().c_str());
+        LOG("[TexMgr] Replacement scan failed under \"%ls\": %s "
+            "(code=%d); keeping previous textures",
+            scanPath.c_str(), ec.message().c_str(), ec.value());
         return false;
     }
     m_replacementPaths.swap(paths);
@@ -160,9 +195,9 @@ std::wstring TextureManager::GetReplacementPath(uint32_t crc32) const {
     if (it != m_replacementPaths.end())
         return it->second;
     // Fallback to root replace folder
-    wchar_t filename[MAX_PATH];
-    swprintf(filename, MAX_PATH, L"%s\\%08X.dds", m_replacePath.c_str(), crc32);
-    return filename;
+    wchar_t filename[13]; // Eight hex digits, ".dds", and terminating null.
+    swprintf(filename, 13, L"%08X.dds", crc32);
+    return m_replacePath + L"\\" + filename;
 }
 
 void TextureManager::DumpTexture(uint32_t crc32, IDirect3DTexture9* pTexture) {

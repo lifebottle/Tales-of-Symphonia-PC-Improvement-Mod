@@ -6,6 +6,8 @@
 
 #include "dds_loader.h"
 #include "logger.h"
+#include "long_path.h"
+#include <cerrno>
 #include <cstdio>
 #include <cstring>
 #include <vector>
@@ -126,10 +128,19 @@ HRESULT LoadDDSTexture(IDirect3DDevice9* pDevice,
 
     *ppTexture = nullptr;
 
-    // Open file - use _wfopen for wide path support (works on both Windows and Wine)
-    FILE* f = _wfopen(filePath, L"rb");
+    std::error_code ec;
+    const std::wstring extendedPath = ExtendedFilePath(filePath, ec);
+    if (ec) {
+        LOG("[DDS] Cannot resolve path \"%ls\": %s (code=%d)",
+            filePath, ec.message().c_str(), ec.value());
+        return E_FAIL;
+    }
+
+    FILE* f = _wfopen(extendedPath.c_str(), L"rb");
     if (!f) {
-        LOG("[DDS] Cannot open file");
+        const int error = errno;
+        LOG("[DDS] Cannot open \"%ls\" (errno=%d)",
+            extendedPath.c_str(), error);
         return E_FAIL;
     }
 
