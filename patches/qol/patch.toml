@@ -76,3 +76,21 @@ key = "DisableBackgroundPause"
 
 [[scripts]]
 file = "DisableBackgroundPause.asm"
+
+[[features]]
+key = "MenuOverflowFix"
+
+[[scripts]]
+file = "MenuOverflowFix.asm"
+
+[[features]]
+key = "SaveAnywhere"
+
+[[scripts]]
+file = "SaveAnywhere.asm"
+
+[[features]]
+key = "DisablePartyReqs"
+
+[[scripts]]
+file = "DisablePartyReqs.asm"

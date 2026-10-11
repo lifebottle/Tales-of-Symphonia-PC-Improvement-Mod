@@ -34,6 +34,9 @@ RheairdMoveSpeedMultiplier=2.0
 RheairdTurnSpeedMultiplier=2.5
 FastBlockPush=1
 DisableBackgroundPause=0
+MenuOverflowFix=0
+SaveAnywhere=0
+DisablePartyReqs=0
 ```
 
 
@@ -95,6 +98,9 @@ This section is for quality of life enhancements.
 | `RheairdTurnSpeedMultiplier` | Multiplies turn speed of Rheaird by this value |
 | `FastBlockPush` | Push/pull blocks faster |
 | `DisableBackgroundPause` | Prevents the game from pausing when the window is inactive |
+| `MenuOverflowFix` | Fixes the menu overflow glitch that occurs in the artes menu |
+| `SaveAnywhere` | Enables the ability to save without a memory circle |
+| `DisablePartyReqs` | Disables the requirement for certain characters to be in the party for a fight |
 
 ## Debug
 
