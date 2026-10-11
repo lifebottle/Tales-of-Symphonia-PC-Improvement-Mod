@@ -80,3 +80,8 @@ file = "SaveAnywhere.asm"
 # key = "DisablePartyReqs"
 # [[scripts]]
 # file = "DisablePartyReqs.asm"
+
+[[features]]
+key = "ForceControllerDisplay"
+[[scripts]]
+file = "ForceControllerDisplay.asm"

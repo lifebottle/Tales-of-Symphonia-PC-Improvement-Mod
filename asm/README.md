@@ -37,6 +37,7 @@ DisableBackgroundPause=0
 MenuOverflowFix=0
 SaveAnywhere=0
 DisablePartyReqs=0
+ForceControllerDisplay=0
 ```
 
 
@@ -100,6 +101,7 @@ This section is for quality of life enhancements.
 | `MenuOverflowFix` | Fixes the menu overflow glitch that occurs in the artes menu |
 | `SaveAnywhere` | Enables the ability to save without a memory circle |
 | `DisablePartyReqs` | Disables the requirement for certain characters to be in the party for a fight |
+| `ForceControllerDisplay` | Forces the controller inputs to always display |
 
 ## Debug
 
