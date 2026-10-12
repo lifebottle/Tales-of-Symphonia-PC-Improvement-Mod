@@ -4,11 +4,12 @@
 #include <atomic>
 #include <memory>
 
-namespace FastForward {
+namespace DisplayMode {
 
-// Owns an Ex interface reference, but never changes the game's parameters.
-// BeginFrame/Update bracket rendering. Cross-thread changes are dispatched to
-// the device creation thread's message loop and applied between frames.
+void Init();
+
+// Handles VSync changes between frames on the device creation thread.
+// The proxy calls BeginFrame/Update around rendering and OnGameReset after a reset.
 class Presentation {
 public:
     Presentation() = default;
@@ -21,7 +22,7 @@ public:
     HRESULT BeginFrame();
     HRESULT Update(bool immediate);
     HRESULT PendingFailure() const { return failure_.load(); }
-    bool IsResetting() const { return resetting_.load() && GetCurrentThreadId() == thread_; }
+    bool IsResetting() const;
 
 private:
     struct Dispatch;
@@ -38,11 +39,9 @@ private:
     bool blocked_ = false;
     bool frameActive_ = false;
     bool pauseRequested_ = false;
-    bool messageQueued_ = false;
     bool immediate_ = false;
     bool deferredLogged_ = false;
-    std::atomic<bool> resetting_{false};
     std::atomic<HRESULT> failure_{D3D_OK};
 };
 
-} // namespace FastForward
+} // namespace DisplayMode

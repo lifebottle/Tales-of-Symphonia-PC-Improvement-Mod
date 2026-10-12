@@ -27,14 +27,14 @@ add_library(d3d9 SHARED
     src/patch_runtime.cpp
     src/patch_host.cpp
     src/archive_loader.cpp
+    src/display_mode.cpp
     src/fast_forward.cpp
     src/fast_forward_overlay.cpp
-    src/fast_forward_presentation.cpp
     d3d9.def
 )
 
 target_include_directories(d3d9 PRIVATE src)
-target_link_libraries(d3d9 PRIVATE patch_compiler)
+target_link_libraries(d3d9 PRIVATE patch_compiler asmjit::asmjit)
 
 # DO NOT link against d3d9.lib — it creates a circular import dependency
 # since our output IS d3d9.dll. All real d3d9 functions are loaded at runtime

@@ -137,6 +137,8 @@ HRESULT STDMETHODCALLTYPE Direct3D9ExProxy::EnumAdapterModesEx(UINT Adapter, CON
 }
 
 HRESULT STDMETHODCALLTYPE Direct3D9ExProxy::GetAdapterDisplayModeEx(UINT Adapter, D3DDISPLAYMODEEX* pMode, D3DDISPLAYROTATION* pRotation) {
+    if (pMode)
+        pMode->Size = sizeof(D3DDISPLAYMODEEX);
     return m_pOriginal->GetAdapterDisplayModeEx(Adapter, pMode, pRotation);
 }
 
@@ -149,8 +151,13 @@ HRESULT STDMETHODCALLTYPE Direct3D9ExProxy::CreateDeviceEx(
     LOG("[D3D9Ex] CreateDeviceEx called (Adapter=%u)", Adapter);
 
     IDirect3DDevice9Ex* pRealDeviceEx = nullptr;
+    D3DDISPLAYMODEEX* fullscreenMode =
+        pPresentationParameters && pPresentationParameters->Windowed
+            ? nullptr
+            : pFullscreenDisplayMode;
+
     HRESULT hr = m_pOriginal->CreateDeviceEx(Adapter, DeviceType, hFocusWindow,
-        BehaviorFlags, pPresentationParameters, pFullscreenDisplayMode, &pRealDeviceEx);
+        BehaviorFlags, pPresentationParameters, fullscreenMode, &pRealDeviceEx);
     if (FAILED(hr) || !pRealDeviceEx) {
         LOG("[D3D9Ex] Real CreateDeviceEx failed: 0x%08X", hr);
         return hr;

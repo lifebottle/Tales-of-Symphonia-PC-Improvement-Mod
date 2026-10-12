@@ -3,6 +3,7 @@
 #include "logger.h"
 #include <windows.h>
 #include <cstring>
+#include <algorithm>
 #include <exception>
 #include <mutex>
 
@@ -55,4 +56,15 @@ const TOSPatchAPI api{sizeof(TOSPatchAPI),TOS_PATCH_API_VERSION,ValidateFile,App
 }
 extern "C" const TOSPatchAPI* TOS_PATCH_CALL TOSPatchGetAPI(uint32_t version) {
     return version==TOS_PATCH_API_VERSION ? &api : nullptr;
+}
+
+namespace PatchFramework {
+bool InstallBuiltin(const Definition& definition, std::string& error) {
+    std::lock_guard<std::mutex> lock(sessionMutex);
+    uint8_t* image = nullptr;
+    size_t size = 0;
+    if (!ProcessImage(image, size, error)) return false;
+    if (!Install(session, definition, image, size, {1, {}}, error)) return false;
+    return std::find(session.installed.begin(), session.installed.end(), definition.id) != session.installed.end();
+}
 }

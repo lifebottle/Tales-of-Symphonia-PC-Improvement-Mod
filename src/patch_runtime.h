@@ -51,5 +51,7 @@ uint32_t Dependencies(const Definition& definition, uint32_t requested);
 Options ReadOptions(const Definition& definition, const std::wstring& ini);
 bool Install(Session& session, const Definition& definition, uint8_t* image, size_t imageSize,
              const Options& options, std::string& error);
+// Built-in hooks share the host session with external patch packages.
+bool InstallBuiltin(const Definition& definition, std::string& error);
 bool ProcessImage(uint8_t*& image, size_t& imageSize, std::string& error);
 }
