@@ -28,6 +28,7 @@ assert(TOS.exe+0x2727b,F6 83 90 02 00 00 10)
 [ENABLE]
 
 define(SpellHold,TOS.exe+26B13)
+define(SelfSpellCasted,TOS.exe+27226)
 define(SpellTimer,TOS.exe+27228)
 define(QueueCapacityResult,TOS.exe+27245)
 define(BattleEnd,TOS.exe+67DBA)
@@ -154,6 +155,9 @@ SpellHold:
     jmp Mem_SpellHold
     nop E
 Ret_SpellHold:
+
+SelfSpellCasted:
+	nop 2
 
 SpellTimer:
     jmp TOS.exe+2724F

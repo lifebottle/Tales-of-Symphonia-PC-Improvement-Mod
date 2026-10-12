@@ -150,34 +150,38 @@ e757_newmem:
 // player dmg gain ol
 mem_payload_e757_newmem:
 e757_originalcode:
-  push eax
-  mov al,[esi+0x1322]
-  and al,0x0F
-  cmp al,0x0
-  jle e757_nocap
-  mov al,[esi+0x1321]
-  test al,0x80
-  jne e757_nocap
-  mov ax,[esi+0x134c]
-  movzx eax,ax
-  push ebx
-  mov bx,[ecx+0x0E]
-  movzx ebx,bx
-  cmp ebx,0x0
-  je e757_base_atk
-  push eax
-  mov eax,ebx
-  mov ebx,[e757_div_value]
+	push eax
+	mov al,[esi+0x1322]
+	and al,0x0F
+	cmp al,0x0
+	jle e757_nocap
+	mov al,[esi+0x1321]
+	test al,0x80
+	jne e757_nocap
+	mov ax,[esi+0x134c]
+	movzx eax,ax
+	push ebx
+	mov bx,[ecx+0x0E]
+	movzx ebx,bx
+	cmp ebx,0x0
+	je e757_base_atk
+	push eax
+	mov eax,ebx
+	cmp eax,[max_value]
+	cmovg eax,[max_value]
+	cmp eax,#100
+	cmovge ebx,[div_value2]
+	cmovl ebx,[e757_div_value]
 // Unsigned division consumes EDX:EAX; preserve the game's EDX.
-  push edx
-  xor edx, edx
-  div ebx
-  pop edx
-  mov ebx,eax
-  pop eax
-  cmp ebx,[e757_min_value]
-  jl e757_base_atk
-  jmp e757_afterbase
+	push edx
+	xor edx,edx
+	div ebx
+	pop edx
+	mov ebx,eax
+	pop eax
+	cmp ebx,[e757_min_value]
+	jl e757_base_atk
+	jmp e757_afterbase
 e757_base_atk:
   mov ebx,[e757_min_value]
 e757_afterbase:
@@ -196,10 +200,14 @@ e757_nocap:
   jne TOS.exe+0x64571
 e757_exit:
   jmp e757_returnhere
+div_value2:
+	dd 30
 e757_div_value:
-  dd 0x8
+	dd 0x8
 e757_min_value:
-  dd 0x0A
+	dd 0x0A
+max_value:
+	dd #800
 
 // player dmg gain ol
 TOS.exe+0x6455c:
