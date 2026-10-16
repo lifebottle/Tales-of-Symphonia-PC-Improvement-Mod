@@ -1,0 +1,41 @@
+format = 1
+id = "KoQoL"
+version = "1.0.0"
+config_section = "KoQol"
+image_base = 0x400000
+image_size = 0x2b01000
+
+[[features]]
+key = "Displaypara"
+
+[[features]]
+key = "Subtitles"
+
+[[features]]
+key = "Costume"
+
+[[features]]
+key = "Subpos"
+
+[[features]]
+key = "ShadowScale"
+
+[[scripts]]
+file = "ShadowScale.asm"
+writable = ["mem_shadow_settings"]
+
+[[scripts]]
+file = "Subpos.asm"
+writable = []
+
+[[scripts]]
+file = "Costume.asm"
+writable = ["mem_cos_data"]
+
+[[scripts]]
+file = "Displaypara.asm"
+writable = ["mem_boost_data"]
+
+[[scripts]]
+file = "Subtitles.asm"
+writable = ["mem_sub_flag"]

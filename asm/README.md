@@ -119,6 +119,49 @@ options in `d3d9_config.ini`:
 | `DebugMapLoader` | Press Start to open debug map loader, requires companion TLFile for English translation |
 | `DrawSkitID` | Draws the current skit ID on the bottom-left of the screen, maps to debug map skit loader |
 
+## KoQoL
+
+Quality-of-life improvements, menu additions, and visual enhancements.
+
+| Option | Notes |
+|--------|-------|
+| `Displaypara` | Displays level-up parameter bonuses when selecting titles |
+| `Subtitles` | Adds a subtitles ON/OFF option to the settings menu |
+| `Costume` | Allows independent costume and title selection |
+| `Subpos` | Adjusts subtitle position, size, and the background black box |
+| `ShadowScale` | Increases character shadow size in towns and dungeons |
+
+## KoCombat
+
+Battle interface improvements and additional combat mechanics.
+
+| Option | Notes |
+|--------|-------|
+| `CommandLabels` | Expands abbreviated battle command names |
+| `CommandWidths` | Adjusts command menu text widths; requires CommandLabels |
+| `MagicLens` | Displays enemy HP/TP without using a Magic Lens |
+| `MidAirArtes` | Allows selected artes to be used mid-air without Sky Cancel |
+| `MidAirChaining` | Allows chaining artes mid-air; requires MidAirArtes |
+| `EXGemMax17` | Adds a 17th EX Skill to EX Gem MAX for all party members |
+| `Unknown` | Adds Unknown difficulty with ×3 HP, ×2 Attack/Magic, and ×2 TP |
+
+## KoPartyBuff
+
+Character-specific arte adjustments, healing improvements, and balance changes.
+
+| Option | Notes |
+|--------|-------|
+| `SheenaSeals` | Increases Life Seal and Spirit Seal recovery |
+| `PurgatorySealCastTime` | Reduces Purgatory Seal casting time |
+| `SheenaElementalBuffs` | Extends elemental buffs for the entire battle |
+| `ArteLevels` | Adjusts the levels of Spirit Seal, Lightning Blade, and Ring Whirlwind |
+| `PreseaKnockback` | Reduces knockback on selected Punishment and Destruction artes |
+| `RegalHealingCastTime` | Reduces casting times for Regal's healing artes |
+| `RegalHealingRange` | Reduces distance penalties for Healer and Grand Healer |
+| `RegalChiHealerRevive` | Allows Chi Healer to heal and revive fallen allies |
+| `ColetteHolySongHeal` | Holy Song additionally restores 20% of Max HP to allies |
+| `ChargeTPRecovery` | Charge restores 5% of the target's Max TP |
+
 ## Troubleshooting
 
 Check `d3d9.log`.

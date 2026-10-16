@@ -1,0 +1,58 @@
+
+format = 1
+id = "KoCombat"
+version = "1.0.0"
+config_section = "KoCombat"
+image_base = 0x400000
+image_size = 0x2b01000
+
+[[features]]
+key = "CommandLabels"
+
+[[features]]
+key = "CommandWidths"
+requires = ["CommandLabels"]
+
+[[features]]
+key = "MagicLens"
+
+[[scripts]]
+file = "CommandLabels.asm"
+writable = []
+
+[[scripts]]
+file = "CommandWidths.asm"
+writable = []
+
+[[scripts]]
+file = "MagicLens.asm"
+writable = []
+
+[[features]]
+key = "MidAirArtes"
+
+[[scripts]]
+file = "MidAirArtes.asm"
+writable = []
+
+[[features]]
+key = "MidAirChaining"
+requires = ["MidAirArtes"]
+
+[[scripts]]
+file = "MidAirChaining.asm"
+writable = []
+
+[[features]]
+key = "EXGemMax17"
+
+[[scripts]]
+file = "EXGemMax17.asm"
+writable = []
+
+[[features]]
+key = "Unknown"
+
+[[scripts]]
+file = "Unknown.asm"
+writable = []

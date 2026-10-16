@@ -1,0 +1,76 @@
+format = 1
+id = "KoPartyBuff"
+version = "1.0.0"
+config_section = "KoPartyBuff"
+image_base = 0x400000
+image_size = 0x2b01000
+
+[[features]]
+key = "SheenaSeals"
+
+[[scripts]]
+file = "SheenaSeals.asm"
+writable = []
+
+[[features]]
+key = "PurgatorySealCastTime"
+
+[[scripts]]
+file = "PurgatorySealCastTime.asm"
+writable = []
+
+[[features]]
+key = "SheenaElementalBuffs"
+
+[[scripts]]
+file = "SheenaElementalBuffs.asm"
+writable = []
+
+[[features]]
+key = "ArteLevels"
+
+[[scripts]]
+file = "ArteLevels.asm"
+writable = []
+
+[[features]]
+key = "PreseaKnockback"
+
+[[scripts]]
+file = "PreseaKnockback.asm"
+writable = []
+
+[[features]]
+key = "RegalHealingCastTime"
+
+[[features]]
+key = "RegalHealingRange"
+
+[[features]]
+key = "RegalChiHealerRevive"
+
+[[scripts]]
+file = "RegalHealingCastTime.asm"
+writable = []
+
+[[scripts]]
+file = "RegalHealingRange.asm"
+writable = []
+
+[[scripts]]
+file = "RegalChiHealerRevive.asm"
+writable = []
+
+[[features]]
+key = "ColetteHolySongHeal"
+
+[[scripts]]
+file = "ColetteHolySongHeal.asm"
+writable = []
+
+[[features]]
+key = "ChargeTPRecovery"
+
+[[scripts]]
+file = "ChargeTPRecovery.asm"
+writable = ["mem_charge_data"]
