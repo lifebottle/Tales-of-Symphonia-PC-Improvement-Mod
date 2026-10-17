@@ -109,3 +109,9 @@ file = "NoCameraRotationDuringFreeRun.asm"
 key = "NoMysticArteReqs"
 [[scripts]]
 file = "NoMysticArteReqs.asm"
+
+[[features]]
+key = "AllowArteFamilyChaining"
+[[scripts]]
+file = "AllowArteFamilyChaining.asm"
+

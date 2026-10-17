@@ -57,6 +57,7 @@ ForceControllerDisplay=0
 | `NoSpellCancelReqs` | Removes the arte usage requirement for spell canceling that was introduced in Chronicles |
 | `PartySpellSlots` | 1-4 concurrent party casts |
 | `EnemySpellSlots` | 1-3 concurrent enemy casts |
+| `AllowArteFamilyChaining` | Allows chaining family artes together in a combo. E.g. Demon Fang -> Double Demon Fang |
 
 ### Controls
 
