@@ -12,6 +12,9 @@ Patches load from `mods/asm/*/patch.toml` beside `d3d9.dll`. Each package folder
 ### Example Config
 
 ```ini
+[60FPS]
+Enabled=0
+
 [BattleEnhancements]
 ArtesSphere=1
 FreeRun=1
@@ -40,6 +43,10 @@ DisablePartyReqs=0
 ForceControllerDisplay=0
 ```
 
+
+## 60FPS
+
+Set `Enabled=1` under `[60FPS]` to run the game at 60FPS (disabled by default). Use alongside the [60FPS Fixes TLFile mod](../tlfile/README.md#60fps-fixes) for additional arte and animation fixes.
 
 ## Battle Enhancements
 
