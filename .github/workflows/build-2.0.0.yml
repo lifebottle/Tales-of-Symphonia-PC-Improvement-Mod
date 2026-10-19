@@ -39,7 +39,7 @@ jobs:
       - name: Build
         run: bash .github/workflows/build.sh
         env:
-          _BUILD_VERSION: "1.3.0-${{ github.run_number }}"
+          _BUILD_VERSION: "2.0.0-${{ github.run_number }}"
 
       - name: Publish PR artifacts
         if: env._IS_GITHUB_RELEASE == 'false' && success()
