@@ -146,16 +146,18 @@ bool Install(Session& session, const Definition& definition, uint8_t* image, siz
     // Earlier packages keep their hooks. Drop whole conflicting features, then
     // their dependents, before checking originals or allocating anything.
     uint32_t blocked = 0;
-    auto checkConflicts = [&](uint32_t group, uint32_t rva, uint32_t count, bool write) {
+    auto checkConflicts = [&](uint32_t group, uint32_t rva, uint32_t count, bool write,
+                              const std::string& name, const SourceLocation& source) {
         const auto start = reinterpret_cast<uintptr_t>(image + rva);
         const auto end = start + count;
+        const Session::Range candidate{start, end, write, DescribeOwner(definition,group,name,source)};
         for (const auto& owned : session.ranges) {
-            if (!(write || owned.write) || start >= owned.end || owned.start >= end) continue;
+            if (!Conflicts(candidate, owned)) continue;
             for (const auto& feature : definition.features) {
                 if (!(feature.bit & group & enabled & ~blocked)) continue;
-                LOG("[Patches] %s: skipping %s; conflict with an installed package at +0x%X",
+                LOG("[Patches] %s: skipping %s; %s; installed package retains ownership",
                     definition.id.c_str(), feature.key.c_str(),
-                    static_cast<unsigned>(std::max(start, owned.start) - reinterpret_cast<uintptr_t>(image)));
+                    DescribeConflict(candidate, owned, reinterpret_cast<uintptr_t>(image)).c_str());
             }
             blocked |= group & enabled;
             break;
@@ -163,9 +165,9 @@ bool Install(Session& session, const Definition& definition, uint8_t* image, siz
     };
     for (const auto& segment : definition.segments)
         if ((segment.group & enabled) && segment.kind == Kind::Patch)
-            checkConflicts(segment.group, segment.rva, segment.count, true);
+            checkConflicts(segment.group, segment.rva, segment.count, true, segment.name, segment.source);
     for (const auto& guard : definition.guards)
-        if (guard.group & enabled) checkConflicts(guard.group, guard.rva, guard.count, false);
+        if (guard.group & enabled) checkConflicts(guard.group, guard.rva, guard.count, false, "", guard.source);
     uint32_t previous;
     do {
         previous = blocked;
@@ -190,9 +192,11 @@ bool Install(Session& session, const Definition& definition, uint8_t* image, siz
 
     std::vector<Session::Range> ranges;
     for (const auto& s:definition.segments) if ((s.group & enabled) && s.kind==Kind::Patch)
-        ranges.push_back({reinterpret_cast<uintptr_t>(image+s.rva),reinterpret_cast<uintptr_t>(image+s.rva+s.count),true});
+        ranges.push_back({reinterpret_cast<uintptr_t>(image+s.rva),reinterpret_cast<uintptr_t>(image+s.rva+s.count),true,
+                          DescribeOwner(definition,s.group,s.name,s.source)});
     for (const auto& g:definition.guards) if (g.group & enabled)
-        ranges.push_back({reinterpret_cast<uintptr_t>(image+g.rva),reinterpret_cast<uintptr_t>(image+g.rva+g.count),false});
+        ranges.push_back({reinterpret_cast<uintptr_t>(image+g.rva),reinterpret_cast<uintptr_t>(image+g.rva+g.count),false,
+                          DescribeOwner(definition,g.group,"",g.source)});
     // Reserve all ownership records before committing executable writes.
     auto ownedRanges=session.ranges;
     ownedRanges.insert(ownedRanges.end(),ranges.begin(),ranges.end());

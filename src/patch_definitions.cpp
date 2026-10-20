@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <cmath>
 #include <set>
+#include <sstream>
 namespace PatchFramework {
 namespace {
 constexpr size_t Limit = 8 * 1024 * 1024;
@@ -12,6 +13,45 @@ bool Identifier(const std::string& s) {
 }
 std::string Key(std::string s) { for(auto& c:s) if(c>='A' && c<='Z') c+=32; return s; }
 bool Range(size_t offset,size_t count,size_t size) { return offset<=size && count<=size-offset; }
+}
+bool Conflicts(const Session::Range& a, const Session::Range& b) {
+    return (a.write || b.write) && a.start < b.end && b.start < a.end;
+}
+std::string DescribeOwner(const Definition& d, uint32_t group,
+                          const std::string& name, const SourceLocation& source) {
+    std::ostringstream out;
+    out << d.id << " / ";
+    bool first = true;
+    for (const auto& f : d.features) if (f.bit & group) {
+        if (!first) out << ", ";
+        out << f.key;
+        first = false;
+    }
+    if (first) out << "unknown feature";
+    if (!source.file.empty()) {
+        out << " / " << source.file;
+        if (source.line) out << ':' << source.line;
+    }
+    if (!name.empty()) out << " (" << name << ')';
+    return out.str();
+}
+std::string DescribeConflict(const Session::Range& a, const Session::Range& b, uintptr_t imageBase) {
+    std::ostringstream out;
+    auto range = [&](uintptr_t start, uintptr_t end) {
+        out << "TOS.exe+0x" << std::hex << std::uppercase << start - imageBase
+            << "..0x" << end - imageBase - 1 << std::dec
+            << " (" << end - start << " bytes)";
+    };
+    auto site = [&](const Session::Range& r) {
+        out << r.owner << (r.write ? " [write] " : " [assertion guard] ");
+        range(r.start, r.end);
+    };
+    site(a);
+    out << "; conflicts with ";
+    site(b);
+    out << "; overlap: ";
+    range(std::max(a.start, b.start), std::min(a.end, b.end));
+    return out.str();
 }
 bool Validate(const Definition& p,std::string& error) {
     auto fail=[&](const char* s) { error=s; return false; };
@@ -50,8 +90,13 @@ bool Validate(const Definition& p,std::string& error) {
     }
     for (size_t i=0;i<p.segments.size();++i) for (size_t j=0;j<i;++j) {
         const auto &a=p.segments[i], &b=p.segments[j];
-        if (a.kind==Kind::Patch && b.kind==Kind::Patch && a.rva<b.rva+b.count && b.rva<a.rva+a.count)
-            return fail("overlapping patches within definition");
+        if (a.kind==Kind::Patch && b.kind==Kind::Patch && a.rva<b.rva+b.count && b.rva<a.rva+a.count) {
+            error = "overlapping patches within definition: " + DescribeConflict(
+                {b.rva, b.rva+b.count, true, DescribeOwner(p,b.group,b.name,b.source)},
+                {a.rva, a.rva+a.count, true, DescribeOwner(p,a.group,a.name,a.source)}) +
+                ". Package validation includes disabled features; adjust the overlapping writes.";
+            return false;
+        }
     }
     for (const auto& f:p.fixups) {
         if (f.owner>=p.segments.size() || f.target < -1 ||

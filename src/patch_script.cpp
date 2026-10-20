@@ -174,11 +174,13 @@ struct Block {
     Kind kind = Kind::Code;
     bool allocation = true, instructions = false;
     std::vector<uint8_t> bytes;
+    size_t sourceLine = 0;
 };
 struct Assertion {
     size_t script;
     Ref ref;
     std::vector<uint8_t> bytes;
+    size_t sourceLine = 0;
 };
 std::vector<uint8_t> Bytes(const std::string &s) {
     std::string h;
@@ -495,7 +497,7 @@ class Compiler {
                                           script.writable.count(Lower(args[0])) ? Kind::Data : Kind::Code,
                                           true,
                                           false,
-                                          {}});
+                                          {}, line});
                         continue;
                     }
                     if (cmd == "label" || cmd == "registersymbol") {
@@ -829,7 +831,7 @@ class Compiler {
                 if (args.size() != 2)
                     Fail("assert needs address and bytes");
                 if (!first)
-                    assertions.push_back({owner, Address(args[0]), Bytes(args[1])});
+                    assertions.push_back({owner, Address(args[0]), Bytes(args[1]), line});
                 continue;
             }
             if (text.back() == ':') {
@@ -854,7 +856,7 @@ class Compiler {
                                               Kind::Patch,
                                               false,
                                               false,
-                                              {}});
+                                              {}, line});
                             cursor.push_back(0);
                         }
                         current = row.block;
@@ -1043,7 +1045,7 @@ class Compiler {
                         if (covered[j] && expected[j] != original[j])
                             Fail("assert differs from executable");
                     expected = original;
-                    assertions.push_back({owner, {Game, b.rva}, expected});
+                    assertions.push_back({owner, {Game, b.rva}, expected, b.sourceLine});
                 }
                 if (image && image->ReadBytes(b.rva, expected.size()) != expected)
                     Fail("assert differs from executable");
@@ -1064,7 +1066,8 @@ class Compiler {
             indices[i] = int(d.segments.size());
             uint32_t count = uint32_t(b.bytes.size());
             d.segments.push_back({b.group, b.kind, b.allocation ? b.size : count, append(b.bytes), count,
-                                  b.rva, append(expected), package.scripts[owner].name + ": " + b.name});
+                                  b.rva, append(expected), package.scripts[owner].name + ": " + b.name,
+                                  {package.scripts[owner].file, b.sourceLine}});
         }
         CheckDisable();
         for (auto &g : assertions) {
@@ -1075,7 +1078,8 @@ class Compiler {
             if (image && image->ReadBytes(uint32_t(g.ref.offset), g.bytes.size()) != g.bytes)
                 Fail("assert differs from executable at +" + Hex(g.ref.offset));
             d.guards.push_back(
-                {Group(owner), uint32_t(g.ref.offset), append(g.bytes), uint32_t(g.bytes.size())});
+                {Group(owner), uint32_t(g.ref.offset), append(g.bytes), uint32_t(g.bytes.size()),
+                 {package.scripts[owner].file, g.sourceLine}});
             if (importing)
                 added[owner] += "assert(TOS.exe+" + Hex(g.ref.offset) + "," + ByteText(g.bytes) + ")\n";
         }
@@ -1112,7 +1116,7 @@ class Compiler {
             Fail("Selected scripts do not install any patches");
         std::string error;
         if (!Validate(d, error))
-            Fail(error);
+            throw std::runtime_error(error);
         if (importing)
             for (size_t i = 0; i < package.scripts.size(); ++i)
                 package.scripts[i].text = "// Original bytes verified during CT export.\n" + added[i] + "\n" +

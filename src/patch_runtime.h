@@ -8,13 +8,18 @@
 // Host-independent definition model. Installation is implemented by the Win32 backend.
 namespace PatchFramework {
 enum class Kind : uint32_t { Code, Data, Patch };
+struct SourceLocation {
+    std::string file;
+    size_t line = 0;
+};
 struct Segment {
     uint32_t group; Kind kind;
     uint32_t size, bytes, count, rva, expected;
     std::string name;
+    SourceLocation source = {};
 };
 struct Fixup { uint32_t owner, offset; int32_t target; uint32_t addend, type; };
-struct Guard { uint32_t group, rva, bytes, count; };
+struct Guard { uint32_t group, rva, bytes, count; SourceLocation source = {}; };
 struct Feature {
     uint32_t bit, dependencies;
     std::string key;
@@ -40,10 +45,21 @@ struct Options { uint32_t enabled = 0; std::vector<float> parameters; };
 // One session per target process/image. Retain it for the lifetime of installed
 // hooks. Records ownership to reject collisions, including guarded destinations.
 struct Session {
-    struct Range { uintptr_t start, end; bool write; };
+    struct Range {
+        uintptr_t start, end;
+        bool write;
+        std::string owner = {};
+    };
     std::vector<Range> ranges;
     std::vector<std::string> installed;
 };
+
+// Shared by validation and runtime; endpoints are stored exclusive, displayed inclusive.
+bool Conflicts(const Session::Range& a, const Session::Range& b);
+std::string DescribeOwner(const Definition& definition, uint32_t group,
+                          const std::string& name, const SourceLocation& source);
+std::string DescribeConflict(const Session::Range& a, const Session::Range& b,
+                             uintptr_t imageBase = 0);
 
 bool Load(const std::wstring& filename, Definition& definition, std::string& error);
 bool Validate(const Definition& definition, std::string& error);
