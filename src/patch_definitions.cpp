@@ -55,6 +55,13 @@ std::string DescribeConflict(const Session::Range& a, const Session::Range& b, u
 }
 bool Validate(const Definition& p,std::string& error) {
     auto fail=[&](const char* s) { error=s; return false; };
+    auto validOverrides = [&](const std::vector<std::string>& overrides) {
+        std::set<std::string> ids;
+        if (overrides.size() > 4096) return false;
+        for (const auto& id : overrides)
+            if (!Identifier(id) || id == p.id || !ids.insert(id).second) return false;
+        return true;
+    };
     if (!Identifier(p.id) || !Identifier(p.version) || !Identifier(p.configSection) ||
         !p.imageSize || p.imageSize>512*1024*1024 || p.features.empty() || p.features.size()>32 ||
         p.segments.empty() || p.segments.size()>4096 || p.fixups.size()>65536 ||
@@ -75,6 +82,7 @@ bool Validate(const Definition& p,std::string& error) {
     for (const auto& f:p.features) if (f.dependencies & ~bits) return fail("unknown dependency");
     size_t allocated=0;
     for (const auto& s:p.segments) {
+        if (!validOverrides(s.overrides)) return fail("invalid, duplicate, or self-referencing override");
         if (!s.group || (s.group & ~bits) || s.count>s.size || !s.size ||
             !Range(s.bytes,s.count,p.bytes.size()) || s.name.size()>1024)
             return fail("invalid segment bounds/group");
@@ -118,9 +126,11 @@ bool Validate(const Definition& p,std::string& error) {
         if (a.owner==b.owner && b.offset<a.offset+(a.type==23 ? 1 : 4))
             return fail("overlapping relocations");
     }
-    for (const auto& g:p.guards)
+    for (const auto& g:p.guards) {
+        if (!validOverrides(g.overrides)) return fail("invalid, duplicate, or self-referencing override");
         if (!g.group || (g.group & ~bits) || !g.count || !Range(g.rva,g.count,p.imageSize) ||
             !Range(g.bytes,g.count,p.bytes.size())) return fail("invalid guard");
+    }
     for (const auto& v:p.parameters) {
         if (!v.group || (v.group & ~bits) || v.segment>=p.segments.size() ||
             !Identifier(v.key) || !keys.insert(Key(v.key)).second || !std::isfinite(v.value) ||

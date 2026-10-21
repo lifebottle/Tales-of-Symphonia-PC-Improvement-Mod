@@ -104,7 +104,7 @@ This section is for quality of life enhancements.
 | `EnhancedHolyBottles` | Walk through enemies when holy bottle is active, hold B to temporarily disable |
 | `RheairdMoveSpeedMultiplier` | Multiplies move speed of Rheaird by this value |
 | `RheairdTurnSpeedMultiplier` | Multiplies turn speed of Rheaird by this value |
-| `FastBlockPush` | Push/pull blocks faster |
+| `FastBlockPush` | Push/pull blocks faster, explicitly overriding the 60fps block-speed correction when present |
 | `DisableBackgroundPause` | Prevents the game from pausing when the window is inactive |
 | `MenuOverflowFix` | Fixes the menu overflow glitch that occurs in the artes menu |
 | `SaveAnywhere` | Enables the ability to save without a memory circle |
@@ -169,6 +169,20 @@ Character-specific arte adjustments, healing improvements, and balance changes.
 | `RegalChiHealerRevive` | Allows Chi Healer to heal and revive fallen allies |
 | `ColetteHolySongHeal` | Holy Song additionally restores 20% of Max HP to allies |
 | `ChargeTPRecovery` | Charge restores 5% of the target's Max TP |
+
+## Patch overrides
+
+When two patches change the same part of the game, the loader normally skips the conflicting feature. To let a script replace another package's changes, add `overrides` under that script's entry in `patch.toml`:
+
+```toml
+[[scripts]]
+file = "FastBlockPush.asm"
+overrides = ["60fps"]
+```
+
+Use the other package's `id` from its `patch.toml`, spelled exactly the same. You can list more than one: `overrides = ["package-a", "package-b"]`. This applies only to the script listed above it. The package being overridden must load first; package folders load alphabetically.
+
+Only use this for patches intended to work together. The loader still checks that the game code matches what the script expects. Restart the game to apply changes. A log message such as `FastBlockPush overrides 60fps` confirms success.
 
 ## Troubleshooting
 

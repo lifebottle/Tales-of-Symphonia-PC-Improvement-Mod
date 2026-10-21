@@ -1067,7 +1067,7 @@ class Compiler {
             uint32_t count = uint32_t(b.bytes.size());
             d.segments.push_back({b.group, b.kind, b.allocation ? b.size : count, append(b.bytes), count,
                                   b.rva, append(expected), package.scripts[owner].name + ": " + b.name,
-                                  {package.scripts[owner].file, b.sourceLine}});
+                                  {package.scripts[owner].file, b.sourceLine}, package.scripts[owner].overrides});
         }
         CheckDisable();
         for (auto &g : assertions) {
@@ -1079,7 +1079,7 @@ class Compiler {
                 Fail("assert differs from executable at +" + Hex(g.ref.offset));
             d.guards.push_back(
                 {Group(owner), uint32_t(g.ref.offset), append(g.bytes), uint32_t(g.bytes.size()),
-                 {package.scripts[owner].file, g.sourceLine}});
+                 {package.scripts[owner].file, g.sourceLine}, package.scripts[owner].overrides});
             if (importing)
                 added[owner] += "assert(TOS.exe+" + Hex(g.ref.offset) + "," + ByteText(g.bytes) + ")\n";
         }

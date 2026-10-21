@@ -17,9 +17,14 @@ struct Segment {
     uint32_t size, bytes, count, rva, expected;
     std::string name;
     SourceLocation source = {};
+    std::vector<std::string> overrides = {};
 };
 struct Fixup { uint32_t owner, offset; int32_t target; uint32_t addend, type; };
-struct Guard { uint32_t group, rva, bytes, count; SourceLocation source = {}; };
+struct Guard {
+    uint32_t group, rva, bytes, count;
+    SourceLocation source = {};
+    std::vector<std::string> overrides = {};
+};
 struct Feature {
     uint32_t bit, dependencies;
     std::string key;
@@ -49,6 +54,7 @@ struct Session {
         uintptr_t start, end;
         bool write;
         std::string owner = {};
+        std::string packageId = {};
     };
     std::vector<Range> ranges;
     std::vector<std::string> installed;

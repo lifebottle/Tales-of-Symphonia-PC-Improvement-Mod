@@ -236,7 +236,7 @@ Package ReadPackage(const fs::path &manifest) {
     for (auto &node : Array(t, "scripts", 4096)) {
         auto s = node.as_table();
         Require(s, "Invalid script");
-        Fields(*s, {"id", "name", "file", "feature", "writable"});
+        Fields(*s, {"id", "name", "file", "feature", "writable", "overrides"});
         Script script;
         script.file = String(*s, "file");
         fs::path rel = fs::u8path(script.file);
@@ -260,6 +260,13 @@ Package ReadPackage(const fs::path &manifest) {
         for (auto &item : Array(*s, "writable", 4096)) {
             auto n = item.value<std::string>();
             Require(n && script.writable.insert(Lower(*n)).second, "Invalid writable allocation");
+        }
+        std::set<std::string> overrides;
+        for (auto &item : Array(*s, "overrides", 4096)) {
+            auto id = item.value<std::string>();
+            Require(id && Identifier(*id) && *id != p.id && overrides.insert(*id).second,
+                    "Invalid, duplicate, or self-referencing override in " + script.file);
+            script.overrides.push_back(*id);
         }
         p.scripts.push_back(std::move(script));
     }
@@ -308,6 +315,12 @@ std::string Manifest(const Package &p) {
             script.insert("feature", s.feature);
         if (!writable.empty())
             script.insert("writable", writable);
+        if (!s.overrides.empty()) {
+            toml::array overrides;
+            for (auto &id : s.overrides)
+                overrides.push_back(id);
+            script.insert("overrides", overrides);
+        }
         scripts.push_back(std::move(script));
     }
     for (auto &v : p.parameters) {

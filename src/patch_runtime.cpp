@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstring>
+#include <set>
 #include <vector>
 static_assert(sizeof(uintptr_t)==4, "Patch runtime requires x86");
 namespace PatchFramework {
@@ -143,16 +144,24 @@ bool Install(Session& session, const Definition& definition, uint8_t* image, siz
     if (!enabled) return true;
     if (std::find(session.installed.begin(),session.installed.end(),definition.id)!=session.installed.end())
         return fail("definition is already installed; restart to update");
-    // Earlier packages keep their hooks. Drop whole conflicting features, then
-    // their dependents, before checking originals or allocating anything.
+    // Earlier packages keep their hooks unless this script explicitly names
+    // their package IDs. Byte checks still apply to every permitted override.
     uint32_t blocked = 0;
+    std::set<std::pair<uint32_t, std::string>> overrideNotices;
     auto checkConflicts = [&](uint32_t group, uint32_t rva, uint32_t count, bool write,
-                              const std::string& name, const SourceLocation& source) {
+                              const std::string& name, const SourceLocation& source,
+                              const std::vector<std::string>& overrides) {
         const auto start = reinterpret_cast<uintptr_t>(image + rva);
         const auto end = start + count;
-        const Session::Range candidate{start, end, write, DescribeOwner(definition,group,name,source)};
+        const Session::Range candidate{start, end, write, DescribeOwner(definition,group,name,source),definition.id};
         for (const auto& owned : session.ranges) {
             if (!Conflicts(candidate, owned)) continue;
+            if (std::find(overrides.begin(), overrides.end(), owned.packageId) != overrides.end()) {
+                for (const auto& feature : definition.features)
+                    if (feature.bit & group & enabled)
+                        overrideNotices.emplace(feature.bit, owned.packageId);
+                continue; // Another overlapping owner may still block this feature.
+            }
             for (const auto& feature : definition.features) {
                 if (!(feature.bit & group & enabled & ~blocked)) continue;
                 LOG("[Patches] %s: skipping %s; %s; installed package retains ownership",
@@ -165,9 +174,11 @@ bool Install(Session& session, const Definition& definition, uint8_t* image, siz
     };
     for (const auto& segment : definition.segments)
         if ((segment.group & enabled) && segment.kind == Kind::Patch)
-            checkConflicts(segment.group, segment.rva, segment.count, true, segment.name, segment.source);
+            checkConflicts(segment.group, segment.rva, segment.count, true, segment.name, segment.source,
+                           segment.overrides);
     for (const auto& guard : definition.guards)
-        if (guard.group & enabled) checkConflicts(guard.group, guard.rva, guard.count, false, "", guard.source);
+        if (guard.group & enabled)
+            checkConflicts(guard.group, guard.rva, guard.count, false, "", guard.source, guard.overrides);
     uint32_t previous;
     do {
         previous = blocked;
@@ -193,10 +204,10 @@ bool Install(Session& session, const Definition& definition, uint8_t* image, siz
     std::vector<Session::Range> ranges;
     for (const auto& s:definition.segments) if ((s.group & enabled) && s.kind==Kind::Patch)
         ranges.push_back({reinterpret_cast<uintptr_t>(image+s.rva),reinterpret_cast<uintptr_t>(image+s.rva+s.count),true,
-                          DescribeOwner(definition,s.group,s.name,s.source)});
+                          DescribeOwner(definition,s.group,s.name,s.source),definition.id});
     for (const auto& g:definition.guards) if (g.group & enabled)
         ranges.push_back({reinterpret_cast<uintptr_t>(image+g.rva),reinterpret_cast<uintptr_t>(image+g.rva+g.count),false,
-                          DescribeOwner(definition,g.group,"",g.source)});
+                          DescribeOwner(definition,g.group,"",g.source),definition.id});
     // Reserve all ownership records before committing executable writes.
     auto ownedRanges=session.ranges;
     ownedRanges.insert(ownedRanges.end(),ranges.begin(),ranges.end());
@@ -279,6 +290,12 @@ bool Install(Session& session, const Definition& definition, uint8_t* image, siz
     state.Keep();
     session.ranges.swap(ownedRanges); session.installed.swap(installed);
     error.clear();
+    for (const auto& notice : overrideNotices)
+        if (notice.first & enabled)
+            for (const auto& feature : definition.features)
+                if (feature.bit == notice.first)
+                    LOG("[Patches] %s: %s overrides %s", definition.id.c_str(),
+                        feature.key.c_str(), notice.second.c_str());
     LOG("[Patches] %s %s: installed %u patches (features 0x%X)",
         definition.id.c_str(),definition.version.c_str(),static_cast<unsigned>(writes.size()),enabled);
     return true;

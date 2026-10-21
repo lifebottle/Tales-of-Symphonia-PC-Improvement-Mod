@@ -54,6 +54,7 @@ max_exclusive = 10
 key = "FastBlockPush"
 [[scripts]]
 file = "FastBlockPush.asm"
+overrides = ["60fps"]
 
 [[features]]
 key = "EnableVoicedSkits"

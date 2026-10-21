@@ -18,6 +18,7 @@ struct Image {
 struct Script {
     std::string id, name, file, feature, text;
     std::set<std::string> writable;
+    std::vector<std::string> overrides = {};
 };
 struct Parameter {
     std::string key, feature, script, symbol;
