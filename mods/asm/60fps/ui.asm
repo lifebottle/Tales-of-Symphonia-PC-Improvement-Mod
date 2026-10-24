@@ -559,6 +559,14 @@ TOS.exe+D0C8D:
   nop // 004D0C8D
   nop // 004D0C8E
 
+// Title idle reveal delay (accepted live threshold revision, 2026-10-24).
+// B18658 starts at zero and increments once per update; EDX holds its old value.
+// Compare 843 instead of 421: reveal on update 844 instead of 422, preserving
+// ~14.07 seconds at 60 FPS. Button-triggered reveal bypasses this wait.
+assert(TOS.exe+15A335,81 FA A5 01 00 00)
+TOS.exe+15A335:
+  cmp edx, #843
+
 // Reference VA 0055A34C..0055A34E.
 // Title/logo fade increment: 16 -> 8 per update.
 assert(TOS.exe+15A34C,83 C0 10)
@@ -868,6 +876,8 @@ TOS.exe+A8ADB:
   db DC,E9
 TOS.exe+D0C8D:
   db DC,C0
+TOS.exe+15A335:
+  cmp edx, #421
 TOS.exe+15A34C:
   db 83,C0,10
 
