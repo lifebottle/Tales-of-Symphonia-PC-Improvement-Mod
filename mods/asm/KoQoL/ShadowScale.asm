@@ -33,7 +33,7 @@ registersymbol(ShadowScale)
 // Writable floating-point multiplier (1.4f = 0x3FB33333).
 mem_shadow_settings:
 ShadowScale:
-  dd 0x3FB33333
+  dd 0x3FCCCCCD
 
 //################################################
 //# Scale the player shadow transform

@@ -26,9 +26,6 @@ FreeRunMovementPenalty=0.20
 PartySpellSlots=4
 EnemySpellSlots=3
 
-[LloydSuperChain]
-Enabled=1
-
 [QoL]
 SkippableFMVs=1
 EnhancedHolyBottles=1
@@ -41,6 +38,33 @@ MenuOverflowFix=0
 SaveAnywhere=0
 DisablePartyReqs=0
 ForceControllerDisplay=0
+
+[KoQoL]
+SubtitleToggle=1
+SubtitleSizeAdjust=1
+TitleParaDisplay=1
+CostumeOnly=1
+ShadowScale=1
+TSTypeSwitch=1
+
+[KoCombat]
+AlwaysMagicLens=1
+BetterArteChains=1
+CombatMenuText=1
+CombatMenuWidth=1
+ExpandedEXGemMax=1
+MidAirAndFamilyChaining=0
+MidAirArtes=0
+UnknownDifficulty=1
+
+[KoPartyBuff]
+SheenaForceSealDamage=0
+KraZelHealingBuff=0
+SheenaLifeSpiritBuff=0
+PermaTetheSylvSeal=0
+ColetteHolySongHeal=0
+ChargeTPRecovery=0
+RegalHealingBuffs=0
 ```
 
 
@@ -84,10 +108,6 @@ Add additional spell slots to allow casting multiple high level spells at the sa
 
 No punishment for running multiple casters. Spells are cast in the order they are ready rather than being stuck in a predetermined order.
 
-## Lloyd Super Chain
-
-Adds Super Chain to Lloyd's MAX-gem EX skill list, makes all of his Level 3 artes chainable, and allows chaining two Level 1 artes together at any point in the combo if Ability Plus is active. Once-per-chain and same-arte restrictions still apply.
-
 | Option | Notes |
 |--------|-------|
 | `Enabled` | 1 = Enabled, 0 = Disabled |
@@ -129,15 +149,18 @@ options in `d3d9_config.ini`:
 
 ## KoQoL
 
-Quality-of-life improvements, menu additions, and visual enhancements.
+Quality-of-life and visual enhancements.
 
 | Option | Notes |
 |--------|-------|
-| `Displaypara` | Displays level-up parameter bonuses when selecting titles |
-| `Subtitles` | Adds a subtitles ON/OFF option to the settings menu |
-| `Costume` | Allows independent costume and title selection |
-| `Subpos` | Adjusts subtitle position, size, and the background black box |
-| `ShadowScale` | Increases character shadow size in towns and dungeons |
+| `SubtitleToggle` | Controls subtitles for voiced dialogue: `0` displays subtitles, `1` disables them. |
+| `SubtitleSizeAdjust` | Reduces subtitle text size and removes its background box. |
+| `TitleParaDisplay` | Displays level-up parameter bonuses when highlighting titles in the Titles menu. |
+| `CostumeOnly` | Allows a costume to be equipped independently of a stat-boosting title; the costume selection is retained when saving and loading. |
+| `ShadowScale` | Increases the radius of shadows beneath the player and NPCs in towns and dungeons. |
+| `TSTypeSwitch` | Allows instant switching between S/T Style from the EX Skill menu. |
+
+**Note:** `SubtitleToggle=1` means subtitles **off**, not on.
 
 ## KoCombat
 
@@ -145,30 +168,30 @@ Battle interface improvements and additional combat mechanics.
 
 | Option | Notes |
 |--------|-------|
-| `CommandLabels` | Expands abbreviated battle command names |
-| `CommandWidths` | Adjusts command menu text widths; requires CommandLabels |
-| `MagicLens` | Displays enemy HP/TP without using a Magic Lens |
-| `MidAirArtes` | Allows selected artes to be used mid-air without Sky Cancel |
-| `MidAirChaining` | Allows chaining artes mid-air; requires MidAirArtes |
-| `EXGemMax17` | Adds a 17th EX Skill to EX Gem MAX for all party members |
-| `Unknown` | Adds Unknown difficulty with ×3 HP, ×2 Attack/Magic, and ×2 TP |
+| `AlwaysMagicLens` | Always displays enemy HP and TP without using a Magic Lens or Inspect Eye. |
+| `BetterArteChains` | Reduces recovery times for selected Artes to improve combo chaining. Integrates Lloyd Super Chain's chaining behavior, including Ability Plus and Lloyd's Level 3 chaining windows. Requires `ExpandedEXGemMax`. |
+| `CombatMenuText` | Expands abbreviated battle command names to their full text. |
+| `CombatMenuWidth` | Adjusts battle command menu widths to fit the expanded text. Requires `CombatMenuText`. |
+| `ExpandedEXGemMax` | Expands EX Gem MAX with a 17th entry for every party member. |
+| `MidAirAndFamilyChaining` | Allows chaining Artes while airborne and between Artes in the same family. Requires `MidAirArtes`. |
+| `MidAirArtes` | Allows selected Artes for Lloyd, Presea, and Kratos/Zelos to be used mid-air without the Sky Cancel compound EX Skill. |
+| `UnknownDifficulty` | Adds Unknown difficulty to Battle Rank, with 3× enemy HP, 2× TP, 2× Attack, and 2× Magic. |
+
+**Compatibility:** `MidAirAndFamilyChaining` already includes same-family chaining. Do not enable the separate `AllowArteFamilyChaining` feature from Battle Enhancements alongside it, as the patches overlap.
 
 ## KoPartyBuff
 
-Character-specific arte adjustments, healing improvements, and balance changes.
+Character-specific Arte adjustments, recovery improvements, and balance changes. All options are disabled by default in the supplied example configuration.
 
 | Option | Notes |
 |--------|-------|
-| `SheenaSeals` | Increases Life Seal and Spirit Seal recovery |
-| `PurgatorySealCastTime` | Reduces Purgatory Seal casting time |
-| `SheenaElementalBuffs` | Extends elemental buffs for the entire battle |
-| `ArteLevels` | Adjusts the levels of Spirit Seal, Lightning Blade, and Ring Whirlwind |
-| `PreseaKnockback` | Reduces knockback on selected Punishment and Destruction artes |
-| `RegalHealingCastTime` | Reduces casting times for Regal's healing artes |
-| `RegalHealingRange` | Reduces distance penalties for Healer and Grand Healer |
-| `RegalChiHealerRevive` | Allows Chi Healer to heal and revive fallen allies |
-| `ColetteHolySongHeal` | Holy Song additionally restores 20% of Max HP to allies |
-| `ChargeTPRecovery` | Charge restores 5% of the target's Max TP |
+| `SheenaForceSealDamage` | Force Seal now deals damage against its current target, while retaining the original effect. |
+| `KraZelHealingBuff` | Healing Wind restores 36% of Max HP (3 × 12%) and Healing Stream restores 50% (5 × 10%). Kratos's Guardian Field now restores 10% instead of 5% of Max HP and also heals Kratos himself. |
+| `SheenaLifeSpiritBuff` | Increases Life Seal's HP recovery from 10% to 30% of damage dealt, and Spirit Seal's TP recovery from 3% to 4% of damage dealt. |
+| `PermaTetheSylvSeal` | Extends Sheena's Tethe and Sylva elemental buffs for the entire battle. |
+| `ColetteHolySongHeal` | Adds party-wide HP recovery equal to 20% of Max HP to Holy Song |
+| `ChargeTPRecovery` | Changes Raine's Charge to restore 5% of the target's Max TP instead of a fixed 15 TP. |
+| `RegalHealingBuffs` | Reduces cast times and distance penalties for Regal's Healer and Grand Healer Artes. Chi Healer restores 30% of Max HP or revives a fallen ally, with increased TP cost and casting time. |
 
 ## Patch overrides
 
@@ -188,7 +211,6 @@ Only use this for patches intended to work together. The loader still checks tha
 
 Check `d3d9.log`.
 
-- **Success looks like:** `[Patches] lloyd-super-chain 1.0.0: installed 17 patches` (Battle Enhancements logs its version and patch count similarly).
+- **Success looks like:** an `installed ... patches` log entry for each enabled package (such as `KoCombat`, `KoPartyBuff`, or `KoQoL`). Exact patch counts depend on the selected features.
 - **If anything goes wrong** (unexpected instructions, conflicting hooks, unsupported executable), the entire requested set is disabled for that launch and the failing site is logged. Texture, archive, and fast-forward features keep working.
 - **Disabling an option** only stops the hooks on the next launch. It doesn't undo arte assignments or other state the game already saved.
-- **Switching from the IDA memory script to Lloyd Super Chain:** do a fresh launch first, since both use the same hook sites.

@@ -123,7 +123,7 @@ CommandWidthTable:
 
   db "Tech"
   db 0x00
-  db "Ru"
+  db "Te"
   db 0x00
 
   db "Item"

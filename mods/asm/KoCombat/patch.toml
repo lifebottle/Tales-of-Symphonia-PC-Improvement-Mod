@@ -1,32 +1,10 @@
 
 format = 1
 id = "KoCombat"
-version = "1.0.0"
+version = "1.0.5"
 config_section = "KoCombat"
 image_base = 0x400000
 image_size = 0x2aff000
-
-[[features]]
-key = "CommandLabels"
-
-[[features]]
-key = "CommandWidths"
-requires = ["CommandLabels"]
-
-[[features]]
-key = "MagicLens"
-
-[[scripts]]
-file = "CommandLabels.asm"
-writable = []
-
-[[scripts]]
-file = "CommandWidths.asm"
-writable = []
-
-[[scripts]]
-file = "MagicLens.asm"
-writable = []
 
 [[features]]
 key = "MidAirArtes"
@@ -36,23 +14,53 @@ file = "MidAirArtes.asm"
 writable = []
 
 [[features]]
-key = "MidAirChaining"
+key = "MidAirAndFamilyChaining"
 requires = ["MidAirArtes"]
 
 [[scripts]]
-file = "MidAirChaining.asm"
+file = "MidAirAndFamilyChaining.asm"
 writable = []
 
 [[features]]
-key = "EXGemMax17"
+key = "CombatMenuText"
+
+[[features]]
+key = "CombatMenuWidth"
+requires = ["CombatMenuText"]
+
+[[features]]
+key = "AlwaysMagicLens"
 
 [[scripts]]
-file = "EXGemMax17.asm"
+file = "CombatMenuText.asm"
+writable = []
+
+[[scripts]]
+file = "CombatMenuWidth.asm"
+writable = []
+
+[[scripts]]
+file = "AlwaysMagicLens.asm"
 writable = []
 
 [[features]]
-key = "Unknown"
+key = "ExpandedEXGemMax"
 
 [[scripts]]
-file = "Unknown.asm"
+file = "ExpandedEXGemMax.asm"
+writable = []
+
+[[features]]
+key = "BetterArteChains"
+requires = ["ExpandedEXGemMax"]
+
+[[scripts]]
+file = "BetterArteChains.asm"
+writable = ["mem_BACRecoveryData", "mem_BACStatus"]
+
+[[features]]
+key = "UnknownDifficulty"
+
+[[scripts]]
+file = "UnknownDifficulty.asm"
 writable = []
