@@ -1421,6 +1421,22 @@ TOS.exe+8CDA0:
 // Vanilla: fld qword ptr [0x882c80]
   fld qword ptr [fps_double_negative_one] // 0048CDA0
 
+// Projectile hitbox growth: accepted Explosion trial, added after v0.0.46.
+// The shared update added each dimension's growth twice while its lifetime
+// already advances once per 60 FPS tick. Retain the first addition and remove
+// the duplicate: size 32 with growth 10 now adds 10, not 20, each update.
+// Initial dimensions, lifetime and x87 stack depth remain unchanged. Applies
+// to all growing projectiles; pairs with the +1 lifetime counter below.
+assert(TOS.exe+8CF48,D8 43 50)
+TOS.exe+8CF48:
+// Vanilla: fadd dword ptr [ebx+50]
+  nop 3
+
+assert(TOS.exe+8CF60,D8 43 54)
+TOS.exe+8CF60:
+// Vanilla: fadd dword ptr [ebx+54]
+  nop 3
+
 // Reference VA 0048CFC8..0048CFCA.
 // Advance the projectile update counter by one rather than two.
 assert(TOS.exe+8CFC8,83 C7 02)
@@ -1772,6 +1788,10 @@ TOS.exe+8C2E4:
   db 80,86,93,02,00,00,02
 TOS.exe+8CDA0:
   db DD,05,80,2C,88,00
+TOS.exe+8CF48:
+  db D8,43,50
+TOS.exe+8CF60:
+  db D8,43,54
 TOS.exe+8CFC8:
   db 83,C7,02
 TOS.exe+8D0FE:
