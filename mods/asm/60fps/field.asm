@@ -6,6 +6,7 @@
 //   Field updates
 //   Field movement
 //   Field animation slots
+//   Scripted bone rotation timing
 //   Field facial animation
 //   Field block movement
 //   Hostile field npcs
@@ -1060,6 +1061,30 @@ TOS.exe+16777A:
 // Vanilla: fld qword ptr [0x8829b8]
   fld qword ptr [fps_double_one] // 0056777A
 
+// ======================================================================
+// Fix statue rotation in Temple of Ice by clamping scripted bone rotation
+// before converting it to native half-rate units so one-tick resets finish
+// in one update. max(n,1)*0.5 preserves all durations >=2.
+// ======================================================================
+
+label(fps_c1_duration_positive)
+assert(TOS.exe+16AE92,DB 84 9F 44 08 00 00 DC 0D 50 29 88 00 D9 5D D8 D9 E8 D8 55 D8 DF E0 F6 C4 41 75 05 D9 5D D8 EB 02 DD D8)
+assert(TOS.exe+16AEB5,D9 45 D8 8B 45 C4)
+assert(TOS.exe+482950,00 00 00 00 00 00 E0 3F)
+TOS.exe+16AE92:
+  mov eax,[edi+ebx*4+844]
+  cmp eax,#1
+  jge short fps_c1_duration_positive
+  mov eax,#1
+fps_c1_duration_positive:
+  mov [ebp-28],eax
+  fild dword ptr [ebp-28]
+  fmul qword ptr [TOS.exe+482950]
+  fstp dword ptr [ebp-28]
+  nop
+  nop
+  nop
+
 [DISABLE]
 // Restoration evidence only; settings take effect on a fresh launch.
 
@@ -1226,3 +1251,7 @@ TOS.exe+161E6C:
 // Scenario camera
 TOS.exe+16777A:
   db DD,05,B8,29,88,00
+
+// Scripted bone rotation timing: restore the original duration conversion/clamp.
+TOS.exe+16AE92:
+  db DB 84 9F 44 08 00 00 DC 0D 50 29 88 00 D9 5D D8 D9 E8 D8 55 D8 DF E0 F6 C4 41 75 05 D9 5D D8 EB 02 DD D8
