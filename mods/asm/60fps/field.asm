@@ -1019,6 +1019,12 @@ TOS.exe+D5DB5:
 // Vanilla: sub eax, 2
   sub eax, #1 // 004D5DB5
 
+// NOP double decrement of NPC respawn timer in Temple of Earth
+assert(TOS.exe+D6F7E,48)
+TOS.exe+D6F7E:
+// Vanilla: dec eax
+  nop // 004D6F7E
+
 // Reference VA 00561CB2..00561CB7.
 // Initialize hostile wander/chase speed with multiplier 1 instead of 2; this single load feeds both
 // speed calculations.
@@ -1210,6 +1216,8 @@ TOS.exe+D58DD:
   db DD,05,B8,29,88,00
 TOS.exe+D5DB5:
   db 83,E8,02
+TOS.exe+D6F7E:
+  db 48
 TOS.exe+161CB2:
   db DD,05,B8,29,88,00
 TOS.exe+161E6C:
