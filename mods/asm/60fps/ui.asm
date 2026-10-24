@@ -5,6 +5,7 @@
 // Sections:
 //   Menu transitions
 //   Screen fades
+//   Credits timing
 //   Skit timing
 
 [ENABLE]
@@ -575,6 +576,31 @@ TOS.exe+15A34C:
   add eax, #8 // 0055A34C
 
 // ======================================================================
+// Credits timing
+// ======================================================================
+
+// Halve scroll speed: height/21600 - 0.01.
+assert(TOS.exe+153736,DC 35 08 3A 88 00)
+assert(TOS.exe+1534B9,D8 05 D8 1E C3 01)
+assert(TOS.exe+482B40,00 00 00 40 E1 7A 84 3F)
+assert(TOS.exe+483A08,00 00 00 00 00 18 C5 40)
+TOS.exe+483A08:
+  dq (double)21600
+assert(TOS.exe+153762,DC 25 F0 2B 88 00)
+TOS.exe+153762:
+  fsub qword ptr [TOS.exe+482B40]
+
+// Preserve the ~20-second end hold.
+assert(TOS.exe+1534EF,83 C0 02)
+TOS.exe+1534EF:
+  add eax, #1
+
+// Preserve the ~6-second exit countdown.
+assert(TOS.exe+152E61,C7 05 C0 85 B1 00 B4 00 00 00)
+TOS.exe+152E61:
+  mov dword ptr [TOS.exe+7185C0], #360
+
+// ======================================================================
 // Skit timing
 // Skit portrait motion, facial channels, fades and textbox movement.
 // ======================================================================
@@ -880,6 +906,16 @@ TOS.exe+15A335:
   cmp edx, #421
 TOS.exe+15A34C:
   db 83,C0,10
+
+// Credits timing
+TOS.exe+483A08:
+  dq (double)10800
+TOS.exe+153762:
+  fsub qword ptr [TOS.exe+482BF0]
+TOS.exe+1534EF:
+  add eax, #2
+TOS.exe+152E61:
+  mov dword ptr [TOS.exe+7185C0], #180
 
 // Skit timing
 TOS.exe+154BDB:
