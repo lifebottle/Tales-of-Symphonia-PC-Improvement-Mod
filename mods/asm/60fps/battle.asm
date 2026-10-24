@@ -1762,8 +1762,8 @@ crimson_frame:
 // ======================================================================
 // Chant timing
 // Active voice-bank chant duration lookup and cache lifecycle.
-// Keep all five hooks with the zero-initialized cache pointer. Audio reset and bank replacement must
-// invalidate the same state.
+// Keep chant hooks and the intro-duration consumer with the zero-initialized cache pointer.
+// Audio reset and bank replacement invalidate the same state; intros retain authored durations.
 // ======================================================================
 
 alloc(fps_chant_timing_code,1000)
@@ -1775,6 +1775,11 @@ label(fps_chant_hook_bank)
 label(fps_chant_hook_selected)
 label(fps_chant_hook_shared)
 label(fps_chant_hook_table)
+label(fps_chant_hook_intro)
+label(fps_chant_intro_native)
+label(fps_chant_intro_done)
+label(fps_abyssion_intro_timeout)
+label(fps_abyssion_intro_done)
 label(fps_chant_le32)
 label(fps_chant_read_at)
 label(fps_chant_voice_bank_changed)
@@ -1823,6 +1828,29 @@ assert(TOS.exe+632B6,A9 00 00 FF FF)
 assert(TOS.exe+67B00,8B 45 08 8B 4D)
 assert(TOS.exe+181682,D9 15 E8 BF B1)
 assert(TOS.exe+182972,C6 86 6C AE B1)
+
+// Preserve authored intro timing independently of measured chant lengths.
+// The generic intro also serves seven camera indices and two scripted fallbacks.
+// Accepted memory trial: tos-60-experiments/abyssion-intro/original-duration-hook.
+// Keep native even-rounding after the helper; the 60 FPS counter edits stay intact.
+assert(TOS.exe+10F2,74 01 41 0F B7 F9)
+assert(TOS.exe+10EB,0F B7 0C 4A F6 C1 01)
+TOS.exe+10EB:
+// Vanilla: movzx ecx, word ptr [edx + ecx*2]; test cl, 1
+  jmp near fps_chant_hook_intro
+  nop
+  nop
+
+// Abyssion's English intro should end in the gap before "power".
+// Accepted 3300 ms playback cap; retain native AI and measured chant timings.
+// Guards cover the original queue call, return site and native callees.
+assert(TOS.exe+39619,E8 B2 87 00 00)
+assert(TOS.exe+3961E,8A 87 AC 3A 01 00)
+assert(TOS.exe+28A10,0F B7 C0 8B 04 85 C0 2E AD 00 E8 11 9C 15 00)
+assert(TOS.exe+41DD0,53 56 8B F0 57 8B 7E 04)
+TOS.exe+39619:
+// Vanilla: call TOS.exe+41DD0 (queued voice processing, actor in EAX).
+  call fps_abyssion_intro_timeout
 
 // Reference VA 004267D2..004267D7.
 // Use the duration from the currently loaded voice bank when selecting a chant; the helper follows the
@@ -2445,6 +2473,91 @@ fps_chant_hook_audio_reset:
   popfd // 01E4A972
   jmp near TOS.exe+181682 // 01E4A973
 
+// Added intro-only consumer of the existing pristine snapshot. No table writes.
+// ECX is the resolved duration-table index, EDX the current table. Snapshot
+// entries start at streaming index 652; +18 owns the table, +20 bounds the count.
+// Read the pointer each time so table/cache replacement follows the existing
+// lifecycle. Missing/mismatched snapshots and non-streaming entries stay native.
+fps_chant_hook_intro:
+  push eax
+  push ebx
+  mov eax, dword ptr [fps_chant_voice_state_ptr]
+  test eax, eax
+  jz short fps_chant_intro_native
+  cmp dword ptr [eax + 0x18], edx
+  jne short fps_chant_intro_native
+  mov ebx, ecx
+  sub ebx, #652
+  jb short fps_chant_intro_native
+  cmp ebx, #4096
+  jae short fps_chant_intro_native
+  cmp ebx, dword ptr [eax + 0x20]
+  jae short fps_chant_intro_native
+  movzx ecx, word ptr [eax + ebx*2 + 0x2140]
+  jmp short fps_chant_intro_done
+fps_chant_intro_native:
+  movzx ecx, word ptr [edx + ecx*2]
+fps_chant_intro_done:
+  pop ebx
+  pop eax
+  test cl, 1
+  jmp near TOS.exe+10F2
+
+// Abyssion-only intro cap. Evidence: tos-60-experiments/abyssion-intro/manual-timeout.
+// Match current voice and authored intro voice 935 during active combat.
+// The existing media update caches played milliseconds per physical channel.
+// Request a stop at 3300 ms only while playing and not already stopping;
+// an earlier native interruption remains possible. No new mutable state.
+// Preserve the CALL's entry state, then tail-jump to the original queue callee.
+fps_abyssion_intro_timeout:
+  pushfd
+  pushad
+  test eax, eax
+  jz near fps_abyssion_intro_done
+  cmp dword ptr [eax+0x1368], #935
+  jne near fps_abyssion_intro_done
+  mov edx, dword ptr [eax+4]
+  test edx, edx
+  jz near fps_abyssion_intro_done
+  cmp word ptr [edx+0xfc], #935
+  jne near fps_abyssion_intro_done
+  mov edx, dword ptr [TOS.exe+6D2EDC]
+  test edx, edx
+  jz short fps_abyssion_intro_done
+  cmp dword ptr [edx+0x8f78], #5
+  jne short fps_abyssion_intro_done
+  movzx ebx, word ptr [eax+0x13a9e]
+  cmp ebx, #6
+  ja short fps_abyssion_intro_done
+  mov ecx, dword ptr [TOS.exe+6D2EC0+ebx*4]
+  test ecx, ecx
+  jz short fps_abyssion_intro_done
+  cmp ecx, #8
+  ja short fps_abyssion_intro_done
+  mov edx, dword ptr [TOS.exe+71B084+ecx*4]
+  test edx, edx
+  jz short fps_abyssion_intro_done
+  cmp word ptr [edx+0x176], #2
+  jne short fps_abyssion_intro_done
+  cmp byte ptr [edx+0x179], #0
+  jne short fps_abyssion_intro_done
+  cmp dword ptr [TOS.exe+71BF74+ecx*8], #0
+  jne short fps_abyssion_intro_done
+  cmp dword ptr [TOS.exe+71BF70+ecx*8], #3300
+  jb short fps_abyssion_intro_done
+  mov eax, ebx
+  mov ebp, esp
+  sub esp, 0x210
+  and esp, 0xfffffff0
+  fxsave [esp]
+  call TOS.exe+28A10
+  fxrstor [esp]
+  mov esp, ebp
+fps_abyssion_intro_done:
+  popad
+  popfd
+  jmp near TOS.exe+41DD0
+
 // Private RW state; reference 01E37D00..01E37D03.
 chant_cache:
 // Zero on fresh launch. Lazily VirtualAlloc 45396 bytes, retaining native timing if allocation fails; no file-backed preimage.
@@ -3037,6 +3150,8 @@ dealloc(fps_battle_artes_code)
 dealloc(crimson_frame)
 
 // Chant timing
+TOS.exe+10EB:
+  db 0F,B7,0C,4A,F6,C1,01
 TOS.exe+267D2:
   db 8B,B3,A0,3A,01,00
 TOS.exe+632B0:
@@ -3047,6 +3162,8 @@ TOS.exe+18167C:
   db 89,1D,7C,AE,B1,00
 TOS.exe+18296B:
   db 89,04,B5,08,C0,B1,00
+TOS.exe+39619:
+  db E8,B2,87,00,00
 dealloc(fps_chant_timing_code)
 dealloc(chant_cache)
 
