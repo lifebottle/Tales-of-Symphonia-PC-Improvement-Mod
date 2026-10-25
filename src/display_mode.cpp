@@ -379,7 +379,11 @@ LRESULT CALLBACK WindowProc(HWND window, UINT message, WPARAM wParam, LPARAM lPa
         ModeForWindow() == Mode::Borderless)
         return 0;
 
-    if (message == WM_PAINT && (transitioning || DeviceLost() || (presentation && presentation->IsResetting()))) {
+    if ((message == WM_PAINT || message == WM_ERASEBKGND) &&
+        (transitioning || DeviceLost() || (presentation && presentation->IsResetting()))) {
+        // Direct3D supplies the image. Suppress background erasing (including
+        // from BeginPaint below) to avoid a white flash during VSync changes.
+        if (message == WM_ERASEBKGND) return 1;
         PAINTSTRUCT paint{};
         BeginPaint(window, &paint);
         EndPaint(window, &paint);
