@@ -1,21 +1,29 @@
 format = 1
 id = "KoQoL"
-version = "1.0.0"
-config_section = "KoQol"
+version = "1.0.1"
+config_section = "KoQoL"
 image_base = 0x400000
 image_size = 0x2aff000
 
 [[features]]
-key = "Displaypara"
+key = "SubtitleToggle"
 
 [[features]]
-key = "Subtitles"
+key = "SubtitleSizeAdjust"
+
+[[scripts]]
+file = "SubtitleSizeAdjust.asm"
+writable = []
+
+[[scripts]]
+file = "SubtitleToggle.asm"
+writable = []
 
 [[features]]
-key = "Costume"
+key = "TitleParaDisplay"
 
 [[features]]
-key = "Subpos"
+key = "CostumeOnly"
 
 [[features]]
 key = "ShadowScale"
@@ -25,17 +33,19 @@ file = "ShadowScale.asm"
 writable = ["mem_shadow_settings"]
 
 [[scripts]]
-file = "Subpos.asm"
-writable = []
-
-[[scripts]]
-file = "Costume.asm"
+file = "CostumeOnly.asm"
 writable = ["mem_cos_data"]
 
 [[scripts]]
-file = "Displaypara.asm"
+file = "TitleParaDisplay.asm"
 writable = ["mem_boost_data"]
 
+
+[[features]]
+key = "TSTypeSwitch"
+
 [[scripts]]
-file = "Subtitles.asm"
-writable = ["mem_sub_flag"]
+file = "TSTypeSwitch.asm"
+writable = ["mem_ts_state", "mem_ts_buffer"]
+
+

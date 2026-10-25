@@ -1,64 +1,36 @@
 format = 1
 id = "KoPartyBuff"
-version = "1.0.0"
+version = "1.0.7"
 config_section = "KoPartyBuff"
 image_base = 0x400000
 image_size = 0x2aff000
 
 [[features]]
-key = "SheenaSeals"
+key = "SheenaForceSealDamage"
 
 [[scripts]]
-file = "SheenaSeals.asm"
+file = "SheenaForceSealDamage.asm"
+writable = ["mem_force_seal_state"]
+
+[[features]]
+key = "KraZelHealingBuff"
+
+[[scripts]]
+file = "KraZelHealingBuff.asm"
 writable = []
 
 [[features]]
-key = "PurgatorySealCastTime"
+key = "SheenaLifeSpiritBuff"
 
 [[scripts]]
-file = "PurgatorySealCastTime.asm"
+file = "SheenaLifeSpiritBuff.asm"
 writable = []
 
 [[features]]
-key = "SheenaElementalBuffs"
+key = "PermaTetheSylvSeal"
 
 [[scripts]]
-file = "SheenaElementalBuffs.asm"
-writable = []
-
-[[features]]
-key = "ArteLevels"
-
-[[scripts]]
-file = "ArteLevels.asm"
-writable = []
-
-[[features]]
-key = "PreseaKnockback"
-
-[[scripts]]
-file = "PreseaKnockback.asm"
-writable = []
-
-[[features]]
-key = "RegalHealingCastTime"
-
-[[features]]
-key = "RegalHealingRange"
-
-[[features]]
-key = "RegalChiHealerRevive"
-
-[[scripts]]
-file = "RegalHealingCastTime.asm"
-writable = []
-
-[[scripts]]
-file = "RegalHealingRange.asm"
-writable = []
-
-[[scripts]]
-file = "RegalChiHealerRevive.asm"
+file = "PermaTetheSylvSeal.asm"
 writable = []
 
 [[features]]
@@ -74,3 +46,11 @@ key = "ChargeTPRecovery"
 [[scripts]]
 file = "ChargeTPRecovery.asm"
 writable = ["mem_charge_data"]
+
+[[features]]
+key = "RegalHealingBuffs"
+
+[[scripts]]
+file = "RegalHealingBuffs.asm"
+writable = []
+

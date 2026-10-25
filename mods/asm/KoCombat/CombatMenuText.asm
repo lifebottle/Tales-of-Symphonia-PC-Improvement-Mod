@@ -116,7 +116,7 @@ CommandLabelsTable:
 
   db "Tech"
   db 0x00
-  db "Artes"
+  db "Tech"
   db 0x00
 
   db "Item"

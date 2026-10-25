@@ -1,7 +1,7 @@
 //######################################################################################################
-//# Mid-Air Arte Chaining
-//# Allows artes to be chained during mid-air combat.
-//# Requires the MidAirArtes feature.
+//# Mid-Air and Same-Family Arte Chaining
+//# Enables mid-air arte chaining and chaining between artes of the same family.
+//# Compatible with MidAirArtes.
 //######################################################################################################
 [ENABLE]
 

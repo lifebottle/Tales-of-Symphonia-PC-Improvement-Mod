@@ -17,7 +17,7 @@ alloc(mem_charge_data,0x10)
 //# Check original instructions
 //################################################
 
-// Restore TP: original 5-byte add word ptr [eax+0x2A],0x0E.
+// Restore TP: original 5-byte add word ptr [eax+0x2A],0x0F.
 assert(TOS.exe+0x16650,66 83 40 2A 0F)
 
 // Floating number: original 2-byte push 0x0F and 3-byte mov [eax+0x08],edx.
@@ -25,6 +25,9 @@ assert(TOS.exe+0x16684,6A 0F 89 50 08)
 
 // Portrait number: original 2-byte push 0x0F, push 0x01, mov eax,edi.
 assert(TOS.exe+0x1668E,6A 0F 6A 01 8B C7)
+
+// TP Requirement: Original 24TP / 0x18
+ assert(TOS.exe+0x4DB038,18)
 
 //################################################
 //# Return addresses
@@ -43,6 +46,13 @@ registersymbol(ChargeAmount)
 mem_charge_data:
 ChargeAmount:
   dd 0x00000000
+
+//################################################
+//# Charge - TP cost adjustment
+//################################################
+
+TOS.exe+0x4DB038:
+   db 0x20
 
 //################################################
 //# Charge TP restoration
