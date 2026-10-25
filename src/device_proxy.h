@@ -11,6 +11,7 @@
 
 #include <d3d9.h>
 #include "display_mode.h"
+#include "fast_forward_frames.h"
 #include <unordered_map>
 #include <mutex>
 #include <cstdint>
@@ -152,6 +153,8 @@ private:
     void PollTextureReloadHotkey();
     bool m_reloadKeyDown = false;
     DisplayMode::Presentation m_presentation;
+    FastForward::FrameScheduler m_frameScheduler;
+    unsigned m_resetGeneration = 0;
 
     IDirect3DDevice9*  m_pOriginal;
     IDirect3D9*        m_pD3D9Proxy;

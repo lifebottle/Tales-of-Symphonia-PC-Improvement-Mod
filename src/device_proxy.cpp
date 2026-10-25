@@ -137,6 +137,7 @@ UINT STDMETHODCALLTYPE Direct3DDevice9Proxy::GetNumberOfSwapChains() {
 
 HRESULT STDMETHODCALLTYPE Direct3DDevice9Proxy::Reset(D3DPRESENT_PARAMETERS* pPresentationParameters) {
     LOG("[Device] Reset called - clearing texture replacement cache");
+    m_frameScheduler.Reset();
 
     // Release cached replacements before reset
     {
@@ -157,18 +158,40 @@ HRESULT STDMETHODCALLTYPE Direct3DDevice9Proxy::Reset(D3DPRESENT_PARAMETERS* pPr
 }
 
 HRESULT STDMETHODCALLTYPE Direct3DDevice9Proxy::Present(CONST RECT* pSourceRect, CONST RECT* pDestRect, HWND hDestWindowOverride, CONST RGNDATA* pDirtyRegion) {
-    if (m_presentation.IsResetting()) return D3D_OK;
+    if (m_presentation.IsResetting()) {
+        m_frameScheduler.Reset();
+        return D3D_OK;
+    }
     const HRESULT pending = m_presentation.PendingFailure();
-    if (FAILED(pending)) return pending;
+    if (FAILED(pending)) {
+        m_frameScheduler.Reset();
+        return pending;
+    }
     PollTextureReloadHotkey();
     FastForward::PollHotkey();
-    FastForward::DrawOverlay(m_pOriginal, FastForward::CurrentSpeed());
-    const HRESULT result = m_pOriginal->Present(pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
-    if (FAILED(result)) return result;
-    // Switch after presenting this frame so ResetEx cannot discard its image.
+    // A hotkey transition cannot turn a partly skipped frame into a complete
+    // image. Finish this decision; the new speed applies to the next frame.
+    const bool skip = m_frameScheduler.ShouldSkip();
+    m_frameScheduler.EndFrame();
+    HRESULT result;
+    if (skip) {
+        // Preserve device-loss reporting even when we omit the real Present.
+        result = m_pOriginal->TestCooperativeLevel();
+    } else {
+        FastForward::DrawOverlay(m_pOriginal, FastForward::CurrentSpeed());
+        result = m_pOriginal->Present(pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion);
+    }
+    if (FAILED(result)) {
+        m_frameScheduler.Reset();
+        return result;
+    }
+    // Complete display bookkeeping on skipped frames too, releasing any
+    // creation-thread reset waiting for the render thread to finish its frame.
+    // Switch after presenting a visible frame so ResetEx cannot discard it.
     // Cross-thread changes are queued to the creation thread's message loop;
     // accelerated-to-accelerated changes leave the swap chain alone.
     const HRESULT switched = m_presentation.Update(FastForward::ShouldDisableVSync());
+    if (FAILED(switched)) m_frameScheduler.Reset();
     return FAILED(switched) ? switched : result;
 }
 
@@ -297,12 +320,38 @@ HRESULT STDMETHODCALLTYPE Direct3DDevice9Proxy::GetDepthStencilSurface(IDirect3D
 
 HRESULT STDMETHODCALLTYPE Direct3DDevice9Proxy::BeginScene() {
     const HRESULT result = m_presentation.BeginFrame();
-    if (FAILED(result)) return result;
-    return m_pOriginal->BeginScene();
+    if (FAILED(result)) {
+        m_frameScheduler.Reset();
+        return result;
+    }
+    // BeginFrame waits for queued ResetEx operations. Observe their completion
+    // here so the first complete frame following any reset is always rendered.
+    const unsigned generation = m_presentation.ResetGeneration();
+    if (generation != m_resetGeneration) {
+        m_frameScheduler.Reset();
+        m_resetGeneration = generation;
+    }
+    const HRESULT begun = m_pOriginal->BeginScene();
+    if (FAILED(begun)) {
+        m_frameScheduler.Reset();
+        return begun;
+    }
+    if (!m_frameScheduler.Active()) {
+        LARGE_INTEGER now{}, frequency{};
+        // These imports belong to the proxy, not the game's scaled QPC slot.
+        const unsigned speed = FastForward::CurrentSpeed();
+        const bool sampled = speed > 1 &&
+            QueryPerformanceFrequency(&frequency) && QueryPerformanceCounter(&now);
+        m_frameScheduler.BeginFrame(speed, now.QuadPart,
+                                    sampled ? frequency.QuadPart : 0);
+    }
+    return begun;
 }
 
 HRESULT STDMETHODCALLTYPE Direct3DDevice9Proxy::EndScene() {
-    return m_pOriginal->EndScene();
+    const HRESULT result = m_pOriginal->EndScene();
+    if (FAILED(result)) m_frameScheduler.Reset();
+    return result;
 }
 
 HRESULT STDMETHODCALLTYPE Direct3DDevice9Proxy::Clear(DWORD Count, CONST D3DRECT* pRects, DWORD Flags, D3DCOLOR Color, float Z, DWORD Stencil) {
@@ -545,18 +594,29 @@ float STDMETHODCALLTYPE Direct3DDevice9Proxy::GetNPatchMode() {
 }
 
 HRESULT STDMETHODCALLTYPE Direct3DDevice9Proxy::DrawPrimitive(D3DPRIMITIVETYPE PrimitiveType, UINT StartVertex, UINT PrimitiveCount) {
+    if (m_frameScheduler.ShouldSkip()) return D3D_OK;
     return m_pOriginal->DrawPrimitive(PrimitiveType, StartVertex, PrimitiveCount);
 }
 
 HRESULT STDMETHODCALLTYPE Direct3DDevice9Proxy::DrawIndexedPrimitive(D3DPRIMITIVETYPE Type, INT BaseVertexIndex, UINT MinVertexIndex, UINT NumVertices, UINT startIndex, UINT primCount) {
+    if (m_frameScheduler.ShouldSkip()) return D3D_OK;
     return m_pOriginal->DrawIndexedPrimitive(Type, BaseVertexIndex, MinVertexIndex, NumVertices, startIndex, primCount);
 }
 
 HRESULT STDMETHODCALLTYPE Direct3DDevice9Proxy::DrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT PrimitiveCount, CONST void* pVertexStreamZeroData, UINT VertexStreamZeroStride) {
+    if (m_frameScheduler.ShouldSkip()) {
+        // D3D9 UP draws clear stream 0 even though their vertices are temporary.
+        return m_pOriginal->SetStreamSource(0, nullptr, 0, 0);
+    }
     return m_pOriginal->DrawPrimitiveUP(PrimitiveType, PrimitiveCount, pVertexStreamZeroData, VertexStreamZeroStride);
 }
 
 HRESULT STDMETHODCALLTYPE Direct3DDevice9Proxy::DrawIndexedPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT MinVertexIndex, UINT NumVertices, UINT PrimitiveCount, CONST void* pIndexData, D3DFORMAT IndexDataFormat, CONST void* pVertexStreamZeroData, UINT VertexStreamZeroStride) {
+    if (m_frameScheduler.ShouldSkip()) {
+        const HRESULT stream = m_pOriginal->SetStreamSource(0, nullptr, 0, 0);
+        const HRESULT indices = m_pOriginal->SetIndices(nullptr);
+        return FAILED(stream) ? stream : indices;
+    }
     return m_pOriginal->DrawIndexedPrimitiveUP(PrimitiveType, MinVertexIndex, NumVertices, PrimitiveCount, pIndexData, IndexDataFormat, pVertexStreamZeroData, VertexStreamZeroStride);
 }
 

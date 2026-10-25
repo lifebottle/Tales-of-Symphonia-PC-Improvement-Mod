@@ -791,6 +791,7 @@ HRESULT Presentation::ReadParameters(D3DPRESENT_PARAMETERS& params) {
 }
 
 void Presentation::OnGameReset() {
+    ++resetGeneration_;
     if (!device_ || !dispatch_ || IsResetting()) return;
     std::lock_guard<std::mutex> lock(dispatch_->mutex);
     D3DPRESENT_PARAMETERS params{};
@@ -884,9 +885,11 @@ HRESULT Presentation::ApplyInterval() {
                 static_cast<unsigned>(result));
             return D3DERR_DEVICELOST;
         }
+        ++resetGeneration_;
         return D3D_OK;
     }
     dispatch_->resetting = false;
+    ++resetGeneration_;
     appliedInterval_ = target;
     deferredLogged_ = false;
     LOG("[Display] Presentation interval=0x%08X (%s), applied on thread %lu", target,

@@ -23,6 +23,7 @@ public:
     HRESULT Update(bool immediate);
     HRESULT PendingFailure() const { return failure_.load(); }
     bool IsResetting() const;
+    unsigned ResetGeneration() const { return resetGeneration_.load(); }
 
 private:
     struct Dispatch;
@@ -42,6 +43,7 @@ private:
     bool immediate_ = false;
     bool deferredLogged_ = false;
     std::atomic<HRESULT> failure_{D3D_OK};
+    std::atomic<unsigned> resetGeneration_{0};
 };
 
 } // namespace DisplayMode
