@@ -26,7 +26,9 @@ Options ReadOptions(const Definition &p, const std::wstring &ini) {
     for (const auto &f : p.features) {
         if (f.enableAbove)
             continue;
-        auto value = Setting(p, ini, f.key, L"0");
+        const auto fallback =
+            (p.id == "60fps" && f.key == "Enabled") ? L"1" : L"0";
+        auto value = Setting(p, ini, f.key, fallback);
         if (value == L"1")
             result.enabled |= f.bit;
         else if (value != L"0")

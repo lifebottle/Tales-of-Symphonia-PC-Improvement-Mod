@@ -54,6 +54,9 @@ DecreaseKey=0x78      ; decrease speed (F9)
 SpeedStep=2           ; speed increase/decrease step size
 MaxSpeed=10           ; max speed multiplier
 DisableVSync=0        ; disable v-sync at 1x speed
+
+[60FPS]
+Enabled=1
 ```
 
 More options are covered in [mods/asm/README.md](mods/asm/README.md).
