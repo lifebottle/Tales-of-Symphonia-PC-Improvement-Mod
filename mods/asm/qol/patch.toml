@@ -86,3 +86,8 @@ file = "SaveAnywhere.asm"
 key = "ForceControllerDisplay"
 [[scripts]]
 file = "ForceControllerDisplay.asm"
+
+[[features]]
+key = "LearnBothArteTypes"
+[[scripts]]
+file = "LearnBothArteTypes.asm"

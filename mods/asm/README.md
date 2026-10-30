@@ -30,6 +30,7 @@ EnemySpellSlots=3
 SkippableFMVs=1
 EnhancedHolyBottles=1
 FastText=1
+LearnBothArteTypes=0
 RheairdMoveSpeedMultiplier=2.0
 RheairdTurnSpeedMultiplier=2.5
 FastBlockPush=1
@@ -121,6 +122,7 @@ This section is for quality of life enhancements.
 | `EnableVoicedSkits` | Enables Japanese dub for skits when playing in English |
 | `SkippableFMVs` | Allows skipping story cutscenes and the end credits |
 | `FastText` | Hold B to skip dialogue |
+| `LearnBothArteTypes` | Learn both S/T artes without having to forget one type |
 | `EnhancedHolyBottles` | Walk through enemies when holy bottle is active, hold B to temporarily disable |
 | `RheairdMoveSpeedMultiplier` | Multiplies move speed of Rheaird by this value |
 | `RheairdTurnSpeedMultiplier` | Multiplies turn speed of Rheaird by this value |
