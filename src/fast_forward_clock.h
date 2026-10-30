@@ -42,30 +42,44 @@ private:
 // Losing focus cancels fast-forward and consumes any held key until release.
 class SpeedCycle {
 public:
-    bool Update(bool focused, bool increaseDown, bool decreaseDown, int speedStep, int maxSpeed) {
-        const unsigned previous = speed_;
+    bool Update(bool focused, bool increaseDown, bool decreaseDown, int speedStep, int maxSpeed,
+                bool skipDown = false) {
+        const unsigned previous = Speed();
         const int current = static_cast<int>(speed_);
-
-        if (!focused)
+        if (!focused) {
             speed_ = 1;
-        else if (increaseDown && !increaseDown_)
-            speed_ = std::clamp(
-                current == 1 ? speedStep : current + speedStep,
-                1,
-                current + speedStep > maxSpeed ? current : maxSpeed
-            );
-        else if (decreaseDown && !decreaseDown_)
-            speed_ = std::clamp(current - speedStep, 1, maxSpeed);
+            skipping_ = false;
+            skipBlocked_ = true;
+        } else {
+            if (!skipDown) skipBlocked_ = false;
+            const bool skip = skipDown && !skipBlocked_;
+            // Preserve the selected speed through the hold. Consume step-key
+            // edges on held frames and the release frame without changing it.
+            if (!skip && !skipping_) {
+                if (increaseDown && !increaseDown_)
+                    speed_ = std::clamp(
+                        current == 1 ? speedStep : current + speedStep,
+                        1,
+                        current + speedStep > maxSpeed ? current : maxSpeed
+                    );
+                else if (decreaseDown && !decreaseDown_)
+                    speed_ = std::clamp(current - speedStep, 1, maxSpeed);
+            }
+            skipping_ = skip;
+        }
         increaseDown_ = increaseDown;
         decreaseDown_ = decreaseDown;
-        return previous != speed_;
+        return previous != Speed();
     }
-    unsigned Speed() const { return speed_; }
+    unsigned Speed() const { return skipping_ ? 20 : speed_; }
+    bool Skipping() const { return skipping_; }
 
 private:
     unsigned speed_ = 1;
     bool increaseDown_ = false;
     bool decreaseDown_ = false;
+    bool skipping_ = false;
+    bool skipBlocked_ = false;
 };
 
 } // namespace FastForward

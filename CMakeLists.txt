@@ -29,6 +29,7 @@ add_library(d3d9 SHARED
     src/archive_loader.cpp
     src/display_mode.cpp
     src/fast_forward.cpp
+    src/skip_dialogue.cpp
     src/fast_forward_overlay.cpp
     d3d9.def
 )

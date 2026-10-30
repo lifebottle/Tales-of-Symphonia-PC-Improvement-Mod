@@ -1,6 +1,6 @@
 format = 1
 id = "qol"
-version = "1.3.1"
+version = "1.3.2"
 config_section = "QoL"
 image_base = 0x400000
 image_size = 0x2aff000
@@ -9,11 +9,6 @@ image_size = 0x2aff000
 key = "SkippableFMVs"
 [[scripts]]
 file = "SkippableFMVs.asm"
-
-[[features]]
-key = "FastText"
-[[scripts]]
-file = "FastText.asm"
 
 [[features]]
 key = "EnhancedHolyBottles"

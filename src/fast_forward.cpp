@@ -1,5 +1,6 @@
 #include "fast_forward.h"
 #include "fast_forward_clock.h"
+#include "skip_dialogue.h"
 #include "logger.h"
 #include "ini_settings.h"
 
@@ -23,6 +24,8 @@ std::atomic<bool> installed{false};
 std::atomic<unsigned> currentSpeed{1};
 int increaseHotkey = VK_F10;
 int decreaseHotkey = VK_F9;
+int skipDialogueHotkey = VK_F6;
+bool skipDialogueReady = false;
 int speedStep = 2;
 int maxSpeed = 10;
 bool disableVSyncAtNormalSpeed = false;
@@ -122,6 +125,7 @@ void Init(const std::wstring& basePath) {
     std::call_once(initOnce, [&] {
         const auto path = basePath + L"\\d3d9_config.ini";
         const bool enabled = Setting(path, L"Enabled", L"1") != L"0";
+        const bool skipDialogue = Setting(path, L"SkipDialogue", L"1") != L"0";
         wchar_t* end = nullptr;
 
         const auto increaseKey = Setting(path, L"IncreaseKey", L"0x79");
@@ -135,6 +139,12 @@ void Init(const std::wstring& basePath) {
         if (end != decreaseKey.c_str() && AtEnd(end) && parsedDecreaseKey >= 1 && parsedDecreaseKey <= 254)
             decreaseHotkey = static_cast<int>(parsedDecreaseKey);
         else LOG("[FastForward] Invalid DecreaseKey; using F9");
+
+        const auto skipKey = Setting(path, L"SkipDialogueKey", L"0x75");
+        const auto parsedSkipKey = std::wcstoul(skipKey.c_str(), &end, 0);
+        if (end != skipKey.c_str() && AtEnd(end) && parsedSkipKey >= 1 && parsedSkipKey <= 254)
+            skipDialogueHotkey = static_cast<int>(parsedSkipKey);
+        else LOG("[FastForward] Invalid SkipDialogueKey; using F6");
 
         const auto speedStepString = Setting(path, L"SpeedStep", L"2");
         const auto parsedSpeedStep = std::wcstoul(speedStepString.c_str(), &end, 0);
@@ -157,6 +167,9 @@ void Init(const std::wstring& basePath) {
             LOG("[FastForward] Unsupported or already hooked game clock; feature disabled");
             return;
         }
+        skipDialogueReady = skipDialogue && DialogueSkip::Install();
+        if (skipDialogueReady)
+            LOG("[FastForward] Hold key=0x%02X for 20x and dialogue skipping", skipDialogueHotkey);
         installed.store(true);
         LOG("[FastForward] Ready: increaseKey=0x%02X, decreaseKey=0x%02X, speedStep=%d, maxSpeed=%d, disableVSyncAt1x=%d; starts OFF",
             increaseHotkey, decreaseHotkey, speedStep, maxSpeed, disableVSyncAtNormalSpeed);
@@ -171,10 +184,12 @@ void PollHotkey() {
     const bool focused = foregroundProcess == GetCurrentProcessId();
     const bool increaseDown = (GetAsyncKeyState(increaseHotkey) & 0x8000) != 0;
     const bool decreaseDown = (GetAsyncKeyState(decreaseHotkey) & 0x8000) != 0;
+    const bool skipDown = skipDialogueReady && (GetAsyncKeyState(skipDialogueHotkey) & 0x8000) != 0;
     // Commit the input transition only if we can also commit its clock change.
     auto next = cycle;
-    if (!next.Update(focused, increaseDown, decreaseDown, speedStep, maxSpeed)) {
+    if (!next.Update(focused, increaseDown, decreaseDown, speedStep, maxSpeed, skipDown)) {
         cycle = next;
+        DialogueSkip::SetActive(cycle.Skipping());
         return;
     }
     const unsigned speed = next.Speed();
@@ -186,6 +201,7 @@ void PollHotkey() {
     if (sampled) {
         cycle = next;
         currentSpeed.store(speed);
+        DialogueSkip::SetActive(cycle.Skipping());
         LOG("[FastForward] %s (%ux)", speed > 1 ? "ON" : "OFF", speed);
     }
 }
