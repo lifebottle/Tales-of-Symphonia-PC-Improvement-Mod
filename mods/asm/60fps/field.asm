@@ -5,6 +5,7 @@
 // Sections:
 //   Field updates
 //   Field movement
+//   Sewer small-form walking
 //   Field animation slots
 //   Scripted bone rotation timing
 //   Field facial animation
@@ -326,20 +327,12 @@ TOS.exe+CC963:
   mov dword ptr [esi + 0xb0], 0x1e // 004CC963
 
 // Reference VA 004CCF4D..004CCF52.
-// Halve the animation-speed magnitude before storing entity+0x938. Keep the matching walk/run threshold
-// adjustment.
+// Halve the movement magnitude stored in entity+0x938; selection below recomputes raw velocity.
 assert(TOS.exe+CCF4D,D9 9E 38 09 00 00)
 TOS.exe+CCF4D:
 // Vanilla: fstp dword ptr [esi + 0x938]
   jmp near fps_npc_animation_speed // 004CCF4D
   nop // 004CCF52
-
-// Reference VA 004CCFDE..004CCFE3.
-// Compare against 8 instead of 16 for walk/run selection because stored entity+0x938 is halved.
-assert(TOS.exe+CCFDE,D8 1D 20 2B 88 00)
-TOS.exe+CCFDE:
-// Vanilla: fcomp dword ptr [0x882b20]
-  fcomp dword ptr [TOS.exe+482A44] // 004CCFDE
 
 // Reference VA 004CCFF4..004CCFF8.
 // Remove the second movement-timer update call in this input branch.
@@ -658,6 +651,51 @@ fps_npc_pursuit_positive_speed:
 fps_loc_02EFFA0E:
   jmp near TOS.exe+15F72D // 02EFFA0E
   db 00,00,00,00,00,00,00,00,00,00,00,00,00 // 02EFFA13: constants / retained padding
+
+// ======================================================================
+// Sewer small walk
+// Keep walking with Lloyd Personal enabled and halve the small-form playback rate.
+// ======================================================================
+
+alloc(fps_sewer_small_walk_code,100)
+label(fps_sewer_small_walk_select)
+label(fps_sewer_small_walk_normal)
+label(fps_sewer_small_walk_rate)
+
+assert(TOS.exe+CCFE4,DF E0 F6 C4 01)
+assert(TOS.exe+CD029,E8 82 5D FF FF)
+assert(TOS.exe+CA460,D9 5C 24 10)
+assert(TOS.exe+482A44,00 00 00 41)
+
+assert(TOS.exe+CCFDE,D8 1D 20 2B 88 00)
+TOS.exe+CCFDE:
+  jmp near fps_sewer_small_walk_select
+  nop
+
+// Native party, sewer-map and small-form checks guard this load.
+assert(TOS.exe+CA45A,D9 05 1C 83 75 00)
+TOS.exe+CA45A:
+  fld dword ptr [fps_sewer_small_walk_rate]
+
+fps_sewer_small_walk_code:
+fps_sewer_small_walk_select:
+  cmp byte ptr [TOS.exe+6D4682],#0
+  je short fps_sewer_small_walk_normal
+  push eax
+  mov eax,[TOS.exe+6D3F68]
+  mov eax,[eax+1180]
+  sub eax,#466
+  cmp eax,#7
+  pop eax
+  ja short fps_sewer_small_walk_normal
+  fstp st(0) // Consume the displaced comparison operand before selecting walk.
+  jmp near TOS.exe+CD029
+fps_sewer_small_walk_normal:
+  fcomp dword ptr [TOS.exe+482A44] // Preserve the existing threshold outside small sewer form.
+  jmp near TOS.exe+CCFE4
+  align 4
+fps_sewer_small_walk_rate:
+  dd (float)0.75
 
 // ======================================================================
 // Field animation slots
@@ -1166,6 +1204,11 @@ TOS.exe+15F7B9:
 TOS.exe+160CEF:
   db DC,C0
 dealloc(fps_field_movement_code)
+
+// Sewer small-form walking (CCFDE restoration remains in Field movement above).
+TOS.exe+CA45A:
+  db D9,05,1C,83,75,00
+dealloc(fps_sewer_small_walk_code)
 
 // Field animation slots
 TOS.exe+C8920:
