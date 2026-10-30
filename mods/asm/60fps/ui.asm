@@ -609,6 +609,20 @@ alloc(fps_skit_timing_code,1000)
 
 label(fps_scene_texture_animation_rate)
 label(fps_scene_texture_motion)
+label(fps_skit_short_wait)
+label(fps_skit_short_wait_original)
+
+// Scripted skit animation loops need at least two 60 FPS updates per wait.
+assert(TOS.exe+165E16,3C 0B 74 6F)
+assert(TOS.exe+165E89,85 FF 7F 1A 8A 56 0C)
+assert(TOS.exe+165E90,F6 DA 02 D2 02 D2 32 D1 80 E2 1C 32 D1 88 56 03)
+assert(TOS.exe+165EA0,C7 46 0C 01 00 00 00)
+assert(TOS.exe+165EA7,5F 5E 8B E5 5D C3)
+TOS.exe+165E89:
+  jmp near fps_skit_short_wait
+  nop 2
+TOS.exe+165EA0:
+  mov dword ptr [esi + 0xC], #2
 
 // Guard the native callbacks and continuations used by this script.
 assert(TOS.exe+156463,F6 83 C4 00 00)
@@ -718,8 +732,23 @@ fps_scene_texture_animation_rate:
   jmp near TOS.exe+156951 // 02EFF1EA
   db 00 // 02EFF1EF: constants / retained padding
 
+fps_skit_short_wait:
+  cmp edi, #1
+  jne short fps_skit_short_wait_original
+  mov dword ptr [esi + 0xC], #2
+  jmp near TOS.exe+165EA7
+fps_skit_short_wait_original:
+  test edi, edi
+  jg near TOS.exe+165EA7
+  mov dl, [esi + 0xC]
+  jmp near TOS.exe+165E90
+
 [DISABLE]
 // Restoration evidence only; settings take effect on a fresh launch.
+TOS.exe+165E89:
+  db 85 FF 7F 1A 8A 56 0C
+TOS.exe+165EA0:
+  db C7 46 0C 01 00 00 00
 
 // Menu transitions
 TOS.exe+F3722:
