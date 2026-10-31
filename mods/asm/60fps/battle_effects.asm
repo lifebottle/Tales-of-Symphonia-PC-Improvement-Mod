@@ -7,6 +7,7 @@
 //   Battle cutins
 //   Battle particles projectiles
 //   Battle rendering
+//   Crescent moon orientation
 
 [ENABLE]
 
@@ -1643,6 +1644,73 @@ TOS.exe+5F288:
   nop // 0045F288
   nop // 0045F289
 
+// ======================================================================
+// Crescent moon orientation
+// Reflect only the Infliction/Crescent Moon texture layers.
+// ======================================================================
+
+alloc(moonfix_code,100)
+label(moonfix_original)
+
+assert(TOS.exe+521A6,E8 45 5E 00 00)
+assert(TOS.exe+521AB,83 C4 0C F7 43 18 00 00 00 40)
+assert(TOS.exe+57FF0,55 8B EC 83 E4 F0 81 EC 8C 00 00 00 53 8B 5E 18)
+assert(TOS.exe+581D2,E8 E9 E4 13 00)
+
+TOS.exe+521A6:
+  call moonfix_code
+
+moonfix_code:
+  pushfd
+
+  // Shared arte atlas / palette 28, the two U origins, and the crescent strip.
+  // Exact flags exclude culled, attached, alternate and billboard variants.
+  cmp dword ptr [esi],1C010104
+  jne moonfix_original
+  cmp dword ptr [esi+18],04182010
+  jne moonfix_original
+  test word ptr [esi+8],FF7F
+  jne moonfix_original
+  cmp word ptr [esi+A],0080
+  jne moonfix_original
+  cmp dword ptr [esi+C],00200008
+  jne moonfix_original
+  popfd
+
+  // Reverse animated roll in a private copy of the 360-byte effect record.
+  // ESI is the source, EDI the draw matrix; translation is passed by value.
+  push ebp
+  mov ebp,esp
+  push esi
+  push ecx
+  push edi
+  sub esp,168
+  mov edi,esp
+  mov ecx,5A
+  rep movsd
+  mov esi,esp
+  xor byte ptr [esi+6B],80
+  mov edi,[ebp-C]
+  mov ecx,[ebp-8]
+  push dword ptr [ebp+10]
+  push dword ptr [ebp+C]
+  push dword ptr [ebp+8]
+  call TOS.exe+57FF0
+  lea esp,[ebp-4]
+  pop esi
+  pop ebp
+
+  // Reflect local X without changing translation or culling state.
+  pushfd
+  xor byte ptr [edi+3],80
+  xor byte ptr [edi+13],80
+  xor byte ptr [edi+23],80
+  popfd
+  ret
+moonfix_original:
+  popfd
+  jmp TOS.exe+57FF0
+
 [DISABLE]
 // Restoration evidence only; settings take effect on a fresh launch.
 
@@ -1826,3 +1894,8 @@ TOS.exe+37FA8:
   db DC,25,B8,29,88,00
 TOS.exe+5F288:
   db 75,40
+
+// Crescent moon orientation
+TOS.exe+521A6:
+  db E8 45 5E 00 00
+dealloc(moonfix_code)
