@@ -148,6 +148,7 @@ options in `d3d9_config.ini`:
 | `DisableEncounters` | Always have enhanced holy bottle active, incompatible with `EnhancedHolyBottles` |
 | `DebugMapLoader` | Press Start to open debug map loader, requires companion TLFile for English translation |
 | `DrawSkitID` | Draws the current skit ID on the bottom-left of the screen, maps to debug map skit loader |
+| `CanAlwaysEscape` | Allows escaping from any forced battle |
 
 ## KoQoL
 
