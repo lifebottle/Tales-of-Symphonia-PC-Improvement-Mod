@@ -87,3 +87,9 @@ key = "DrawSkitID"
 [[scripts]]
 file = "DrawSkitID.asm"
 writable = ["skit_label_data"]
+
+[[features]]
+key = "CanAlwaysEscape"
+
+[[scripts]]
+file = "CanAlwaysEscape.asm"
