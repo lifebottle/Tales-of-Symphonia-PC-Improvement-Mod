@@ -43,7 +43,6 @@ writable = ["mem_payload_e726_tempstr"]
 key = "SpellQueueFix"
 [[scripts]]
 file = "SpellQueueFix.asm"
-# writable = ["QueueList"]
 
 [[features]]
 key = "SpellSlots"
