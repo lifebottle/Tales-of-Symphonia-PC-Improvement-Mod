@@ -50,19 +50,19 @@ Mem_SpellHold:
 	jz Ret_SpellHold
 //Grab Actor ID
 	movzx edx,byte [ebx+13AB4]
-	cmp byte [edi+1BC],0
+	cmp byte [edi+51C],0
 	jne SpellHold_Mystic
 	cmp byte [ebx+13AB0],0
 	jne SpellHold_Enemy
-	cmp byte [edi+1B0],dl
+	cmp byte [edi+510],dl
 	jne TOS.exe+26FFA
 	jmp Ret_SpellHold
 SpellHold_Enemy:
-	cmp byte [edi+1B4],dl
+	cmp byte [edi+514],dl
 	jne TOS.exe+26FFA
 	jmp Ret_SpellHold
 SpellHold_Mystic:
-	cmp byte [edi+1BC],dl
+	cmp byte [edi+51C],dl
 	jne TOS.exe+26FFA
 	jmp Ret_SpellHold
 
@@ -72,11 +72,11 @@ Mem_SpellTimer:
 	jz AddActor
 	dec eax
 	mov [ebx+1BE],ax
-	cmp byte [edx+9108],0
-	jne Ret_SpellTimer
 	test ax,ax
 	jnz Ret_SpellTimer
 AddActor:
+	cmp byte [edx+9108],0
+	jne Ret_SpellTimer
 	movzx ecx,byte [ebx+13AB4]
 	dec ecx
 	mov eax,1
@@ -93,45 +93,45 @@ AddActor:
 AddMystic:
 	xor ecx,ecx
 AddMystic_Loop:
-	cmp byte [ecx+edx+1BC],al
+	cmp byte [ecx+edx+51C],al
 	je Ret_SpellTimer
-	cmp byte [ecx+edx+1BC],0
+	cmp byte [ecx+edx+51C],0
 	je AddMysticFound
 	inc ecx
 	cmp cl,#12
 	jb AddMystic_Loop
 	jmp Ret_SpellTimer
 AddMysticFound:
-	mov byte [ecx+edx+1BC],al
+	mov byte [ecx+edx+51C],al
 	jmp Ret_SpellTimer
 AddPlayer:
 	xor ecx,ecx
 AddPlayer_Loop:
-	cmp byte [ecx+edx+1B0],al
+	cmp byte [ecx+edx+510],al
 	je Ret_SpellTimer
-	cmp byte [ecx+edx+1B0],0
+	cmp byte [ecx+edx+510],0
 	je AddPlayerFound
 	inc ecx
 	cmp cl,4
 	jb AddPlayer_Loop
 	jmp Ret_SpellTimer
 AddPlayerFound:
-	mov byte [ecx+edx+1B0],al
+	mov byte [ecx+edx+510],al
 	jmp Ret_SpellTimer
 
 AddEnemy:
 	xor ecx,ecx
 AddEnemy_Loop:
-	cmp byte [ecx+edx+1B4],al
+	cmp byte [ecx+edx+514],al
 	je Ret_SpellTimer
-	cmp byte [ecx+edx+1B4],0
+	cmp byte [ecx+edx+514],0
 	je AddEnemyFound
 	inc ecx
 	cmp cl,8
 	jb AddEnemy_Loop
 	jmp Ret_SpellTimer
 AddEnemyFound:
-	mov byte [ecx+edx+1B4],al
+	mov byte [ecx+edx+514],al
 	jmp Ret_SpellTimer
 
 Mem_SetCharID:
@@ -166,7 +166,7 @@ RemoveActor:
 	shl eax,cl
 	inc ecx
 	mov eax,ecx
-	cmp byte [edx+1BC],0
+	cmp byte [edx+51C],0
 	jne RemoveMystic
 MysticExit:
 //Check "Team"
@@ -176,9 +176,9 @@ MysticExit:
 RemoveMystic:
 	xor ecx,ecx
 RemoveMystic_Loop:
-	cmp byte [ecx+edx+1BC],al
+	cmp byte [ecx+edx+51C],al
 	je RemoveMysticFound
-	cmp byte [ecx+edx+1BC],0
+	cmp byte [ecx+edx+51C],0
 	je MysticExit
 	inc ecx
 	cmp cl,#12
@@ -188,22 +188,22 @@ RemoveMysticFound:
 	cmp cl,#11
 	jae RemoveMysticFound_End
 RemoveMysticFound_Loop:
-	shr word [ecx+edx+1BC],8
-	cmp byte [ecx+edx+1BC],0
+	shr word [ecx+edx+51C],8
+	cmp byte [ecx+edx+51C],0
 	je MysticExit
 	inc ecx
 	cmp cl,#11
 	jb RemoveMysticFound
 	jmp MysticExit
 RemoveMysticFound_End:
-	mov byte [ecx+edx+1BC],0
+	mov byte [ecx+edx+51C],0
 	jmp MysticExit
 RemovePlayer:
 	xor ecx,ecx
 RemovePlayer_Loop:
-	cmp byte [ecx+edx+1B0],al
+	cmp byte [ecx+edx+510],al
 	je RemovePlayerFound
-	cmp byte [ecx+edx+1B0],0
+	cmp byte [ecx+edx+510],0
 	je Code_SkipA
 	inc ecx
 	cmp cl,4
@@ -213,22 +213,22 @@ RemovePlayerFound:
 	cmp cl,3
 	jae RemovePlayerFound_End
 RemovePlayerFound_Loop:
-	shr word [ecx+edx+1B0],8
-	cmp byte [ecx+edx+1B0],0
+	shr word [ecx+edx+510],8
+	cmp byte [ecx+edx+510],0
 	je Code_SkipA
 	inc ecx
 	cmp cl,3
 	jb RemovePlayerFound
 	jmp Code_SkipA
 RemovePlayerFound_End:
-	mov byte [ecx+edx+1B0],0
+	mov byte [ecx+edx+510],0
 	jmp Code_SkipA
 RemoveEnemy:
 	xor ecx,ecx
 RemoveEnemy_Loop:
-	cmp byte [ecx+edx+1B4],al
+	cmp byte [ecx+edx+514],al
 	je RemoveEnemyFound
-	cmp byte [ecx+edx+1B4],0
+	cmp byte [ecx+edx+514],0
 	je Code_SkipA
 	inc ecx
 	cmp cl,8
@@ -238,15 +238,15 @@ RemoveEnemyFound:
 	cmp cl,7
 	jae RemoveEnemyFound_End
 RemoveEnemyFound_Loop:
-	shr word [ecx+edx+1B4],8
-	cmp byte [ecx+edx+1B4],0
+	shr word [ecx+edx+514],8
+	cmp byte [ecx+edx+514],0
 	je Code_SkipA
 	inc ecx
 	cmp cl,7
 	jb RemoveEnemyFound
 	jmp Code_SkipA
 RemoveEnemyFound_End:
-	mov byte [ecx+edx+1B4],0
+	mov byte [ecx+edx+514],0
 	jmp Code_SkipA
 Code_SkipA:
 	mov edx,[TOS.exe+6D2EDC]
